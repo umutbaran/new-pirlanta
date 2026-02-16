@@ -20,6 +20,17 @@ export interface CategoryData {
   subCategories: { name: string; slug: string }[];
 }
 
+export interface BulletinItem {
+  id: string;
+  date: string;
+  time: string;
+  country: string;
+  event: string;
+  importance: 1 | 2 | 3;
+  impact: 'up' | 'down' | 'neutral';
+  description?: string;
+}
+
 // Reuse interfaces from your existing types
 export type { HeroSlide, MosaicItem, InfoCard, StoreItem, FooterLink, UiConfig } from './db_interfaces';
 
