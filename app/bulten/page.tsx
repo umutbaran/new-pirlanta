@@ -1,5 +1,4 @@
-import { getBulletins, saveBulletins } from '@/lib/db';
-import { fetchEconomicCalendar } from '@/lib/investing';
+import { getBulletins, BulletinItem } from '@/lib/db';
 import { Calendar, Star, TrendingUp, TrendingDown, Minus, Globe, Activity, ShieldCheck, Zap, Info } from 'lucide-react';
 import { Metadata } from 'next';
 
@@ -9,31 +8,9 @@ export const metadata: Metadata = {
 };
 
 export default async function BulletinPage() {
-  let bulletins = await getBulletins();
+  const bulletins = await getBulletins();
 
-  // --- OTOMATİK GÜNCELLEME ---
-  const today = new Date().toISOString().split('T')[0];
-  const lastEventDate = bulletins.length > 0 ? bulletins[0].date : null;
-
-  if (!lastEventDate || lastEventDate < today) {
-    try {
-      const newItems = await fetchEconomicCalendar();
-      if (newItems.length > 0) {
-        const existingIds = new Set(bulletins.map(b => b.id));
-        const uniqueNewItems = newItems.filter(item => !existingIds.has(item.id));
-        if (uniqueNewItems.length > 0) {
-          bulletins = [...uniqueNewItems, ...bulletins]
-            .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-            .slice(0, 50);
-          await saveBulletins(bulletins);
-        }
-      }
-    } catch (e) {
-      console.error('Auto-sync failed:', e);
-    }
-  }
-
-  const sortedBulletins = [...bulletins].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  const sortedBulletins: BulletinItem[] = [...bulletins].sort((a: BulletinItem, b: BulletinItem) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
   return (
     <div className="bg-[#f8f8f6] min-h-screen text-gray-900 overflow-x-hidden">

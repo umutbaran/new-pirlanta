@@ -1,14 +1,13 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Plus, Trash2, Calendar, Clock, Star, TrendingUp, TrendingDown, Minus, Save, Loader2, Info, RefreshCcw } from 'lucide-react';
+import { Plus, Trash2, Calendar, Clock, Star, TrendingUp, TrendingDown, Minus, Save, Loader2, Info } from 'lucide-react';
 import { BulletinItem } from '@/lib/db';
 
 export default function AdminBulletinPage() {
   const [bulletins, setBulletins] = useState<BulletinItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [syncing, setSyncing] = useState(false);
 
   useEffect(() => {
     fetchBulletins();
@@ -23,26 +22,6 @@ export default function AdminBulletinPage() {
       console.error('Bülten yüklenemedi', err);
     } finally {
       setLoading(false);
-    }
-  };
-
-  const syncBulletins = async () => {
-    setSyncing(true);
-    try {
-        const res = await fetch('/api/bulletin/sync', { method: 'POST' });
-        const data = await res.json();
-        
-        if (res.ok) {
-            alert(data.message || 'Veriler başarıyla çekildi.');
-            fetchBulletins(); // Listeyi yenile
-        } else {
-            alert('Hata: ' + (data.error || 'Bilinmeyen bir hata oluştu.'));
-        }
-    } catch (err) {
-        console.error(err);
-        alert('Bağlantı hatası.');
-    } finally {
-        setSyncing(false);
     }
   };
 
@@ -94,14 +73,6 @@ export default function AdminBulletinPage() {
           <p className="text-gray-500 text-sm mt-1">Piyasayı etkileyecek önemli gelişmeleri buradan duyur.</p>
         </div>
         <div className="flex gap-3">
-            <button 
-                onClick={syncBulletins}
-                disabled={syncing}
-                className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors flex items-center gap-2 disabled:opacity-50"
-            >
-                {syncing ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCcw className="h-4 w-4" />} 
-                {syncing ? 'Çekiliyor...' : 'API\'den Çek'}
-            </button>
             <button 
                 onClick={addEvent}
                 className="bg-black text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors flex items-center gap-2"

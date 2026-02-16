@@ -156,12 +156,12 @@ export async function saveUiConfig(u: any) {
 
 // --- Bulletin ---
 // Bülten modelini schema'ya eklememiştik, onu da JSON config içinde tutalım şimdilik
-export async function getBulletins() {
+export async function getBulletins(): Promise<BulletinItem[]> {
   const config = await getUiConfig();
-  return config.bulletins || [];
+  return (config.bulletins as BulletinItem[]) || [];
 }
 
-export async function saveBulletins(b: any[]) {
+export async function saveBulletins(b: BulletinItem[]) {
   const config = await getUiConfig();
   return saveUiConfig({ ...config, bulletins: b });
 }
