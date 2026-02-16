@@ -2,7 +2,7 @@
 
 :root {
   --background: #ffffff;
-  --foreground: #121212;
+  --foreground: #1c1c1c;
   --color-brand-gold: #D4AF37;
 }
 
@@ -12,73 +12,56 @@
   --font-serif: var(--font-serif);
   --font-sans: var(--font-sans);
   
-  /* Animasyon Tanımları */
-  --animate-fade-in-up: fadeInUp 1s ease-out forwards;
-  --animate-fade-in: fadeIn 1.5s ease-out forwards;
-  --animate-scale-slow: scaleSlow 10s linear infinite alternate;
-  --animate-scroll: scroll 30s linear infinite;
+  --animate-fade-in-up: fadeInUp 0.8s ease-out forwards;
+  --animate-fade-in: fadeIn 1s ease-out forwards;
   
   @keyframes fadeInUp {
-    from {
-      opacity: 0;
-      transform: translateY(20px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
   }
 
   @keyframes fadeIn {
     from { opacity: 0; }
     to { opacity: 1; }
   }
-
-  @keyframes scaleSlow {
-    from { transform: scale(1); }
-    to { transform: scale(1.1); }
-  }
-
-  @keyframes scroll {
-    from { transform: translateX(0); }
-    to { transform: translateX(-50%); }
-  }
 }
 
 html {
   scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+  /* Montserrat varsayılan olarak layout.tsx'den geliyor ama garanti olsun */
+  font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-serif), serif;
 }
 
-/* ÖZEL LÜKS SINIFLAR */
-
-/* Metalik Altın Yazı Efekti */
-.text-gold-gradient {
-  background: linear-gradient(to right, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  background-size: 200% auto;
-  animation: shine 5s linear infinite;
+/* Lüks Buton Efekti */
+.btn-luxury {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
 }
 
-@keyframes shine {
-  to {
-    background-position: 200% center;
-  }
+.btn-luxury::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  transition: 0.5s;
 }
 
-/* Resim üzeri koyu filtre */
-.overlay-dark {
-  background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.2) 50%, rgba(0,0,0,0) 100%);
+.btn-luxury:hover::after {
+  left: 100%;
 }

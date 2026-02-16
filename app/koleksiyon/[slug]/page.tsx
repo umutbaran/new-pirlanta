@@ -2,6 +2,7 @@ import { getProducts } from '@/lib/db';
 import ProductCard from '@/components/ProductCard';
 import ProductFilters from '@/components/ProductFilters';
 import { Metadata } from 'next';
+import Image from 'next/image';
 import { ChevronDown } from 'lucide-react';
 
 const categoryConfig: Record<string, { title: string, desc: string, image: string }> = {
@@ -87,7 +88,7 @@ export default async function CategoryPage({
       <div className="relative h-[30vh] md:h-[40vh] bg-black overflow-hidden flex items-center justify-center text-center">
          <div className="absolute inset-0 opacity-60">
             <div className="absolute inset-0 bg-black/40 z-10" />
-            <img src={config.image} alt={config.title} className="w-full h-full object-cover" />
+            <Image src={config.image} alt={config.title} fill priority className="object-cover" />
          </div>
          <div className="relative z-20 px-4 animate-fade-in-up">
             <h1 className="text-3xl md:text-5xl font-serif text-white mb-2 md:mb-4">{config.title}</h1>

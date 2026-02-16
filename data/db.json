@@ -41,21 +41,24 @@
     }
   },
   {
-    "id": "s1",
-    "sku": "NP-SAR-001",
-    "name": "Yeni Tarihli Çeyrek Altın",
-    "category": "sarrafiye",
-    "subCategory": "ceyrek",
-    "price": 4950,
-    "isNew": false,
-    "description": "T.C. Darphane basımı, kulplu, yeni tarihli çeyrek altın.",
-    "images": [],
+    "name": "6 Sıra Urfa Akıtma 14 Ayar Altın Gerdanlık",
+    "category": "altin-14",
+    "price": 0,
+    "sku": "0001",
+    "description": "Altın kolye modelleri kadınların hem günlük hem de şık bir davette rahatlıkla kullanmasına imkan tanıyor. \nTasarımındaki özel ayrıntıları ile dikkatleri üzerine çeken altın kolyeler her stile uyum sağlayabilecek seçenekler yer alıyor. \nBirçok farklı tarz için tamamlayıcı görevi üstlenen altın kolyeler ışıltılı görünümleri ile ön plana çıkıyor. \nAltın kolyeler moda trendlerine her dönem uyum sağlayan klasik takılardır. Binlerce yıldır insanlar kendilerini güzel değerli taşlarla süslemektedir. \nAltın kolyenin çeşitli modelleri her zaman en popüler seçeneklerden biri olmuştur.\nİşçilikten dolayı Hint işi ürünlerimizde desen farklılıkları oluşmaktadır.\nAltın kolyelerimiz sizlere özel hediye kutularında gönderilmektedir. \nÜrünlerimiz garanti kapsamı altında olmaktadır, sertifikalı ve sigortalı olarak gönderilmektedir.",
+    "images": [
+      "https://cdn.qukasoft.com/f/415000/cDR6WmFtNG0vcUp3ZTJGdEhjZHJKYmtOS2NEeFJBPT0/p/hint-isi-14-ayar-altin-gerdanlik-58204099-sw1281sh1280.webp",
+      "https://cdn.qukasoft.com/f/415000/cDR6WmFtNG0vcUp3ZTJGdEhjZHJKYmtOS2NEeFJBPT0/p/hint-isi-14-ayar-altin-gerdanlik-64480346-sw1280sh1280.webp",
+      "https://cdn.qukasoft.com/f/415000/cDR6WmFtNG0vcUp3ZTJGdEhjZHJKYmtOS2NEeFJBPT0/p/hint-isi-14-ayar-altin-gerdanlik-15746796-sw1280sh1280.webp"
+    ],
+    "id": "18cbb50d-3048-4a34-9720-e5cb9e7223a9",
+    "subCategory": "set",
     "details": {
-      "materyal": "22 Ayar",
+      "materyal": "14 Ayar Altın",
       "renk": "Sarı",
-      "agirlik": "1.75 gr",
-      "garanti": "Süresiz",
-      "sertifika": "Darphane"
+      "agirlik": "42.31",
+      "garanti": "2 Yıl",
+      "sertifika": "Firma Sertifikalı"
     }
   }
 ]

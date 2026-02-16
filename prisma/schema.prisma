@@ -1,13 +1,10 @@
-// Prisma Schema Güncellemesi (Direct URL desteği için)
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model Product {
@@ -26,12 +23,26 @@ model Product {
   details     Json?
 }
 
+model Category {
+  id            String  @id @default(uuid())
+  name          String
+  slug          String  @unique
+  isActive      Boolean @default(true)
+  isSpecial     Boolean @default(false)
+  subCategories Json?
+}
+
 model Settings {
   id              Int     @id @default(1)
-  siteTitle       String  @default("New Pırlanta")
+  siteTitle       String  @default("New P�rlanta")
   contactEmail    String?
   phoneNumber     String?
   address         String?
   currency        String  @default("TRY")
   goldPriceMargin Float   @default(0.05)
+}
+
+model UiConfig {
+  id      Int  @id @default(1)
+  config  Json
 }

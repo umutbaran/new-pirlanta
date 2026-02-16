@@ -37,14 +37,19 @@ export default function ProductFilters() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [isOpen, setIsOpen] = useState(false);
-  const [priceRange, setPriceRange] = useState({ min: '', max: '' });
+  const [priceRange, setPriceRange] = useState({
+    min: searchParams.get('min') || '',
+    max: searchParams.get('max') || ''
+  });
 
-  // URL'deki mevcut filtreleri state'e yükle
+  // URL değiştikçe priceRange'i güncellemek gerekebilir (örneğin temizle butonu gelirse)
+  // Ancak şimdilik sadece inputları kontrol ediyor.
+  // Eğer dışarıdan URL değişirse inputların senkron kalması isteniyorsa:
   useEffect(() => {
-    setPriceRange({
-      min: searchParams.get('min') || '',
-      max: searchParams.get('max') || ''
-    });
+    const min = searchParams.get('min') || '';
+    const max = searchParams.get('max') || '';
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setPriceRange(prev => (prev.min !== min || prev.max !== max) ? { min, max } : prev);
   }, [searchParams]);
 
   const updateFilter = (key: string, value: string | null) => {

@@ -19,7 +19,8 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
   
-  const [formData, setFormData] = useState<any>(initialData || {
+  const [formData, setFormData] = useState<Product>(initialData || {
+    id: crypto.randomUUID(),
     sku: '',
     name: '',
     category: 'pirlanta',
@@ -35,7 +36,7 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
       garanti: '2 Yıl',
       sertifika: 'Firma Sertifikalı'
     }
-  });
+  } as Product);
 
   const [newImageUrl, setNewImageUrl] = useState('');
 
@@ -44,43 +45,52 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
     if (!file) return;
 
     setUploading(true);
-    const url = await uploadProductImage(file);
-    if (url) {
-      setFormData((prev: any) => ({ ...prev, images: [...prev.images, url] }));
-    } else {
-      alert('Resim yüklenemedi. Supabase Storage bucket ismini "products" ve public olarak ayarladığınızdan emin olun.');
+    try {
+      const url = await uploadProductImage(file);
+      if (url) {
+        setFormData((prev) => ({ ...prev, images: [...prev.images, url] }));
+      } else {
+        alert('Resim yüklenemedi! Olası nedenler:\n1. Supabase ayarları yapılmamış olabilir.\n2. Dosya 5MB\'dan büyük olabilir.\n3. Dosya formatı desteklenmiyor olabilir.');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Yükleme sırasında teknik bir hata oluştu.');
+    } finally {
+      setUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
     }
-    setUploading(false);
-    if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     if (name.includes('.')) {
       const [parent, child] = name.split('.');
-      setFormData((prev: any) => ({
-        ...prev,
-        [parent]: {
-          ...(prev as any)[parent],
-          [child]: value
-        }
-      }));
+      setFormData((prev) => {
+        const parentObj = (prev as unknown as Record<string, any>)[parent] || {};
+        return {
+          ...prev,
+          [parent]: {
+            ...parentObj,
+            [child]: value
+          }
+        };
+      });
     } else {
-      setFormData((prev: any) => ({ ...prev, [name]: value }));
+      setFormData((prev) => ({ ...prev, [name]: value }));
     }
   };
 
   const addImage = () => {
     if (newImageUrl) {
-      setFormData((prev: any) => ({ ...prev, images: [...prev.images, newImageUrl] }));
+      setFormData((prev) => ({ ...prev, images: [...prev.images, newImageUrl] }));
       setNewImageUrl('');
     }
   };
 
   const removeImage = (index: number) => {
-    setFormData((prev: any) => ({
+    setFormData((prev) => ({
       ...prev,
-      images: prev.images.filter((_: any, i: number) => i !== index)
+      images: prev.images.filter((_, i) => i !== index)
     }));
   };
 
@@ -228,9 +238,10 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
                         {/* Image Grid */}
                         {formData.images.length > 0 ? (
                             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                                {formData.images.map((img: string, idx: number) => (
+                                {formData.images.map((img, idx) => (
                                     <div key={idx} className="relative group aspect-square bg-gray-100 rounded-lg overflow-hidden border border-gray-200">
-                                        <img src={img} alt="" className="w-full h-full object-cover" />
+                                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                                        <img src={img} alt={`${formData.name} - ${idx + 1}`} className="w-full h-full object-cover" />
                                         <button 
                                             type="button"
                                             onClick={() => removeImage(idx)}

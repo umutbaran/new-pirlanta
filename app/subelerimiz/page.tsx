@@ -1,4 +1,5 @@
-import { MapPin, Phone, Clock, Mail, ArrowRight } from 'lucide-react';
+import { MapPin, Phone, Clock, ArrowRight } from 'lucide-react';
+import Image from 'next/image';
 
 export default function BranchesPage() {
   return (
@@ -18,9 +19,10 @@ export default function BranchesPage() {
           <div className="flex flex-col md:flex-row items-center gap-16">
              <div className="md:w-1/2 h-[500px] relative">
                 <div className="absolute inset-0 bg-gray-200 transform -rotate-2 scale-95" /> {/* Dekoratif Arka Katman */}
-                <img 
+                <Image 
                    src="https://images.unsplash.com/photo-1573408301185-9146fe634ad0?auto=format&fit=crop&q=80" 
                    alt="Tatvan Şubesi" 
+                   fill
                    className="relative z-10 w-full h-full object-cover shadow-2xl grayscale hover:grayscale-0 transition-all duration-700"
                 />
              </div>
@@ -60,9 +62,10 @@ export default function BranchesPage() {
              <div className="flex flex-col md:flex-row-reverse items-center gap-16">
                 <div className="md:w-1/2 h-[500px] relative">
                    <div className="absolute inset-0 border border-white/20 transform rotate-2 scale-95" />
-                   <img 
+                   <Image 
                       src="https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&q=80" 
                       alt="İstanbul Şubesi" 
+                      fill
                       className="relative z-10 w-full h-full object-cover shadow-2xl opacity-90 hover:opacity-100 transition-opacity"
                    />
                 </div>

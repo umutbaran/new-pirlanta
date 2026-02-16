@@ -1,7 +1,11 @@
 import Link from 'next/link';
 import { Facebook, Instagram, Twitter, Mail, Phone, MapPin, CreditCard, ShieldCheck } from 'lucide-react';
+import { getSettings, getUiConfig, FooterLink } from '@/lib/db';
 
-export default function Footer() {
+export default async function Footer() {
+  const settings = await getSettings();
+  const uiConfig = await getUiConfig();
+
   return (
     <footer className="bg-[#111] text-gray-400 text-sm border-t border-gray-800">
       <div className="container mx-auto px-4 py-16">
@@ -9,24 +13,29 @@ export default function Footer() {
           
           {/* 1. Marka & İletişim */}
           <div>
-            <h3 className="text-2xl font-serif text-white mb-6 tracking-wide">NEW PIRLANTA</h3>
+            <h3 className="text-2xl font-serif text-white mb-6 tracking-wide">{settings.siteTitle || "NEW PIRLANTA"}</h3>
             <p className="mb-6 text-gray-500 leading-relaxed">
-              Kapalıçarşı'nın kalbinden, en özel anlarınıza eşlik edecek eşsiz tasarımlar. 
-              Güven, kalite ve zarafetin adresi.
+              {uiConfig.footer?.description || "Kapalıçarşı'nın kalbinden, en özel anlarınıza eşlik edecek eşsiz tasarımlar."}
             </p>
             <div className="space-y-4">
-               <div className="flex items-start gap-3">
-                  <MapPin className="h-5 w-5 text-[#D4AF37] flex-shrink-0 mt-0.5" />
-                  <span>Kapalıçarşı, Nuruosmaniye Cad.<br/>No: 12 Fatih / İstanbul</span>
-               </div>
-               <div className="flex items-center gap-3">
-                  <Phone className="h-5 w-5 text-[#D4AF37] flex-shrink-0" />
-                  <span>+90 552 787 35 13</span>
-               </div>
-               <div className="flex items-center gap-3">
-                  <Mail className="h-5 w-5 text-[#D4AF37] flex-shrink-0" />
-                  <span>info@newpirlanta.com</span>
-               </div>
+               {settings.address && (
+                 <div className="flex items-start gap-3">
+                    <MapPin className="h-5 w-5 text-[#D4AF37] flex-shrink-0 mt-0.5" />
+                    <span className="whitespace-pre-line">{settings.address}</span>
+                 </div>
+               )}
+               {settings.phoneNumber && (
+                 <div className="flex items-center gap-3">
+                    <Phone className="h-5 w-5 text-[#D4AF37] flex-shrink-0" />
+                    <span>{settings.phoneNumber}</span>
+                 </div>
+               )}
+               {settings.contactEmail && (
+                 <div className="flex items-center gap-3">
+                    <Mail className="h-5 w-5 text-[#D4AF37] flex-shrink-0" />
+                    <span>{settings.contactEmail}</span>
+                 </div>
+               )}
             </div>
           </div>
 
@@ -34,11 +43,9 @@ export default function Footer() {
           <div>
             <h4 className="text-white font-bold uppercase tracking-widest mb-6 text-xs">Kurumsal</h4>
             <ul className="space-y-3">
-              <li><Link href="/hakkimizda" className="hover:text-[#D4AF37] transition-colors">Hakkımızda</Link></li>
-              <li><Link href="/subelerimiz" className="hover:text-[#D4AF37] transition-colors">Mağazalarımız</Link></li>
-              <li><Link href="/iletisim" className="hover:text-[#D4AF37] transition-colors">İletişim</Link></li>
-              <li><Link href="/blog" className="hover:text-[#D4AF37] transition-colors">Blog & Rehber</Link></li>
-              <li><Link href="#" className="hover:text-[#D4AF37] transition-colors">K.V.K.K Aydınlatma Metni</Link></li>
+              {uiConfig.footer?.corporateLinks?.map((link: FooterLink, idx: number) => (
+                 <li key={idx}><Link href={link.url} className="hover:text-[#D4AF37] transition-colors">{link.label}</Link></li>
+              ))}
             </ul>
           </div>
 
@@ -46,11 +53,9 @@ export default function Footer() {
           <div>
             <h4 className="text-white font-bold uppercase tracking-widest mb-6 text-xs">Müşteri Hizmetleri</h4>
             <ul className="space-y-3">
-              <li><Link href="#" className="hover:text-[#D4AF37] transition-colors">Sipariş Takibi</Link></li>
-              <li><Link href="#" className="hover:text-[#D4AF37] transition-colors">Teslimat ve İade</Link></li>
-              <li><Link href="#" className="hover:text-[#D4AF37] transition-colors">Sıkça Sorulan Sorular</Link></li>
-              <li><Link href="#" className="hover:text-[#D4AF37] transition-colors">Yüzük Ölçüsü Hesaplama</Link></li>
-              <li><Link href="#" className="hover:text-[#D4AF37] transition-colors">Ödeme Seçenekleri</Link></li>
+              {uiConfig.footer?.customerServiceLinks?.map((link: FooterLink, idx: number) => (
+                 <li key={idx}><Link href={link.url} className="hover:text-[#D4AF37] transition-colors">{link.label}</Link></li>
+              ))}
             </ul>
           </div>
 
@@ -65,13 +70,13 @@ export default function Footer() {
              
              <h4 className="text-white font-bold uppercase tracking-widest mb-4 text-xs">Bizi Takip Edin</h4>
              <div className="flex gap-4">
-                <a href="#" className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-[#D4AF37] hover:text-black transition-all group">
+                <a href={uiConfig.footer?.socialMedia?.instagram || "#"} target="_blank" className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-[#D4AF37] hover:text-black transition-all group">
                    <Instagram className="h-5 w-5" />
                 </a>
-                <a href="#" className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-[#D4AF37] hover:text-black transition-all group">
+                <a href={uiConfig.footer?.socialMedia?.facebook || "#"} target="_blank" className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-[#D4AF37] hover:text-black transition-all group">
                    <Facebook className="h-5 w-5" />
                 </a>
-                <a href="#" className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-[#D4AF37] hover:text-black transition-all group">
+                <a href={uiConfig.footer?.socialMedia?.twitter || "#"} target="_blank" className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-[#D4AF37] hover:text-black transition-all group">
                    <Twitter className="h-5 w-5" />
                 </a>
              </div>
@@ -82,7 +87,7 @@ export default function Footer() {
         {/* Alt Bar: Copyright & Bankalar */}
         <div className="border-t border-gray-800 mt-16 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
            <div className="text-xs text-gray-600">
-              &copy; 2024 New Pırlanta. Tüm hakları saklıdır.
+              &copy; 2024 {settings.siteTitle || "New Pırlanta"}. {uiConfig.footer?.copyrightText || "Tüm hakları saklıdır."}
            </div>
            
            <div className="flex items-center gap-6 text-gray-500">

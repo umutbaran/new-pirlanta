@@ -16,7 +16,8 @@ export default withAuth(
         if (req.nextUrl.pathname === "/admin/login") {
           return true
         }
-        return !!token
+        // Sadece giriş yapmış VE rolü 'admin' olan kullanıcılar girebilir
+        return !!token && (token as any).role === 'admin';
       },
     },
   }
@@ -25,7 +26,5 @@ export default withAuth(
 export const config = { 
   matcher: [
     "/admin/:path*",
-    // Login sayfasını hariç tutmak için regex kullanamıyoruz ama next-auth bunu genelde kendi halleder.
-    // Yine de en güvenlisi login sayfasını matcher'dan çıkarmak yerine, next-auth'un pages ayarını doğru yaptık.
   ] 
 }

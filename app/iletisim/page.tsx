@@ -1,6 +1,8 @@
-import { Phone, Mail, MapPin } from 'lucide-react';
+import { getSettings } from '@/lib/db';
 
-export default function ContactPage() {
+export default async function ContactPage() {
+  const settings = await getSettings();
+
   return (
     <div className="bg-white min-h-screen">
       
@@ -19,25 +21,23 @@ export default function ContactPage() {
             <div className="space-y-12">
                <div>
                   <h3 className="font-serif text-2xl mb-6">Merkez Ofis</h3>
-                  <p className="text-gray-600 leading-relaxed font-light mb-4">
-                     Sahil Mah. Cumhuriyet Cad. No:335<br/>
-                     Tatvan / Bitlis
+                  <p className="text-gray-600 leading-relaxed font-light mb-4 whitespace-pre-line">
+                     {settings.address || "Adres bilgisi girilmemiş."}
                   </p>
-                  <a href="tel:04348272611" className="text-black font-medium hover:text-[#D4AF37] transition-colors">0 (434) 827 26 11</a>
-               </div>
-
-               <div>
-                  <h3 className="font-serif text-2xl mb-6">İstanbul Şube</h3>
-                  <p className="text-gray-600 leading-relaxed font-light mb-4">
-                     Güvercintepe, Fatih Cd. No:225<br/>
-                     34494 Başakşehir / İstanbul
-                  </p>
-                  <a href="tel:05527873513" className="text-black font-medium hover:text-[#D4AF37] transition-colors">+90 552 787 35 13</a>
+                  {settings.phoneNumber && (
+                     <a href={`tel:${settings.phoneNumber}`} className="text-black font-medium hover:text-[#D4AF37] transition-colors">
+                        {settings.phoneNumber}
+                     </a>
+                  )}
                </div>
 
                <div>
                   <h3 className="font-serif text-2xl mb-6">E-Posta</h3>
-                  <a href="mailto:info@newpirlanta.com" className="text-black font-medium hover:text-[#D4AF37] transition-colors text-lg">info@newpirlanta.com</a>
+                  {settings.contactEmail && (
+                     <a href={`mailto:${settings.contactEmail}`} className="text-black font-medium hover:text-[#D4AF37] transition-colors text-lg">
+                        {settings.contactEmail}
+                     </a>
+                  )}
                </div>
             </div>
 

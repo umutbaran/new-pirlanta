@@ -1,0 +1,134 @@
+[
+  {
+    "id": "cat_1",
+    "name": "Pırlanta",
+    "slug": "prlanta",
+    "isActive": true,
+    "subCategories": [
+      {
+        "name": "Tektaş Yüzükler",
+        "slug": "tektas"
+      },
+      {
+        "name": "Baget Yüzükler",
+        "slug": "baget"
+      },
+      {
+        "name": "Tamtur Alyans",
+        "slug": "tamtur"
+      },
+      {
+        "name": "Pırlanta Kolyeler",
+        "slug": "kolye"
+      },
+      {
+        "name": "Pırlanta Küpeler",
+        "slug": "kupe"
+      },
+      {
+        "name": "Pırlanta Setler",
+        "slug": "prlanta-setler"
+      },
+      {
+        "name": "Beştaş Yüzükler",
+        "slug": "beta-yzkler"
+      }
+    ]
+  },
+  {
+    "id": "cat_2",
+    "name": "14 Ayar Altın",
+    "slug": "altin-14",
+    "isActive": true,
+    "subCategories": [
+      {
+        "name": "Yüzük",
+        "slug": "yzk"
+      },
+      {
+        "name": "Küpe",
+        "slug": "kpe"
+      },
+      {
+        "name": "Kolye",
+        "slug": "kolye"
+      },
+      {
+        "name": "Set",
+        "slug": "set"
+      },
+      {
+        "name": "Künye",
+        "slug": "knye"
+      },
+      {
+        "name": "Kelepçe",
+        "slug": "kelepe"
+      }
+    ]
+  },
+  {
+    "id": "cat_3",
+    "name": "22 Ayar Altın",
+    "slug": "altin-22",
+    "isActive": true,
+    "subCategories": [
+      {
+        "name": "Yüzük",
+        "slug": "yzk"
+      },
+      {
+        "name": "Küpe",
+        "slug": "kpe"
+      },
+      {
+        "name": "Kolye",
+        "slug": "kolye"
+      },
+      {
+        "name": "Set",
+        "slug": "set"
+      },
+      {
+        "name": "Künye",
+        "slug": "knye"
+      },
+      {
+        "name": "Kelepçe",
+        "slug": "kelepe"
+      },
+      {
+        "name": "Bilezik",
+        "slug": "bilezik"
+      }
+    ]
+  },
+  {
+    "id": "cat_4",
+    "name": "Sarrafiye",
+    "slug": "sarrafiye",
+    "isActive": false,
+    "subCategories": [
+      {
+        "name": "Çeyrek Altın",
+        "slug": "ceyrek"
+      },
+      {
+        "name": "Yarım Altın",
+        "slug": "yarim"
+      },
+      {
+        "name": "Tam Altın",
+        "slug": "tam"
+      }
+    ]
+  },
+  {
+    "id": "cat_5",
+    "name": "Yeni Koleksiyon",
+    "slug": "yeni",
+    "isActive": true,
+    "isSpecial": true,
+    "subCategories": []
+  }
+]

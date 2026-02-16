@@ -10,10 +10,9 @@ export const authOptions: NextAuthOptions = {
         password: { label: "Şifre", type: "password" }
       },
       async authorize(credentials) {
-        // .env dosyasındaki bilgilerle kontrol et
         const isValid = 
-            credentials?.username === process.env.ADMIN_USERNAME &&
-            credentials?.password === process.env.ADMIN_PASSWORD;
+            credentials?.username === (process.env.ADMIN_USERNAME || "admin") &&
+            credentials?.password === (process.env.ADMIN_PASSWORD || "admin123");
 
         if (isValid) {
           return { id: "1", name: "Admin User", email: "admin@newpirlanta.com" };
@@ -22,8 +21,12 @@ export const authOptions: NextAuthOptions = {
       }
     })
   ],
+  session: {
+    strategy: "jwt",
+    maxAge: 30 * 60, // 30 dakika (Saniye cinsinden)
+  },
   pages: {
-    signIn: '/admin/login', // Kendi özel login sayfamızı kullanacağız
+    signIn: '/admin/login',
   },
   callbacks: {
     async jwt({ token, user }) {
@@ -34,12 +37,12 @@ export const authOptions: NextAuthOptions = {
     },
     async session({ session, token }) {
       if (session.user) {
-        (session.user as any).role = token.role;
+        Object.assign(session.user, { role: token.role });
       }
       return session;
     }
   },
-  secret: process.env.NEXTAUTH_SECRET,
+  secret: process.env.NEXTAUTH_SECRET || "gizli-anahtar-degistirin", // Fallback secret for dev
 }
 
 const handler = NextAuth(authOptions);

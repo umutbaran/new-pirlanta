@@ -55,7 +55,7 @@ export default function GoldRates() {
         const currentRatesMap: Record<string, number> = {};
 
         if (Array.isArray(sourceData)) {
-            sourceData.forEach((item: any) => {
+            sourceData.forEach((item: { key: string; buy: string; sell: string; degisim?: string }) => {
                 const apiName = item.key.toUpperCase();
                 
                 if (allowedKeys[apiName]) {

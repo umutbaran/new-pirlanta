@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { signIn } from 'next-auth/react';
-import { Lock, User, Loader2 } from 'lucide-react';
+import { Lock, User, Loader2, ArrowRight } from 'lucide-react';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -24,42 +24,49 @@ export default function LoginPage() {
       });
 
       if (result?.error) {
-        setError('Kullanıcı adı veya şifre hatalı!');
+        setError('Giriş bilgileri doğrulanamadı.');
       } else {
         router.push('/admin');
         router.refresh();
       }
     } catch (err) {
-      setError('Bir hata oluştu.');
+      console.error(err);
+      setError('Bir bağlantı hatası oluştu.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
-      <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
-        <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-gray-900">Yönetim Paneli</h1>
-          <p className="text-gray-500 text-sm mt-2">Devam etmek için giriş yapın</p>
+    <div className="min-h-screen flex items-center justify-center p-4 bg-[#111] relative overflow-hidden">
+      {/* Background Ambience */}
+      <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0">
+          <div className="absolute top-[-10%] right-[-5%] w-96 h-96 bg-[#D4AF37] rounded-full mix-blend-multiply filter blur-[128px] opacity-20 animate-pulse"></div>
+          <div className="absolute bottom-[-10%] left-[-5%] w-96 h-96 bg-[#D4AF37] rounded-full mix-blend-multiply filter blur-[128px] opacity-10"></div>
+      </div>
+
+      <div className="bg-white/5 backdrop-blur-xl border border-white/10 p-8 rounded-2xl shadow-2xl w-full max-w-md relative z-10">
+        <div className="text-center mb-10">
+          <h1 className="font-serif text-3xl font-bold text-white tracking-wider mb-2">NEW PIRLANTA</h1>
+          <p className="text-gray-400 text-sm tracking-wide uppercase">Yönetim Paneli</p>
         </div>
 
         {error && (
-          <div className="bg-red-50 text-red-600 p-3 rounded-md text-sm mb-6 text-center">
+          <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-4 rounded-lg text-sm mb-6 text-center animate-shake">
             {error}
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Kullanıcı Adı</label>
-            <div className="relative">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+          <div className="space-y-1">
+            <label className="block text-xs font-medium text-gray-400 uppercase tracking-wider ml-1">Kullanıcı Adı</label>
+            <div className="relative group">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-[#D4AF37] transition-colors">
                 <User className="h-5 w-5" />
               </span>
               <input
                 type="text"
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
+                className="w-full pl-10 pr-4 py-3 bg-black/40 border border-white/10 rounded-lg text-white placeholder-gray-600 focus:outline-none focus:border-[#D4AF37] focus:ring-1 focus:ring-[#D4AF37] transition-all"
                 placeholder="admin"
                 value={formData.username}
                 onChange={(e) => setFormData({ ...formData, username: e.target.value })}
@@ -68,15 +75,15 @@ export default function LoginPage() {
             </div>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Şifre</label>
-            <div className="relative">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+          <div className="space-y-1">
+            <label className="block text-xs font-medium text-gray-400 uppercase tracking-wider ml-1">Şifre</label>
+            <div className="relative group">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-[#D4AF37] transition-colors">
                 <Lock className="h-5 w-5" />
               </span>
               <input
                 type="password"
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
+                className="w-full pl-10 pr-4 py-3 bg-black/40 border border-white/10 rounded-lg text-white placeholder-gray-600 focus:outline-none focus:border-[#D4AF37] focus:ring-1 focus:ring-[#D4AF37] transition-all"
                 placeholder="••••••"
                 value={formData.password}
                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
@@ -88,11 +95,15 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-black text-white py-3 rounded-md font-medium hover:bg-gray-800 transition-colors flex items-center justify-center gap-2 disabled:opacity-70"
+            className="w-full bg-gradient-to-r from-[#D4AF37] to-[#B4941F] text-black font-bold py-3.5 rounded-lg hover:shadow-lg hover:shadow-[#D4AF37]/20 transition-all flex items-center justify-center gap-2 disabled:opacity-70 transform active:scale-[0.99] mt-8"
           >
-            {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : 'Giriş Yap'}
+            {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : <>Giriş Yap <ArrowRight className="h-4 w-4" /></>}
           </button>
         </form>
+        
+        <div className="mt-8 text-center">
+            <p className="text-xs text-gray-600">© 2026 New Pırlanta. Tüm hakları saklıdır.</p>
+        </div>
       </div>
     </div>
   );

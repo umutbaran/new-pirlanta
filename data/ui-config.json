@@ -1,0 +1,133 @@
+{
+  "heroSlides": [
+    {
+      "id": "slide_1",
+      "image": "https://images.unsplash.com/photo-1606293926075-69a00dbfde81?q=80&w=2000&auto=format&fit=crop",
+      "title": "Eşsiz Pırlanta Koleksiyonu",
+      "subtitle": "Işıltınızı yansıtacak en özel parçalar",
+      "buttonText": "Koleksiyonu Keşfet",
+      "buttonLink": "/koleksiyon/pirlanta"
+    },
+    {
+      "id": "slide_2",
+      "image": "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?q=80&w=2000&auto=format&fit=crop",
+      "title": "Yeni Sezon Altınlar",
+      "subtitle": "Modern tasarımlarla geleneği keşfedin",
+      "buttonText": "Alışverişe Başla",
+      "buttonLink": "/koleksiyon/altin-14"
+    }
+  ],
+  "collectionMosaic": {
+    "mainTitle": "Mücevher Sanatı",
+    "description": "Her parçasında ayrı bir hikaye barındıran eşsiz tasarımlar.",
+    "items": [
+      {
+        "image": "https://images.unsplash.com/photo-1617038260897-41a1f14a8ca0?q=80",
+        "title": "Pırlanta Tasarımlar",
+        "subtitle": "PREMIUM SELECT",
+        "link": "/koleksiyon/pirlanta",
+        "buttonText": "Koleksiyonu Keşfet"
+      },
+      {
+        "image": "https://images.unsplash.com/photo-1601121141461-9d6647bca1ed?q=80",
+        "title": "Altın Koleksiyonu",
+        "subtitle": "14 ve 22 Ayar Modeller",
+        "link": "/koleksiyon/altin-14",
+        "buttonText": "İncele"
+      }
+    ]
+  },
+  "infoCenter": {
+    "title": "Mücevher Dünyası",
+    "subtitle": "BİLGİ MERKEZİ",
+    "cards": [
+      {
+        "image": "https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&q=80",
+        "title": "Pırlanta Rehberi",
+        "description": "4C kuralı (Kesim, Karat, Renk, Berraklık) hakkında bilmeniz gereken her şey.",
+        "buttonText": "İncele",
+        "link": "#"
+      },
+      {
+        "image": "https://images.unsplash.com/photo-1596944924616-7b38e7cfac36?auto=format&fit=crop&q=80",
+        "title": "Yüzük Ölçüsü",
+        "description": "Evde kolayca yüzük ölçünüzü nasıl alabileceğinizi öğrenin.",
+        "buttonText": "Hesapla",
+        "link": "#"
+      },
+      {
+        "image": "https://images.unsplash.com/photo-1513201099705-a9746e1e201f?auto=format&fit=crop&q=80",
+        "title": "Hediye Rehberi",
+        "description": "Sevdikleriniz için en anlamlı ve unutulmaz hediyeyi seçmenize yardımcı olalım.",
+        "buttonText": "Keşfet",
+        "link": "#"
+      }
+    ]
+  },
+  "showcase": {
+    "title": "Sezonun En Gözde Parçaları",
+    "description": "Sizin için seçtiklerimiz",
+    "productIds": []
+  },
+  "storeSection": {
+    "title": "Size En Yakın Mağazamız",
+    "subtitle": "Baran Kuyumculuk İştirakleri",
+    "stores": [
+      {
+        "id": "store_1",
+        "title": "Tatvan Şubesi",
+        "badge": "Merkez",
+        "address": "Sahil Mah. Cumhuriyet Cad. No:335\nTatvan / Bitlis",
+        "phone": "0 (434) 827 26 11"
+      },
+      {
+        "id": "store_2",
+        "title": "İstanbul Şubesi",
+        "badge": "Şube",
+        "address": "Güvercintepe, Fatih Cd. No:225\n34494 Başakşehir / İstanbul",
+        "phone": "+90 552 787 35 13"
+      }
+    ]
+  },
+  "footer": {
+    "description": "Kapalıçarşı'nın kalbinden, en özel anlarınıza eşlik edecek eşsiz tasarımlar. Güven, kalite ve zarafetin adresi.",
+    "copyrightText": "Tüm hakları saklıdır.",
+    "socialMedia": {
+      "instagram": "#instagram.com/barankuyumculuktatvan",
+      "facebook": "#",
+      "twitter": "#"
+    },
+    "corporateLinks": [
+      {
+        "label": "Hakkımızda",
+        "url": "/hakkimizda"
+      },
+      {
+        "label": "Mağazalarımız",
+        "url": "/subelerimiz"
+      },
+      {
+        "label": "İletişim",
+        "url": "/iletisim"
+      },
+      {
+        "label": "Ekonomi Bülteni",
+        "url": "/bulten"
+      }
+    ],
+    "customerServiceLinks": [
+      {
+        "label": "Sipariş Takibi",
+        "url": "#"
+      },
+      {
+        "label": "Teslimat ve İade",
+        "url": "#"
+      },
+      {
+        "label": "Sıkça Sorulan Sorular",
+        "url": "#"
+      }
+    ]
+  }
+}

@@ -46,6 +46,8 @@ export const products: Product[] = [
     images: [
       'https://images.unsplash.com/photo-1605100804763-247f67b3557e?q=80',
       'https://images.unsplash.com/photo-1603561596112-0a132b72231d?q=80',
+      'https://images.unsplash.com/photo-1615655406736-b37c4fabf923?q=80',
+      'https://images.unsplash.com/photo-1605100804763-247f67b3557e?q=80', 
     ],
     details: {
       materyal: '14 Ayar Beyaz Altın',
@@ -74,6 +76,8 @@ export const products: Product[] = [
     description: 'Klasik 6 tırnaklı montür üzerinde yükselen, kusursuz kesime sahip tektaş pırlanta. Evlilik tekliflerinin vazgeçilmez simgesi.',
     images: [
       'https://images.unsplash.com/photo-1626784215021-2e39ccf971cd?q=80',
+      'https://images.unsplash.com/photo-1605100804763-247f67b3557e?q=80',
+      'https://images.unsplash.com/photo-1599643477877-530eb83abc8e?q=80'
     ],
     details: {
       materyal: '18 Ayar Beyaz Altın',
@@ -103,6 +107,7 @@ export const products: Product[] = [
     description: 'Geleneksel yatırım aracı, modern kullanım. İçi dolu, ezilmeye dayanıklı 22 ayar Ajda model bilezik.',
     images: [
       'https://images.unsplash.com/photo-1611591437281-460bfbe1220a?q=80',
+      'https://images.unsplash.com/photo-1573408301185-9146fe634ad0?q=80'
     ],
     details: {
       materyal: '22 Ayar Altın (916 Milyem)',
@@ -147,6 +152,7 @@ export const products: Product[] = [
     description: 'Düğün ve özel davetlerin vazgeçilmezi. Gerdanlık, küpe ve bileklikten oluşan, toplam 3.50 karat baget ve yuvarlak pırlantalarla bezenmiş muazzam set.',
     images: [
       'https://images.unsplash.com/photo-1599643478518-17488fbbcd75?auto=format&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?q=80'
     ],
     details: {
       materyal: '14 Ayar Beyaz Altın',
@@ -192,7 +198,8 @@ export const products: Product[] = [
     price: 8500,
     description: 'Zamanın ötesinde bir klasik. İçi dolu, konfor bombeli, parmağı rahatsız etmeyen 14 ayar sarı altın alyans.',
     images: [
-      'https://images.unsplash.com/photo-1605100804763-247f67b3557e?q=80'
+      'https://images.unsplash.com/photo-1605100804763-247f67b3557e?q=80',
+      'https://images.unsplash.com/photo-1626784215021-2e39ccf971cd?q=80'
     ],
     details: {
       materyal: '14 Ayar Altın',
