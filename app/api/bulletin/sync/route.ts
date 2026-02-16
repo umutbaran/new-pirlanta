@@ -17,7 +17,7 @@ export async function POST() {
     
     // 3. Mevcut Verilerle Birleştir (Çakışmaları önleyerek)
     const currentBulletins = await getBulletins();
-    const existingIds = new Set(currentBulletins.map(b => b.id));
+    const existingIds = new Set(currentBulletins.map((b: BulletinItem) => b.id));
     
     const uniqueNewItems = newItems.filter(item => !existingIds.has(item.id));
     
