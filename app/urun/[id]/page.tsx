@@ -116,16 +116,19 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
                 <div className="space-y-4">
                     <h3 className="text-[11px] font-bold text-gray-900 uppercase tracking-[0.2em] border-b border-black pb-2 inline-block">Teknik Özellikler</h3>
                     <div className="grid grid-cols-1 gap-3">
-                        {[
-                            { label: "Stok Kodu", value: product.sku },
-                            { label: "Materyal", value: product.details?.materyal },
-                            { label: "Renk", value: product.details?.renk },
-                            { label: "Ağırlık", value: product.details?.agirlik },
-                            ...(product.details?.tas_bilgisi ? [
-                                { label: "Karat", value: product.details.tas_bilgisi.karat },
-                                { label: "Berraklık", value: product.details.tas_bilgisi.berraklik }
-                            ] : []),
-                        ].filter(i => i.value).map((spec, i) => (
+                        {(() => {
+                            const details = product.details as any;
+                            return [
+                                { label: "Stok Kodu", value: product.sku },
+                                { label: "Materyal", value: details?.materyal },
+                                { label: "Renk", value: details?.renk },
+                                { label: "Ağırlık", value: details?.agirlik },
+                                ...(details?.tas_bilgisi ? [
+                                    { label: "Karat", value: details.tas_bilgisi.karat },
+                                    { label: "Berraklık", value: details.tas_bilgisi.berraklik }
+                                ] : []),
+                            ];
+                        })().filter(i => i.value).map((spec, i) => (
                             <div key={i} className="flex justify-between text-[10px] uppercase tracking-wider pb-2 border-b border-gray-50">
                                 <span className="text-gray-400 font-medium">{spec.label}</span>
                                 <span className="text-gray-900 font-bold">{spec.value}</span>

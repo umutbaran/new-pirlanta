@@ -1,7 +1,7 @@
 import { ArrowRight, Phone, MapPin } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
-import { getProducts, getUiConfig } from "@/lib/db";
+import { getProducts, getUiConfig, InfoCard, StoreItem } from "@/lib/db";
 import ProductCard from "@/components/ProductCard";
 import HeroSlider from "@/components/HeroSlider";
 
@@ -83,7 +83,7 @@ export default async function Home() {
            </div>
 
            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {infoCenter.cards.map((card, idx) => (
+              {infoCenter.cards.map((card: InfoCard, idx: number) => (
                   <div key={idx} className="group relative h-96 overflow-hidden cursor-pointer shadow-lg">
                      <div className="absolute inset-0 bg-black/40 group-hover:bg-black/50 transition-colors z-10" />
                      <Image 
@@ -127,7 +127,7 @@ export default async function Home() {
             </div>
             
             <div className="grid md:grid-cols-2 gap-8 max-w-6xl mx-auto">
-               {storeSection.stores && storeSection.stores.map((store) => (
+               {storeSection.stores && storeSection.stores.map((store: StoreItem) => (
                   <div key={store.id} className="flex flex-col md:flex-row items-center gap-8 p-10 border border-gray-100 rounded-sm shadow-sm hover:shadow-2xl hover:border-[#D4AF37]/30 transition-all duration-500 group bg-gray-50/30">
                      <div className="w-24 h-24 bg-white border border-gray-100 rounded-full flex items-center justify-center flex-shrink-0 shadow-md group-hover:scale-110 transition-transform overflow-hidden relative">
                         {store.image ? (

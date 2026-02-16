@@ -3,32 +3,18 @@ export type SubCategory = 'tektas' | 'baget' | 'alyans' | 'bilezik' | 'kolye' | 
 
 export interface Product {
   id: string;
-  sku: string; // Stok Kodu
+  sku: string | null; // Stok Kodu
   name: string;
-  category: Category;
-  subCategory: SubCategory;
+  category: Category | string;
+  subCategory: SubCategory | string | null;
   price: number;
-  oldPrice?: number;
+  oldPrice?: number | null;
   isNew?: boolean;
-  description: string;
+  description: string | null;
   images: string[]; // Birden fazla resim
-  createdAt?: Date | string; // Eklenen
-  updatedAt?: Date | string; // Eklenen
-  details: {
-    materyal: string; // 14 Ayar Altın
-    renk: string; // White Gold, Rose Gold
-    agirlik: string; // 2.45 gr
-    tas_bilgisi?: {
-      tip: string; // Pırlanta
-      karat: string; // 0.30 ct
-      renk: string; // F Color
-      berraklik: string; // VS1
-      kesim: string; // Very Good
-      sekil: string; // Yuvarlak (Round)
-    };
-    sertifika: string; // HRD Antwerp / Firma Sertifikalı
-    garanti: string; // 2 Yıl Bakım Garantisi
-  };
+  createdAt?: Date | string;
+  updatedAt?: Date | string;
+  details: any; // Veritabanından JSON geldiği için en güvenlisi any veya Record
 }
 
 export const products: Product[] = [

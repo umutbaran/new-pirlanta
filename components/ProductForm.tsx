@@ -173,7 +173,7 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
                             <input 
                                 type="text" 
                                 name="name" 
-                                value={formData.name} 
+                                value={formData.name || ''} 
                                 onChange={handleChange} 
                                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-black transition-shadow outline-none" 
                                 placeholder="Örn: 0.50 Karat Pırlanta Yüzük"
@@ -184,7 +184,7 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
                             <label className="block text-sm font-medium text-gray-700 mb-1">Açıklama</label>
                             <textarea 
                                 name="description" 
-                                value={formData.description} 
+                                value={formData.description || ''} 
                                 onChange={handleChange} 
                                 rows={6} 
                                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-black transition-shadow outline-none"

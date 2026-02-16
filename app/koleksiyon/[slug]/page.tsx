@@ -70,7 +70,10 @@ export default async function CategoryPage({
 
   // 2. Renk (Sarı, Beyaz vb.)
   if (resolvedSearchParams.renk) {
-    categoryProducts = categoryProducts.filter(p => p.details?.renk?.includes(resolvedSearchParams.renk!));
+    categoryProducts = categoryProducts.filter(p => {
+      const details = p.details as any;
+      return details?.renk?.toLowerCase().includes(resolvedSearchParams.renk!.toLowerCase());
+    });
   }
 
   // 3. Fiyat Aralığı
