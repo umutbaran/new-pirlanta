@@ -1,5 +1,4 @@
 import prisma from './prisma';
-import { Product as ProductType } from '@/data/products';
 
 // Re-export interfaces for consistent usage
 export interface SiteSettings {
@@ -36,9 +35,14 @@ export type { HeroSlide, MosaicItem, InfoCard, StoreItem, FooterLink, UiConfig }
 
 // --- Products ---
 export async function getProducts() {
-  return prisma.product.findMany({
-    orderBy: { createdAt: 'desc' }
-  });
+  try {
+    return await prisma.product.findMany({
+      orderBy: { createdAt: 'desc' }
+    });
+  } catch (err) {
+    console.error('Database error [getProducts]:', err);
+    return [];
+  }
 }
 
 export async function addProduct(p: any) {
@@ -83,25 +87,31 @@ export async function deleteProduct(id: string) {
 
 // --- Settings ---
 export async function getSettings(): Promise<SiteSettings> {
-  const settings = await prisma.settings.findFirst();
-  if (!settings) {
-    return {
-      siteTitle: "New Pırlanta",
-      contactEmail: "info@newpirlanta.com",
-      phoneNumber: "905555555555",
-      address: "",
-      currency: "TRY",
-      goldPriceMargin: 0.05
-    };
-  }
-  return {
-    siteTitle: settings.siteTitle,
-    contactEmail: settings.contactEmail || "",
-    phoneNumber: settings.phoneNumber || "",
-    address: settings.address || "",
-    currency: settings.currency,
-    goldPriceMargin: settings.goldPriceMargin
+  const fallbackSettings = {
+    siteTitle: "New Pırlanta",
+    contactEmail: "info@newpirlanta.com",
+    phoneNumber: "905555555555",
+    address: "",
+    currency: "TRY",
+    goldPriceMargin: 0.05
   };
+
+  try {
+    const settings = await prisma.settings.findFirst();
+    if (!settings) return fallbackSettings;
+    
+    return {
+      siteTitle: settings.siteTitle,
+      contactEmail: settings.contactEmail || "",
+      phoneNumber: settings.phoneNumber || "",
+      address: settings.address || "",
+      currency: settings.currency,
+      goldPriceMargin: settings.goldPriceMargin
+    };
+  } catch (err) {
+    console.error('Database error [getSettings]:', err);
+    return fallbackSettings;
+  }
 }
 
 export async function saveSettings(s: SiteSettings) {
@@ -113,13 +123,16 @@ export async function saveSettings(s: SiteSettings) {
 }
 
 // --- Categories ---
-export async function getCategories() {
-  return prisma.category.findMany();
+export async function getCategories(): Promise<any[]> {
+  try {
+    return await prisma.category.findMany();
+  } catch (err) {
+    console.error('Database error [getCategories]:', err);
+    return [];
+  }
 }
 
 export async function saveCategories(categories: CategoryData[]) {
-  // Basitlik için mevcutları silip yenileri ekleyebiliriz veya teker teker upsert yapabiliriz
-  // Şimdilik toplu kayıt için işlem (transaction) kullanalım
   return prisma.$transaction(
     categories.map(cat => prisma.category.upsert({
       where: { slug: cat.slug },
@@ -142,8 +155,13 @@ export async function saveCategories(categories: CategoryData[]) {
 
 // --- UI Config ---
 export async function getUiConfig() {
-  const data = await prisma.uiConfig.findFirst({ where: { id: 1 } });
-  return (data?.config as any) || {};
+  try {
+    const data = await prisma.uiConfig.findFirst({ where: { id: 1 } });
+    return (data?.config as any) || {};
+  } catch (err) {
+    console.error('Database error [getUiConfig]:', err);
+    return {};
+  }
 }
 
 export async function saveUiConfig(u: any) {
@@ -155,10 +173,14 @@ export async function saveUiConfig(u: any) {
 }
 
 // --- Bulletin ---
-// Bülten modelini schema'ya eklememiştik, onu da JSON config içinde tutalım şimdilik
 export async function getBulletins(): Promise<BulletinItem[]> {
-  const config = await getUiConfig();
-  return (config.bulletins as BulletinItem[]) || [];
+  try {
+    const config = await getUiConfig();
+    return (config.bulletins as BulletinItem[]) || [];
+  } catch (err) {
+    console.error('Database error [getBulletins]:', err);
+    return [];
+  }
 }
 
 export async function saveBulletins(b: BulletinItem[]) {

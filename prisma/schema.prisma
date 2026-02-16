@@ -3,8 +3,13 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+
+  provider  = "postgresql"
+
+  url       = env("DATABASE_URL")
+
+  directUrl = env("DIRECT_URL")
+
 }
 
 model Product {
@@ -34,7 +39,7 @@ model Category {
 
 model Settings {
   id              Int     @id @default(1)
-  siteTitle       String  @default("New Pýrlanta")
+  siteTitle       String  @default("New Pï¿½rlanta")
   contactEmail    String?
   phoneNumber     String?
   address         String?
