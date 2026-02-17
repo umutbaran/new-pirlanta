@@ -19,6 +19,7 @@ export async function POST(request: Request) {
     }
 
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    // Vercel bazen env'leri build sırasında cache'ler, runtime'da tekrar zorluyoruz
     const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
     if (!supabaseUrl) {
@@ -26,8 +27,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Yapılandırma hatası: URL eksik' }, { status: 500 });
     }
     
-    if (!supabaseServiceKey) {
-      console.error('Missing SUPABASE_SERVICE_ROLE_KEY');
+    if (!supabaseServiceKey || supabaseServiceKey.length < 10) {
+      console.error('Missing or invalid SUPABASE_SERVICE_ROLE_KEY');
       return NextResponse.json({ error: 'Yapılandırma hatası: Service Role Key eksik' }, { status: 500 });
     }
 

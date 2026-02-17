@@ -129,35 +129,65 @@ export default function Navbar() {
 
       {/* MOBILE MENU */}
       {isOpen && (
-        <div className="fixed inset-0 z-[200] bg-black/50 backdrop-blur-sm" onClick={() => setIsOpen(false)}>
-          <div className="bg-white w-[85%] h-full shadow-2xl overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+        <div className="fixed inset-0 z-[200] bg-white animate-in slide-in-from-right duration-300">
+          <div className="flex flex-col h-full">
              <div className="flex justify-between items-center p-6 border-b border-gray-100">
-               <span className="font-serif font-bold text-xl tracking-widest">MENÜ</span>
-               <button onClick={() => setIsOpen(false)}><X className="h-6 w-6" /></button>
+               <div className="w-24">
+                  <Image src="/assets/logo.png" alt="Logo" width={100} height={40} className="w-auto h-8 object-contain mix-blend-multiply" />
+               </div>
+               <button onClick={() => setIsOpen(false)} className="p-2 text-gray-900">
+                 <X className="h-8 w-8" />
+               </button>
              </div>
-             <nav className="p-6 space-y-6">
+             
+             <nav className="flex-1 overflow-y-auto p-8 space-y-8">
                {categories.map((cat) => (
-                  <Link 
-                    key={cat.id}
-                    href={`/koleksiyon/${cat.slug}`} 
-                    className={`block text-lg font-medium ${cat.isSpecial ? 'text-[#D4AF37]' : 'text-gray-900'}`}
-                  >
-                    {cat.name.toUpperCase()}
-                  </Link>
+                  <div key={cat.id} className="border-b border-gray-50 pb-4">
+                    <Link 
+                      href={`/koleksiyon/${cat.slug}`} 
+                      onClick={() => setIsOpen(false)}
+                      className={`block text-xl font-serif font-bold ${cat.isSpecial ? 'text-[#D4AF37]' : 'text-gray-900'}`}
+                    >
+                      {cat.name}
+                    </Link>
+                    {cat.subCategories.length > 0 && (
+                      <div className="mt-4 grid grid-cols-2 gap-4">
+                        {cat.subCategories.map((sub, idx) => (
+                          <Link 
+                            key={idx} 
+                            href={`/koleksiyon/${cat.slug}?sub=${sub.slug}`}
+                            onClick={() => setIsOpen(false)}
+                            className="text-sm text-gray-500 hover:text-[#D4AF37]"
+                          >
+                            {sub.name}
+                          </Link>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                ))}
-               <div className="border-t border-gray-100 pt-6">
-                  <Link href="/favoriler" className="flex items-center gap-3 text-sm font-medium text-gray-900">
-                     <Heart className="h-5 w-5 text-[#D4AF37]" />
+               
+               <div className="pt-8 space-y-6">
+                  <Link href="/favoriler" onClick={() => setIsOpen(false)} className="flex items-center gap-4 text-lg font-medium text-gray-900">
+                     <Heart className="h-6 w-6 text-[#D4AF37]" />
                      Favorilerim ({favorites.length})
                   </Link>
-                  <Link href="/bulten" className="flex items-center gap-3 text-sm font-medium text-gray-900 mt-4">
-                     <Calendar className="h-5 w-5 text-[#D4AF37]" />
+                  <Link href="/bulten" onClick={() => setIsOpen(false)} className="flex items-center gap-4 text-lg font-medium text-gray-900">
+                     <Calendar className="h-6 w-6 text-[#D4AF37]" />
                      Piyasa Analiz
                   </Link>
-                  <Link href="/subelerimiz" className="block text-sm text-gray-500 mt-4">Şubelerimiz</Link>
-                  <Link href="/iletisim" className="block text-sm text-gray-500 mt-4">İletişim</Link>
+               </div>
+
+               <div className="pt-12 grid grid-cols-2 gap-4">
+                  <Link href="/subelerimiz" onClick={() => setIsOpen(false)} className="text-sm font-bold uppercase tracking-widest text-gray-400">Şubelerimiz</Link>
+                  <Link href="/iletisim" onClick={() => setIsOpen(false)} className="text-sm font-bold uppercase tracking-widest text-gray-400">İletişim</Link>
                </div>
              </nav>
+             
+             <div className="p-8 bg-gray-50 border-t border-gray-100">
+                <p className="text-[10px] text-gray-400 uppercase tracking-[0.3em] mb-4">Müşteri Hattı</p>
+                <a href="tel:05527873513" className="text-xl font-bold text-gray-900">0552 787 35 13</a>
+             </div>
           </div>
         </div>
       )}
