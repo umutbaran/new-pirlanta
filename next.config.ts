@@ -23,10 +23,11 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: 'https',
-        hostname: '**', // Geliştirme aşamasında ve farklı kaynaklardan resim eklerken kolaylık için
+        hostname: '**',
       },
     ],
   },
+  serverExternalPackages: ['@prisma/client'],
   async headers() {
     return [
       {
