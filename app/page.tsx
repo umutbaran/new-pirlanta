@@ -21,23 +21,23 @@ export default async function Home() {
       <HeroSlider />
 
       {/* 2. KOLEKSİYON MOZAİĞİ */}
-      <section className="py-24 container mx-auto px-4 bg-white">
-         <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-6">
+      <section className="py-12 md:py-24 container mx-auto px-4 bg-white">
+         <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 md:mb-16 gap-6">
             <div className="max-w-xl">
-               <span className="text-[#D4AF37] font-bold tracking-widest text-xs uppercase mb-2 block">Koleksiyonlar</span>
-               <h2 className="text-4xl md:text-5xl font-serif text-gray-900 mb-4">{collectionMosaic.mainTitle}</h2>
-               <p className="text-gray-500 font-light text-lg">
+               <span className="text-[#D4AF37] font-bold tracking-widest text-[10px] md:text-xs uppercase mb-2 block">Koleksiyonlar</span>
+               <h2 className="text-3xl md:text-5xl font-serif text-gray-900 mb-4">{collectionMosaic.mainTitle}</h2>
+               <p className="text-gray-500 font-light text-sm md:text-lg">
                   {collectionMosaic.description}
                </p>
             </div>
-            <Link href="/koleksiyon/yeni" className="text-[#D4AF37] uppercase tracking-widest text-xs font-bold hover:text-black transition-colors flex items-center gap-2 border-b border-[#D4AF37] pb-1">
+            <Link href="/koleksiyon/yeni" className="text-[#D4AF37] uppercase tracking-widest text-[10px] md:text-xs font-bold hover:text-black transition-colors flex items-center gap-2 border-b border-[#D4AF37] pb-1">
                Tümünü İncele <ArrowRight className="h-4 w-4" />
             </Link>
          </div>
 
-         <div className="grid grid-cols-1 md:grid-cols-12 gap-6 h-auto md:h-[600px]">
+         <div className="grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-6 h-auto md:h-[600px]">
             {/* Büyük Kart */}
-            <Link href={collectionMosaic.items[0].link} className="md:col-span-8 relative group overflow-hidden cursor-pointer rounded-sm h-[400px] md:h-full block shadow-xl hover:shadow-2xl transition-all duration-500">
+            <Link href={collectionMosaic.items[0].link} className="md:col-span-8 relative group overflow-hidden cursor-pointer rounded-sm h-[350px] md:h-full block shadow-xl hover:shadow-2xl transition-all duration-500">
                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent z-10" />
                <Image 
                   src={collectionMosaic.items[0].image} 
@@ -45,17 +45,17 @@ export default async function Home() {
                   fill
                   className="object-cover transition-transform duration-1000 group-hover:scale-110" 
                />
-               <div className="absolute bottom-10 left-10 z-20">
-                  <span className="text-[#D4AF37] text-xs tracking-[0.2em] uppercase mb-2 block font-bold">{collectionMosaic.items[0].subtitle}</span>
-                  <h3 className="text-4xl md:text-5xl font-serif text-white mb-4">{collectionMosaic.items[0].title}</h3>
-                  <span className="inline-flex items-center gap-2 text-white text-sm uppercase tracking-widest hover:text-[#D4AF37] transition-colors">
+               <div className="absolute bottom-6 left-6 md:bottom-10 md:left-10 z-20">
+                  <span className="text-[#D4AF37] text-[10px] md:text-xs tracking-[0.2em] uppercase mb-2 block font-bold">{collectionMosaic.items[0].subtitle}</span>
+                  <h3 className="text-3xl md:text-5xl font-serif text-white mb-4">{collectionMosaic.items[0].title}</h3>
+                  <span className="inline-flex items-center gap-2 text-white text-xs md:text-sm uppercase tracking-widest hover:text-[#D4AF37] transition-colors">
                      {collectionMosaic.items[0].buttonText} <ArrowRight className="h-4 w-4" />
                   </span>
                </div>
             </Link>
 
             {/* Yan Kart */}
-            <Link href={collectionMosaic.items[1].link} className="md:col-span-4 relative group overflow-hidden cursor-pointer rounded-sm h-[400px] md:h-full block shadow-xl hover:shadow-2xl transition-all duration-500">
+            <Link href={collectionMosaic.items[1].link} className="md:col-span-4 relative group overflow-hidden cursor-pointer rounded-sm h-[300px] md:h-full block shadow-xl hover:shadow-2xl transition-all duration-500">
                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent z-10" />
                <Image 
                   src={collectionMosaic.items[1].image} 
@@ -63,10 +63,10 @@ export default async function Home() {
                   fill
                   className="object-cover transition-transform duration-1000 group-hover:scale-110" 
                />
-               <div className="absolute bottom-10 left-10 z-20">
-                  <h3 className="text-3xl font-serif text-white mb-2">{collectionMosaic.items[1].title}</h3>
-                  <p className="text-gray-300 text-sm mb-4">{collectionMosaic.items[1].subtitle}</p>
-                  <span className="text-white border-b border-white pb-1 text-xs tracking-widest uppercase group-hover:border-[#D4AF37] group-hover:text-[#D4AF37] transition-colors">
+               <div className="absolute bottom-6 left-6 md:bottom-10 md:left-10 z-20">
+                  <h3 className="text-2xl md:text-3xl font-serif text-white mb-2">{collectionMosaic.items[1].title}</h3>
+                  <p className="text-gray-300 text-xs mb-4">{collectionMosaic.items[1].subtitle}</p>
+                  <span className="text-white border-b border-white pb-1 text-[10px] md:text-xs tracking-widest uppercase group-hover:border-[#D4AF37] group-hover:text-[#D4AF37] transition-colors">
                      {collectionMosaic.items[1].buttonText}
                   </span>
                </div>
@@ -75,16 +75,16 @@ export default async function Home() {
       </section>
 
       {/* 3. MÜCEVHER DÜNYASI & REHBERLER */}
-      <section className="py-24 bg-gray-50">
+      <section className="py-16 md:py-24 bg-gray-50">
         <div className="container mx-auto px-4">
-           <div className="text-center mb-12">
-              <span className="text-[#D4AF37] font-bold tracking-widest text-xs uppercase mb-2 block">{infoCenter.subtitle}</span>
-              <h2 className="text-3xl md:text-4xl font-serif text-gray-900">{infoCenter.title}</h2>
+           <div className="text-center mb-10 md:mb-12">
+              <span className="text-[#D4AF37] font-bold tracking-widest text-[10px] md:text-xs uppercase mb-2 block">{infoCenter.subtitle}</span>
+              <h2 className="text-2xl md:text-4xl font-serif text-gray-900">{infoCenter.title}</h2>
            </div>
 
-           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
               {infoCenter.cards.map((card: InfoCard, idx: number) => (
-                  <div key={idx} className="group relative h-96 overflow-hidden cursor-pointer shadow-lg">
+                  <div key={idx} className="group relative h-80 md:h-96 overflow-hidden cursor-pointer shadow-lg rounded-sm">
                      <div className="absolute inset-0 bg-black/40 group-hover:bg-black/50 transition-colors z-10" />
                      <Image 
                         src={card.image} 
@@ -92,12 +92,12 @@ export default async function Home() {
                         fill
                         className="object-cover transition-transform duration-700 group-hover:scale-110" 
                      />
-                     <div className="absolute bottom-8 left-8 right-8 z-20 text-center">
-                        <h3 className="text-2xl font-serif text-white mb-2">{card.title}</h3>
-                        <p className="text-gray-200 text-sm mb-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300 transform translate-y-4 group-hover:translate-y-0">
+                     <div className="absolute bottom-6 left-6 right-6 md:bottom-8 md:left-8 md:right-8 z-20 text-center">
+                        <h3 className="text-xl md:text-2xl font-serif text-white mb-2">{card.title}</h3>
+                        <p className="text-gray-200 text-xs md:text-sm mb-4 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-300 transform translate-y-0 md:translate-y-4 md:group-hover:translate-y-0">
                            {card.description}
                         </p>
-                        <span className="inline-block border-b border-white text-white text-xs font-bold uppercase tracking-widest pb-1">{card.buttonText}</span>
+                        <span className="inline-block border-b border-white text-white text-[10px] md:text-xs font-bold uppercase tracking-widest pb-1">{card.buttonText}</span>
                      </div>
                   </div>
               ))}
@@ -106,30 +106,30 @@ export default async function Home() {
       </section>
 
       {/* 4. ÖZEL VİTRİN */}
-      <section className="bg-[#fcfbf9] py-24 border-y border-gray-100">
-         <div className="container mx-auto px-4 text-center mb-12">
-            <h2 className="text-4xl font-serif text-gray-900">{showcase.title}</h2>
-            <div className="w-24 h-1 bg-[#D4AF37] mx-auto mt-6" />
+      <section className="bg-[#fcfbf9] py-16 md:py-24 border-y border-gray-100">
+         <div className="container mx-auto px-4 text-center mb-10 md:mb-12">
+            <h2 className="text-3xl md:text-4xl font-serif text-gray-900">{showcase.title}</h2>
+            <div className="w-16 md:w-24 h-1 bg-[#D4AF37] mx-auto mt-4 md:mt-6" />
          </div>
-         <div className="container mx-auto px-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+         <div className="container mx-auto px-4 grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
             {showcaseProducts.map((product) => (
                <ProductCard key={product.id} product={product} />
             ))}
          </div>
       </section>
 
-      {/* 5. İLETİŞİM BANNER (Dinamik Ayarlar) */}
-      <section className="py-24 bg-white">
+      {/* 5. İLETİŞİM BANNER */}
+      <section className="py-16 md:py-24 bg-white">
          <div className="container mx-auto px-4">
-            <div className="text-center mb-16">
-               <h2 className="text-4xl font-serif text-gray-900 mb-4">{storeSection.title}</h2>
-               <p className="text-gray-500 uppercase tracking-widest text-xs font-bold">{storeSection.subtitle}</p>
+            <div className="text-center mb-12 md:mb-16">
+               <h2 className="text-3xl md:text-4xl font-serif text-gray-900 mb-4">{storeSection.title}</h2>
+               <p className="text-gray-500 uppercase tracking-widest text-[10px] md:text-xs font-bold">{storeSection.subtitle}</p>
             </div>
             
-            <div className="grid md:grid-cols-2 gap-8 max-w-6xl mx-auto">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 max-w-6xl mx-auto">
                {storeSection.stores && storeSection.stores.map((store: StoreItem) => (
-                  <div key={store.id} className="flex flex-col md:flex-row items-center gap-8 p-10 border border-gray-100 rounded-sm shadow-sm hover:shadow-2xl hover:border-[#D4AF37]/30 transition-all duration-500 group bg-gray-50/30">
-                     <div className="w-24 h-24 bg-white border border-gray-100 rounded-full flex items-center justify-center flex-shrink-0 shadow-md group-hover:scale-110 transition-transform overflow-hidden relative">
+                  <div key={store.id} className="flex flex-col sm:flex-row items-center gap-6 md:gap-8 p-6 md:p-10 border border-gray-100 rounded-sm shadow-sm hover:shadow-2xl hover:border-[#D4AF37]/30 transition-all duration-500 group bg-gray-50/30">
+                     <div className="w-20 h-20 md:w-24 md:h-24 bg-white border border-gray-100 rounded-full flex items-center justify-center flex-shrink-0 shadow-md group-hover:scale-110 transition-transform overflow-hidden relative">
                         {store.image ? (
                            <Image 
                               src={store.image} 
@@ -138,18 +138,18 @@ export default async function Home() {
                               className="object-cover" 
                            />
                         ) : (
-                           <MapPin className="h-8 w-8 text-[#D4AF37]" />
+                           <MapPin className="h-6 w-6 md:h-8 md:w-8 text-[#D4AF37]" />
                         )}
                      </div>
-                     <div className="text-center md:text-left flex-1">
-                        <span className="text-xs font-bold text-[#D4AF37] uppercase tracking-widest mb-2 block">{store.badge}</span>
-                        <h3 className="text-2xl font-serif font-bold text-gray-900 mb-3">{store.title}</h3>
-                        <p className="text-gray-600 text-sm mb-6 leading-relaxed whitespace-pre-line">
+                     <div className="text-center sm:text-left flex-1">
+                        <span className="text-[10px] md:text-xs font-bold text-[#D4AF37] uppercase tracking-widest mb-2 block">{store.badge}</span>
+                        <h3 className="text-xl md:text-2xl font-serif font-bold text-gray-900 mb-2 md:group-hover:text-[#D4AF37] transition-colors">{store.title}</h3>
+                        <p className="text-gray-600 text-xs md:text-sm mb-4 md:mb-6 leading-relaxed whitespace-pre-line">
                            {store.address}
                         </p>
                         {store.phone && (
-                           <a href={`tel:${store.phone}`} className="inline-flex items-center gap-3 text-lg font-bold text-gray-900 hover:text-[#D4AF37] transition-colors border border-gray-200 bg-white px-6 py-3 rounded-full hover:shadow-md">
-                              <Phone className="h-5 w-5 text-[#D4AF37]" /> {store.phone}
+                           <a href={`tel:${store.phone}`} className="inline-flex items-center gap-2 text-sm md:text-lg font-bold text-gray-900 hover:text-[#D4AF37] transition-colors border border-gray-200 bg-white px-4 md:px-6 py-2 md:py-3 rounded-full hover:shadow-md">
+                              <Phone className="h-4 w-4 text-[#D4AF37]" /> {store.phone}
                            </a>
                         )}
                      </div>

@@ -50,11 +50,12 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
       if (url) {
         setFormData((prev) => ({ ...prev, images: [...prev.images, url] }));
       } else {
-        alert('Resim yüklenemedi! Olası nedenler:\n1. Supabase ayarları yapılmamış olabilir.\n2. Dosya 5MB\'dan büyük olabilir.\n3. Dosya formatı desteklenmiyor olabilir.');
+        // Hata detayını lib/upload.ts içindeki console'dan veya daha spesifik bir uyarıyla alabiliriz
+        alert('Resim yüklenemedi! \n\nİpucu: Fotoğrafın 4MB\'dan küçük olduğundan ve Admin girişi yaptığınızdan emin olun.');
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      alert('Yükleme sırasında teknik bir hata oluştu.');
+      alert('Hata: ' + (err.message || 'Yükleme sırasında teknik bir hata oluştu.'));
     } finally {
       setUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = '';

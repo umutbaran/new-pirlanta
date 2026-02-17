@@ -61,7 +61,7 @@ export default function HeroSlider() {
   }
 
   return (
-    <section className="relative h-[85vh] w-full overflow-hidden bg-black">
+    <section className="relative h-[75vh] md:h-[85vh] w-full overflow-hidden bg-black">
         {slides.map((slide, index) => (
           <div 
             key={slide.id}
@@ -69,7 +69,8 @@ export default function HeroSlider() {
           >
             {/* Arka Plan */}
             <div className="absolute inset-0">
-               <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent z-20" />
+               <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent z-20 md:block hidden" />
+               <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent z-20 md:hidden" />
                <Image 
                  src={slide.image} 
                  alt={slide.title} 
@@ -80,23 +81,23 @@ export default function HeroSlider() {
             </div>
 
             {/* İçerik */}
-            <div className="relative z-30 container mx-auto h-full flex flex-col justify-center px-6 md:px-12">
+            <div className="relative z-30 container mx-auto h-full flex flex-col justify-end md:justify-center px-6 md:px-12 pb-20 md:pb-0">
                <div className={`max-w-2xl transition-all duration-1000 transform ${index === currentSlide ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
                   
-                  <div className="flex items-center gap-4 mb-6">
-                     <div className="h-[1px] w-12 bg-[#D4AF37]" />
-                     <span className="text-[#D4AF37] tracking-[0.3em] text-xs font-bold uppercase">
+                  <div className="flex items-center gap-4 mb-4 md:mb-6">
+                     <div className="h-[1px] w-8 md:w-12 bg-[#D4AF37]" />
+                     <span className="text-[#D4AF37] tracking-[0.2em] md:tracking-[0.3em] text-[10px] md:text-xs font-bold uppercase">
                         {slide.subtitle}
                      </span>
                   </div>
                   
-                  <h1 className="text-5xl md:text-7xl font-serif text-white leading-[1.1] mb-6">
+                  <h1 className="text-3xl md:text-7xl font-serif text-white leading-[1.2] md:leading-[1.1] mb-6">
                      {slide.title}
                   </h1>
                   
                   <Link 
                      href={slide.buttonLink} 
-                     className="inline-block bg-white text-black border border-white px-10 py-4 font-bold tracking-widest uppercase hover:bg-transparent hover:text-white transition-all duration-300"
+                     className="inline-block bg-white text-black border border-white px-8 md:px-10 py-3 md:py-4 text-xs md:text-sm font-bold tracking-widest uppercase hover:bg-transparent hover:text-white transition-all duration-300"
                   >
                      {slide.buttonText}
                   </Link>
@@ -122,18 +123,18 @@ export default function HeroSlider() {
 
         {/* Controls */}
         {slides.length > 1 && (
-            <div className="absolute bottom-12 right-12 z-40 flex gap-4">
+            <div className="absolute bottom-8 right-6 md:bottom-12 md:right-12 z-40 flex gap-3 md:gap-4">
             <button 
                 onClick={() => setCurrentSlide(prev => (prev === 0 ? slides.length - 1 : prev - 1))}
-                className="p-3 border border-white/20 text-white hover:bg-white hover:text-black transition-colors rounded-full"
+                className="p-2 md:p-3 border border-white/20 text-white hover:bg-white hover:text-black transition-colors rounded-full"
             >
-                <ChevronLeft className="h-5 w-5" />
+                <ChevronLeft className="h-4 w-4 md:h-5 md:w-5" />
             </button>
             <button 
                 onClick={() => setCurrentSlide(prev => (prev === slides.length - 1 ? 0 : prev + 1))}
-                className="p-3 border border-white/20 text-white hover:bg-white hover:text-black transition-colors rounded-full"
+                className="p-2 md:p-3 border border-white/20 text-white hover:bg-white hover:text-black transition-colors rounded-full"
             >
-                <ChevronRight className="h-5 w-5" />
+                <ChevronRight className="h-4 w-4 md:h-5 md:w-5" />
             </button>
             </div>
         )}

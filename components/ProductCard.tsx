@@ -21,7 +21,7 @@ export default function ProductCard({ product }: { product: Product }) {
         <div className="relative aspect-square overflow-hidden bg-gray-50">
             {/* Etiketler */}
             {product.isNew && (
-            <div className="absolute top-0 left-0 bg-[#1a1a1a] text-white text-[10px] font-bold px-3 py-1 z-20 tracking-widest uppercase">
+            <div className="absolute top-0 left-0 bg-[#1a1a1a] text-white text-[8px] md:text-[10px] font-bold px-2 md:px-3 py-1 z-20 tracking-widest uppercase">
                 Yeni
             </div>
             )}
@@ -34,25 +34,25 @@ export default function ProductCard({ product }: { product: Product }) {
             className="object-cover transition-transform duration-700 group-hover:scale-105"
             />
             
-            {/* Buton */}
-            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 translate-y-12 group-hover:translate-y-0 transition-transform duration-300 z-20 w-full px-4 text-center">
+            {/* Buton (Masaüstünde hover, mobilde hep gizli veya farklı) */}
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 translate-y-12 group-hover:translate-y-0 transition-transform duration-300 z-20 w-full px-4 text-center hidden md:block">
                 <span className="inline-block w-full bg-white text-black text-xs font-bold uppercase tracking-widest py-3 shadow-lg hover:bg-[#D4AF37] hover:text-white transition-colors">
                 İncele
                 </span>
             </div>
         </div>
         
-        <div className="p-4 text-center flex flex-col justify-between flex-1">
+        <div className="p-3 md:p-4 text-center flex flex-col justify-between flex-1">
             <div>
-            <h3 className="text-sm font-medium text-gray-900 group-hover:text-[#D4AF37] transition-colors line-clamp-2 mb-2 font-serif min-h-[2.5rem]">
+            <h3 className="text-xs md:text-sm font-medium text-gray-900 group-hover:text-[#D4AF37] transition-colors line-clamp-2 mb-1 md:mb-2 font-serif min-h-[2rem] md:min-h-[2.5rem]">
                 {product.name}
             </h3>
-            <p className="text-xs text-gray-500 mb-2">{mainFeature}</p>
+            <p className="text-[10px] md:text-xs text-gray-500 mb-1 md:mb-2">{mainFeature}</p>
             </div>
             
-            <div className="border-t border-gray-100 pt-3 mt-2">
-            <span className="text-[10px] text-gray-400 uppercase tracking-wider block">Ürün Kodu</span>
-            <span className="font-mono text-xs text-gray-600">{product.sku}</span>
+            <div className="border-t border-gray-100 pt-2 md:pt-3 mt-1 md:mt-2">
+            <span className="text-[9px] md:text-[10px] text-gray-400 uppercase tracking-wider block">Ürün Kodu</span>
+            <span className="font-mono text-[10px] md:text-xs text-gray-600">{product.sku}</span>
             </div>
         </div>
       </Link>
