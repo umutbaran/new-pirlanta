@@ -97,7 +97,7 @@ export default function Navbar() {
           </div>
 
           {/* C. ICONS */}
-          <div className="flex-shrink-0 flex justify-end items-center gap-4 md:gap-6">
+          <div className="flex-shrink-0 flex justify-end items-center gap-3 md:gap-6">
             <button className="hidden lg:block text-gray-600 hover:text-[#D4AF37] transition-colors">
                <Search className="h-5 w-5" />
             </button>
@@ -105,23 +105,24 @@ export default function Navbar() {
                <User className="h-5 w-5" />
             </Link>
             
-            {/* FAVORİLER BUTONU VE SAYACI */}
-            <Link href="/favoriler" className="hidden md:block text-gray-900 hover:text-[#D4AF37] transition-colors relative group">
-               <Heart className="h-5 w-5 group-hover:fill-current transition-all" />
+            {/* FAVORİLER BUTONU VE SAYACI - Mobilde Görünür */}
+            <Link href="/favoriler" className="text-gray-900 hover:text-[#D4AF37] transition-colors relative group">
+               <Heart className="h-5 w-5 md:h-6 md:w-6 group-hover:fill-current transition-all" />
                {favorites.length > 0 && (
-                 <span className="absolute -top-2 -right-2 bg-[#D4AF37] text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
+                 <span className="absolute -top-2 -right-2 bg-[#D4AF37] text-white text-[8px] md:text-[9px] font-bold w-3.5 h-3.5 md:w-4 md:h-4 rounded-full flex items-center justify-center">
                    {favorites.length}
                  </span>
                )}
             </Link>
 
-            <Link href="/bulten" className="hidden lg:flex items-center gap-2 text-xs font-bold tracking-widest uppercase py-8 text-[#D4AF37] hover:text-black transition-colors border-l border-gray-100 pl-6 ml-2">
-               <Calendar className="h-4 w-4" />
-               Piyasa Analiz
+            {/* PİYASA ANALİZ - Mobilde İkon Olarak Görünür */}
+            <Link href="/bulten" className="text-[#D4AF37] hover:text-black transition-colors lg:flex items-center gap-2 lg:text-xs lg:font-bold lg:tracking-widest lg:uppercase lg:py-8 lg:border-l lg:border-gray-100 lg:pl-6 lg:ml-2">
+               <Calendar className="h-5 w-5 md:h-6 md:w-6" />
+               <span className="hidden lg:inline">Piyasa Analiz</span>
             </Link>
 
-            <button onClick={() => setIsOpen(true)} className="lg:hidden text-gray-900">
-               <Menu className="h-6 w-6" />
+            <button onClick={() => setIsOpen(true)} className="lg:hidden text-gray-900 p-1">
+               <Menu className="h-7 w-7" />
             </button>
           </div>
         </div>

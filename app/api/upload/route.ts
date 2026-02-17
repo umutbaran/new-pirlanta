@@ -3,14 +3,16 @@ import { createClient } from '@supabase/supabase-js';
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
-export async function POST(request: Request) {
-  // 1. Auth Check
-  const session = await getServerSession(authOptions);
-  if (!session) {
-    return NextResponse.json({ error: 'Yetkisiz erişim' }, { status: 401 });
-  }
+export const dynamic = 'force-dynamic';
 
+export async function POST(request: Request) {
   try {
+    // 1. Auth Check
+    const session = await getServerSession(authOptions);
+    if (!session) {
+      return NextResponse.json({ error: 'Yetkisiz erişim - Lütfen admin girişi yapın' }, { status: 401 });
+    }
+
     const formData = await request.formData();
     const file = formData.get('file') as File;
 
@@ -19,21 +21,22 @@ export async function POST(request: Request) {
     }
 
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    // Vercel bazen env'leri build sırasında cache'ler, runtime'da tekrar zorluyoruz
     const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
     if (!supabaseUrl) {
-      console.error('Missing NEXT_PUBLIC_SUPABASE_URL');
       return NextResponse.json({ error: 'Yapılandırma hatası: URL eksik' }, { status: 500 });
     }
     
-    if (!supabaseServiceKey || supabaseServiceKey.length < 10) {
-      console.error('Missing or invalid SUPABASE_SERVICE_ROLE_KEY');
+    if (!supabaseServiceKey) {
       return NextResponse.json({ error: 'Yapılandırma hatası: Service Role Key eksik' }, { status: 500 });
     }
 
-    // Use Service Role Key to bypass RLS and signature issues on server-side
-    const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
+    const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false
+      }
+    });
 
     const fileExt = file.name.split('.').pop();
     const fileName = `${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`;
@@ -41,7 +44,7 @@ export async function POST(request: Request) {
 
     const buffer = await file.arrayBuffer();
 
-    const { data, error } = await supabaseAdmin.storage
+    const { error } = await supabaseAdmin.storage
       .from('products')
       .upload(filePath, buffer, {
         contentType: file.type,
@@ -50,7 +53,6 @@ export async function POST(request: Request) {
       });
 
     if (error) {
-      console.error('Supabase error:', error);
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
@@ -59,8 +61,8 @@ export async function POST(request: Request) {
       .getPublicUrl(filePath);
 
     return NextResponse.json({ url: publicUrl });
-  } catch (err) {
-    console.error('Upload error:', err);
-    return NextResponse.json({ error: 'Yükleme başarısız' }, { status: 500 });
+  } catch (err: any) {
+    console.error('Upload API Error:', err);
+    return NextResponse.json({ error: err.message || 'Sunucu hatası' }, { status: 500 });
   }
 }
