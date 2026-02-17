@@ -35,6 +35,10 @@ export type { HeroSlide, MosaicItem, InfoCard, StoreItem, FooterLink, UiConfig }
 
 // --- Products ---
 export async function getProducts() {
+  if (!process.env.DATABASE_URL) {
+    console.warn('DATABASE_URL is not set, returning empty products array.');
+    return [];
+  }
   try {
     return await prisma.product.findMany({
       orderBy: { createdAt: 'desc' }
@@ -96,6 +100,11 @@ export async function getSettings(): Promise<SiteSettings> {
     goldPriceMargin: 0.05
   };
 
+  if (!process.env.DATABASE_URL) {
+    console.warn('DATABASE_URL is not set, using fallback settings.');
+    return fallbackSettings;
+  }
+
   try {
     const settings = await prisma.settings.findFirst();
     if (!settings) return fallbackSettings;
@@ -124,6 +133,10 @@ export async function saveSettings(s: SiteSettings) {
 
 // --- Categories ---
 export async function getCategories(): Promise<any[]> {
+  if (!process.env.DATABASE_URL) {
+    console.warn('DATABASE_URL is not set, returning empty categories array.');
+    return [];
+  }
   try {
     return await prisma.category.findMany();
   } catch (err) {
@@ -155,6 +168,10 @@ export async function saveCategories(categories: CategoryData[]) {
 
 // --- UI Config ---
 export async function getUiConfig() {
+  if (!process.env.DATABASE_URL) {
+    console.warn('DATABASE_URL is not set, returning empty uiConfig.');
+    return {};
+  }
   try {
     const data = await prisma.uiConfig.findFirst({ where: { id: 1 } });
     return (data?.config as any) || {};
