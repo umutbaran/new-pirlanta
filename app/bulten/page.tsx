@@ -1,5 +1,5 @@
 import { getBulletins, BulletinItem } from '@/lib/db';
-import { Calendar, Star, TrendingUp, TrendingDown, Minus, Globe, Activity, ShieldCheck, Zap, Info } from 'lucide-react';
+import { Calendar, Star, TrendingUp, TrendingDown, Minus, Globe, Zap, Info } from 'lucide-react';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
@@ -161,9 +161,6 @@ export default async function BulletinPage() {
                 </div>
             </div>
           </div>
-
-        </div>
-      </div>
 
         </div>
       </div>
