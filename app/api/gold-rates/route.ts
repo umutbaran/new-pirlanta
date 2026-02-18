@@ -28,7 +28,7 @@ export async function GET() {
   try {
     // Harem Altın Public API veya senin özel RapidAPI linkin
     // Eğer env değişkenlerin varsa onları kullanmaya çalış
-    const url = process.env.GOLD_API_URL || 'https://api.haremaltin.com/api/belge/altun_json';
+    const url = process.env.GOLD_API_URL || 'https://finans.truncgil.com/v3/altin.json';
     
     const response = await fetch(url, {
       method: 'GET',
@@ -53,6 +53,13 @@ export async function GET() {
         degisim: rawData.data?.ALTIN?.degisim || "0"
       },
       { 
+        key: "GRAM ALTIN", 
+        name: "Gram Altın", 
+        buy: rawData.data?.GRAM_ALTIN?.alis || "3.120,45", 
+        sell: rawData.data?.GRAM_ALTIN?.satis || "3.155,20",
+        degisim: rawData.data?.GRAM_ALTIN?.degisim || "0"
+      },
+      { 
         key: "22 AYAR", 
         name: "22 Ayar", 
         buy: rawData.data?.AYAR22?.alis || "2.850,00", 
@@ -60,11 +67,25 @@ export async function GET() {
         degisim: rawData.data?.AYAR22?.degisim || "0"
       },
       { 
+        key: "14 AYAR", 
+        name: "14 Ayar", 
+        buy: rawData.data?.AYAR14?.alis || "1.820,00", 
+        sell: rawData.data?.AYAR14?.satis || "1.950,00",
+        degisim: rawData.data?.AYAR14?.degisim || "0"
+      },
+      { 
         key: "USD/TRY", 
         name: "Dolar", 
         buy: rawData.data?.USDTRY?.alis || "34,65", 
         sell: rawData.data?.USDTRY?.satis || "34,75",
         degisim: rawData.data?.USDTRY?.degisim || "0"
+      },
+      { 
+        key: "EUR/TRY", 
+        name: "Euro", 
+        buy: rawData.data?.EURTRY?.alis || "36,80", 
+        sell: rawData.data?.EURTRY?.satis || "36,95",
+        degisim: rawData.data?.EURTRY?.degisim || "0"
       }
     ];
 

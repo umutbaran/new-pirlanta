@@ -133,30 +133,39 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
       <form onSubmit={handleSubmit}>
         
         {/* HEADER */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
-            <div className="flex items-center gap-4">
-                <Link href="/admin/products" className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-                    <ArrowLeft className="h-5 w-5 text-gray-600" />
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8 bg-slate-900 -mx-6 md:-mx-10 -mt-10 p-6 md:p-10 shadow-xl relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-[#D4AF37]/5 rounded-full blur-3xl -mr-32 -mt-32 pointer-events-none"></div>
+            <div className="flex items-center gap-4 relative z-10">
+                <Link href="/admin/products" className="p-2.5 bg-white/10 border border-white/10 rounded-xl hover:bg-white/20 transition-all text-white">
+                    <ArrowLeft className="h-5 w-5" />
                 </Link>
-                <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
-                    {isEditMode ? formData.name : 'Yeni Ürün'}
-                </h1>
+                <div>
+                    <h1 className="text-2xl font-bold text-white tracking-tight">
+                        {isEditMode ? `Düzenle: ${formData.name}` : 'Yeni Ürün Oluştur'}
+                    </h1>
+                    <p className="text-slate-400 text-xs mt-0.5">Ürün bilgilerini ve görsellerini buradan yönetin.</p>
+                </div>
             </div>
-            <div className="flex gap-3 w-full sm:w-auto">
+            <div className="flex gap-3 w-full sm:w-auto relative z-10">
                 <button 
                   type="button" 
-                  onClick={() => router.push('/admin/products')}
-                  className="flex-1 sm:flex-none px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors"
+                  onClick={() => {
+                      if(confirm('Tüm değişiklikler sıfırlanacak. Emin misiniz?')) {
+                          if(isEditMode && initialData) setFormData(initialData);
+                          else router.push('/admin/products');
+                      }
+                  }}
+                  className="flex-1 sm:flex-none px-6 py-3 bg-white/10 border border-white/10 rounded-xl text-sm font-bold text-white hover:bg-white/20 transition-all"
                 >
-                    İptal
+                    {isEditMode ? 'SIFIRLA' : 'İPTAL'}
                 </button>
                 <button 
                   type="submit" 
                   disabled={loading}
-                  className="flex-1 sm:flex-none px-6 py-2 bg-gray-900 text-white rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+                  className="flex-1 sm:flex-none px-8 py-3 bg-[#D4AF37] text-slate-900 rounded-xl text-sm font-black hover:bg-[#B4941F] transition-all flex items-center justify-center gap-2 disabled:opacity-50 shadow-lg shadow-[#D4AF37]/20"
                 >
-                    {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-                    Kaydet
+                    {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Save className="h-5 w-5" />}
+                    {isEditMode ? 'GÜNCELLE' : 'ÜRÜNÜ KAYDET'}
                 </button>
             </div>
         </div>

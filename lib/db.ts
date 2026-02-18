@@ -49,37 +49,37 @@ export async function getProducts() {
   }
 }
 
-export async function addProduct(p: any) {
+export async function addProduct(p: Record<string, unknown>) {
   return prisma.product.create({
     data: {
-      sku: p.sku,
-      name: p.name,
-      category: p.category,
-      subCategory: p.subCategory,
+      sku: p.sku as string | null,
+      name: p.name as string,
+      category: p.category as string,
+      subCategory: p.subCategory as string | null,
       price: Number(p.price),
       oldPrice: p.oldPrice ? Number(p.oldPrice) : null,
-      isNew: p.isNew || false,
-      description: p.description,
-      images: p.images || [],
-      details: p.details || {}
+      isNew: (p.isNew as boolean) || false,
+      description: p.description as string | null,
+      images: (p.images as string[]) || [],
+      details: (p.details as any) || {}
     }
   });
 }
 
-export async function updateProduct(id: string, p: any) {
+export async function updateProduct(id: string, p: Record<string, unknown>) {
   return prisma.product.update({
     where: { id },
     data: {
-      sku: p.sku,
-      name: p.name,
-      category: p.category,
-      subCategory: p.subCategory,
+      sku: p.sku as string | null,
+      name: p.name as string,
+      category: p.category as string,
+      subCategory: p.subCategory as string | null,
       price: Number(p.price),
       oldPrice: p.oldPrice ? Number(p.oldPrice) : null,
-      isNew: p.isNew || false,
-      description: p.description,
-      images: p.images || [],
-      details: p.details || {}
+      isNew: (p.isNew as boolean) || false,
+      description: p.description as string | null,
+      images: (p.images as string[]) || [],
+      details: (p.details as any) || {}
     }
   });
 }
@@ -132,7 +132,7 @@ export async function saveSettings(s: SiteSettings) {
 }
 
 // --- Categories ---
-export async function getCategories(): Promise<any[]> {
+export async function getCategories(): Promise<Record<string, unknown>[]> {
   if (!process.env.DATABASE_URL) {
     console.warn('DATABASE_URL is not set, returning empty categories array.');
     return [];
@@ -181,11 +181,11 @@ export async function getUiConfig() {
   }
 }
 
-export async function saveUiConfig(u: any) {
+export async function saveUiConfig(u: Record<string, unknown>) {
   return prisma.uiConfig.upsert({
     where: { id: 1 },
-    update: { config: u },
-    create: { id: 1, config: u }
+    update: { config: u as any },
+    create: { id: 1, config: u as any }
   });
 }
 

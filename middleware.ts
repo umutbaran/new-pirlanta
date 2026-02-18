@@ -17,7 +17,7 @@ export default withAuth(
           return true
         }
         // Sadece giriş yapmış VE rolü 'admin' olan kullanıcılar girebilir
-        return !!token && (token as any).role === 'admin';
+        return !!token && token.role === 'admin';
       },
     },
   }

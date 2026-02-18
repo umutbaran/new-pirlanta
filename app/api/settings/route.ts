@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getSettings, saveSettings } from '@/lib/db';
 import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { authOptions } from "@/lib/auth";
 import { z } from 'zod';
 
 const settingsSchema = z.object({

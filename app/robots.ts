@@ -1,12 +1,17 @@
-import { MetadataRoute } from 'next';
+// app/robots.ts
+import type { MetadataRoute } from "next";
+
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://newpirlanta.com";
 
 export default function robots(): MetadataRoute.Robots {
   return {
-    rules: {
-      userAgent: '*',
-      allow: '/',
-      disallow: ['/admin/', '/api/'], // Admin ve API'yi botlardan gizle
-    },
-    sitemap: 'https://newpirlanta.com/sitemap.xml', // Canlıya geçince burası güncellenecek
+    rules: [
+      {
+        userAgent: "*",
+        allow: "/",
+        disallow: ["/admin/", "/api/"],
+      },
+    ],
+    sitemap: `${siteUrl}/sitemap.xml`,
   };
 }

@@ -70,5 +70,5 @@ export interface UiConfig {
     corporateLinks: FooterLink[];
     customerServiceLinks: FooterLink[];
   };
-  bulletins?: any[];
+  bulletins?: Record<string, unknown>[];
 }

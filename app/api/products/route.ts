@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getProducts, addProduct } from '@/lib/db';
 import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { authOptions } from "@/lib/auth";
 import { z } from 'zod';
 
 const productSchema = z.object({
@@ -35,7 +35,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Geçersiz veri', details: validation.error.format() }, { status: 400 });
     }
 
-    const newProduct = await addProduct(validation.data as any);
+    const newProduct = await addProduct(validation.data);
     return NextResponse.json(newProduct);
   } catch (err) {
     console.error(err);

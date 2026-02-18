@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Plus, Edit, Trash2, Search, Loader2 } from 'lucide-react';
+import { Plus, Edit, Trash2, Search, Loader2, Package, Filter, MoreHorizontal, ExternalLink } from 'lucide-react';
 import { Product } from '@/data/products';
 
 export default function ProductsPage() {
@@ -43,106 +43,140 @@ export default function ProductsPage() {
   });
 
   return (
-    <div>
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+    <div className="space-y-8">
+      {/* Page Header */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-           <h1 className="text-2xl font-bold text-gray-900">Ürün Yönetimi</h1>
-           <p className="text-gray-500 text-sm mt-1">{products.length} ürün listeleniyor</p>
+           <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Ürün Yönetimi</h1>
+           <p className="text-slate-500 text-sm mt-1">Koleksiyonunuzdaki toplam {products.length} ürünü buradan yönetebilirsiniz.</p>
         </div>
-        <Link href="/admin/products/new" className="bg-[#D4AF37] text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-[#c4a030] transition-colors flex items-center gap-2 shadow-sm">
-          <Plus className="h-4 w-4" /> Yeni Ürün Ekle
+        <Link href="/admin/products/new" className="bg-[#D4AF37] text-slate-900 px-5 py-2.5 rounded-xl text-sm font-bold hover:bg-[#B4941F] transition-all flex items-center gap-2 shadow-lg shadow-[#D4AF37]/20 active:scale-95">
+          <Plus className="h-5 w-5" /> Yeni Ürün Ekle
         </Link>
       </div>
 
-      <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
-        <div className="p-4 border-b border-gray-100 flex flex-col sm:flex-row gap-4">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+      {/* Filters & Search */}
+      <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row gap-4 items-center">
+          <div className="relative flex-1 w-full">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
             <input 
               type="text" 
-              placeholder="Ürün adı veya kodu ile ara..." 
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-[#D4AF37] focus:ring-1 focus:ring-[#D4AF37]"
+              placeholder="Ürün adı veya SKU ile ara..." 
+              className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-[#D4AF37] focus:ring-4 focus:ring-[#D4AF37]/5 transition-all outline-none"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-          <select 
-            value={selectedCategory}
-            onChange={(e) => setSelectedCategory(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-[#D4AF37] focus:ring-1 focus:ring-[#D4AF37] bg-white cursor-pointer min-w-[200px]"
-          >
-            <option value="all">Tüm Kategoriler</option>
-            <option value="pirlanta">Pırlanta</option>
-            <option value="altin-22">22 Ayar Altın</option>
-            <option value="altin-14">14 Ayar Altın</option>
-            <option value="sarrafiye">Sarrafiye</option>
-          </select>
-        </div>
+          <div className="flex items-center gap-3 w-full md:w-auto">
+            <div className="relative w-full md:w-64">
+                <Filter className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                <select 
+                    value={selectedCategory}
+                    onChange={(e) => setSelectedCategory(e.target.value)}
+                    className="w-full pl-11 pr-10 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-[#D4AF37] focus:ring-4 focus:ring-[#D4AF37]/5 transition-all outline-none appearance-none cursor-pointer"
+                >
+                    <option value="all">Tüm Kategoriler</option>
+                    <option value="pirlanta">Pırlanta</option>
+                    <option value="altin-22">22 Ayar Altın</option>
+                    <option value="altin-14">14 Ayar Altın</option>
+                    <option value="sarrafiye">Sarrafiye</option>
+                </select>
+            </div>
+          </div>
+      </div>
 
+      {/* Products Table */}
+      <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
         {loading ? (
-          <div className="p-12 text-center text-gray-500">
-             <Loader2 className="h-8 w-8 animate-spin mx-auto mb-3 text-[#D4AF37]" />
-             Ürünler yükleniyor...
+          <div className="p-20 text-center text-slate-500">
+             <Loader2 className="h-10 w-10 animate-spin mx-auto mb-4 text-[#D4AF37]" />
+             <p className="font-medium">Koleksiyon yükleniyor...</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm text-left">
-              <thead className="text-gray-500 font-medium bg-gray-50/50 border-b border-gray-100">
-                <tr>
-                  <th className="px-6 py-3">Görsel</th>
-                  <th className="px-6 py-3">Ürün Detayı</th>
-                  <th className="px-6 py-3">Kategori</th>
-                  <th className="px-6 py-3">Fiyat</th>
-                  <th className="px-6 py-3 text-right">İşlemler</th>
+              <thead>
+                <tr className="text-slate-500 font-semibold bg-slate-50/50 border-b border-slate-100">
+                  <th className="px-8 py-4">Ürün</th>
+                  <th className="px-6 py-4">Kategori</th>
+                  <th className="px-6 py-4">Fiyat</th>
+                  <th className="px-6 py-4 text-right">Aksiyonlar</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
+              <tbody className="divide-y divide-slate-50">
                 {filteredProducts.length > 0 ? filteredProducts.map((product) => (
-                  <tr key={product.id} className="hover:bg-gray-50/50 transition-colors group">
-                    <td className="px-6 py-3">
-                      <div className="w-12 h-12 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0 border border-gray-200 relative">
-                        {product.images && product.images.length > 0 ? (
-                            <Image 
-                                src={product.images[0]} 
-                                alt={product.name} 
-                                fill
-                                className="object-cover" 
-                            />
-                        ) : (
-                            <div className="w-full h-full flex items-center justify-center text-gray-400">
-                                <Search className="h-4 w-4" />
-                            </div>
-                        )}
+                  <tr key={product.id} className="hover:bg-slate-50/50 transition-colors group">
+                    <td className="px-8 py-4">
+                      <div className="flex items-center gap-4">
+                        <div className="w-14 h-14 bg-slate-100 rounded-xl overflow-hidden flex-shrink-0 border border-slate-200 relative group-hover:border-[#D4AF37]/30 transition-colors">
+                            {product.images && product.images.length > 0 ? (
+                                <Image 
+                                    src={product.images[0]} 
+                                    alt={product.name} 
+                                    fill
+                                    className="object-cover" 
+                                />
+                            ) : (
+                                <div className="w-full h-full flex items-center justify-center text-slate-300">
+                                    <Package className="h-6 w-6" />
+                                </div>
+                            )}
+                        </div>
+                        <div className="min-w-0">
+                            <h3 className="font-bold text-slate-900 truncate max-w-[200px] md:max-w-[400px]">{product.name}</h3>
+                            <p className="text-xs text-slate-400 font-mono mt-0.5 tracking-tight">{product.sku || 'SKU Belirtilmedi'}</p>
+                        </div>
                       </div>
                     </td>
-                    <td className="px-6 py-3 font-medium text-gray-900">
-                      <div className="line-clamp-1">{product.name}</div>
-                      <div className="text-xs text-gray-400 font-mono mt-0.5">{product.sku}</div>
-                    </td>
-                    <td className="px-6 py-3 text-gray-600">
-                        <span className="inline-flex items-center px-2 py-1 rounded-md bg-gray-100 text-xs font-medium text-gray-600 capitalize">
+                    <td className="px-6 py-4">
+                        <span className="inline-flex items-center px-2.5 py-1 rounded-lg bg-slate-100 text-[11px] font-bold text-slate-600 uppercase tracking-wider">
                             {product.category}
                         </span>
                     </td>
-                    <td className="px-6 py-3 font-medium text-gray-900">{Number(product.price).toLocaleString('tr-TR')} ₺</td>
-                    <td className="px-6 py-3 text-right">
-                      <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <Link href={`/admin/products/${product.id}`} className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
-                          <Edit className="h-4 w-4" />
+                    <td className="px-6 py-4">
+                        <div className="font-bold text-slate-900">
+                            {Number(product.price).toLocaleString('tr-TR')} <span className="text-[10px] text-slate-400 font-normal ml-0.5">₺</span>
+                        </div>
+                        {product.oldPrice && (
+                            <div className="text-[10px] text-slate-400 line-through">
+                                {Number(product.oldPrice).toLocaleString('tr-TR')} ₺
+                            </div>
+                        )}
+                    </td>
+                    <td className="px-6 py-4 text-right">
+                      <div className="flex justify-end gap-1">
+                        <Link 
+                            href={`/urun/${product.id}`} 
+                            target="_blank"
+                            className="p-2.5 text-slate-400 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition-all"
+                            title="Mağazada Gör"
+                        >
+                          <ExternalLink className="h-4.5 w-4.5" />
+                        </Link>
+                        <Link 
+                            href={`/admin/products/${product.id}`} 
+                            className="p-2.5 text-blue-500 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all"
+                            title="Düzenle"
+                        >
+                          <Edit className="h-4.5 w-4.5" />
                         </Link>
                         <button 
                           onClick={() => handleDelete(product.id)}
-                          className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                          className="p-2.5 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all"
+                          title="Sil"
                         >
-                          <Trash2 className="h-4 w-4" />
+                          <Trash2 className="h-4.5 w-4.5" />
                         </button>
                       </div>
                     </td>
                   </tr>
                 )) : (
                     <tr>
-                        <td colSpan={5} className="px-6 py-12 text-center text-gray-500">
-                            Aramanızla eşleşen ürün bulunamadı.
+                        <td colSpan={4} className="px-8 py-20 text-center">
+                            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-slate-50 mb-4 border border-slate-100">
+                                <Search className="h-8 w-8 text-slate-200" />
+                            </div>
+                            <p className="text-slate-400 font-medium italic">Aramanızla eşleşen ürün bulunamadı.</p>
                         </td>
                     </tr>
                 )}

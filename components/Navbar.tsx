@@ -40,14 +40,14 @@ export default function Navbar() {
         <div className="container mx-auto px-4 lg:px-8 h-20 md:h-24 flex items-center justify-between">
           
           {/* A. LOGO */}
-          <div className="relative flex-shrink-0 mr-4 md:mr-8 w-32 md:w-64 h-full">
+          <div className="relative flex-shrink-0 mr-4 md:mr-8 w-48 md:w-64 h-full">
             <Link href="/" className="group block h-full w-full relative flex flex-col justify-center items-center">
               <Image 
                 src="/assets/logo.png" 
                 alt="New Pırlanta Logo" 
                 width={1000} 
                 height={300} 
-                className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-24 md:h-60 w-auto max-w-none object-contain z-10 mix-blend-multiply"
+                className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-40 md:h-60 w-auto max-w-none object-contain z-10 mix-blend-multiply"
                 priority
                 unoptimized
               />

@@ -55,49 +55,31 @@ export default function GoldRates() {
         const currentRatesMap: Record<string, number> = {};
 
         if (Array.isArray(sourceData)) {
-            sourceData.forEach((item: { key: string; buy: string; sell: string; degisim?: string }) => {
-                const apiName = item.key.toUpperCase();
+            sourceData.forEach((item: any) => {
+                // Harem API'den gelen anahtar bazen item.code veya item.key olabilir
+                const apiCode = (item.code || item.key || "").toUpperCase();
                 
-                if (allowedKeys[apiName]) {
-                    // Fiyatı parse et
-                    const rawSell = String(item.sell).replace(/\./g, '').replace(',', '.');
+                if (allowedKeys[apiCode]) {
+                    const rawSell = String(item.sell || item.satis || "0").replace(/\./g, '').replace(',', '.');
                     const currentPrice = parseFloat(rawSell);
-                    
-                    // Hafızadaki eski fiyatı al
-                    const prevPrice = prevRatesRef.current[apiName];
+                    const prevPrice = prevRatesRef.current[apiCode];
 
                     let status: 'up' | 'down' | 'steady' = 'steady';
+                    const rawChangeStr = String(item.degisim || '0').replace('%', '').replace(',', '.').trim();
+                    const changeValue = parseFloat(rawChangeStr);
 
-                    // 1. API'den gelen 'degisim' verisini daha agresif parse et
-                    // Örn: "%0,45", "-0.23", "%-1,20", "0,15"
-                    const rawChangeStr = String(item.degisim || '').replace('%', '').trim();
-                    // Virgülü noktaya çevir
-                    const normalizedChangeStr = rawChangeStr.replace(',', '.');
-                    const changeValue = parseFloat(normalizedChangeStr);
+                    if (rawChangeStr.includes('-') || changeValue < 0) status = 'down';
+                    else if (changeValue > 0) status = 'up';
+                    else if (prevPrice && currentPrice > prevPrice) status = 'up';
+                    else if (prevPrice && currentPrice < prevPrice) status = 'down';
 
-                    // Eğer string içinde eksi işareti varsa direkt düşüş olarak işaretle (parse hatası olsa bile)
-                    if (normalizedChangeStr.includes('-')) {
-                        status = 'down';
-                    } else if (changeValue > 0) {
-                        status = 'up';
-                    } else if (changeValue < 0) {
-                        status = 'down';
-                    } else {
-                        // 2. API "0" veya boş döndüyse, kendi hafızamızla kıyasla
-                        if (prevPrice !== undefined && !isNaN(prevPrice)) {
-                            if (currentPrice > prevPrice) status = 'up';
-                            else if (currentPrice < prevPrice) status = 'down';
-                        }
-                    }
-
-                    // Yeni fiyatı kaydet
-                    currentRatesMap[apiName] = currentPrice;
+                    currentRatesMap[apiCode] = currentPrice;
 
                     newRates.push({
-                        key: apiName,
-                        name: allowedKeys[apiName],
-                        buy: item.buy,
-                        sell: item.sell,
+                        key: apiCode,
+                        name: allowedKeys[apiCode],
+                        buy: item.buy || item.alis || "0",
+                        sell: item.sell || item.satis || "0",
                         status: status
                     });
                 }
@@ -133,7 +115,7 @@ export default function GoldRates() {
 
   return (
     <div className="flex items-center h-full overflow-hidden text-[10px] md:text-xs font-medium tracking-wide text-gray-400">
-      <div className="flex animate-[scroll_40s_linear_infinite] whitespace-nowrap hover:pause">
+      <div className="flex animate-scroll whitespace-nowrap hover:pause">
         {[...rates, ...rates].map((rate, idx) => (
           <div key={idx} className="flex items-center gap-4 mx-6 border-r border-white/10 pr-6 last:border-0 group cursor-default">
             
