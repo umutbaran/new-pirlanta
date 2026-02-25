@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { signIn } from 'next-auth/react';
 import { Lock, User, Loader2, ArrowRight, ShieldCheck } from 'lucide-react';
-import Image from 'next/image';
 
 export default function LoginPage() {
   const router = useRouter();

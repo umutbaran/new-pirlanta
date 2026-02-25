@@ -20,15 +20,14 @@ export default function GoldRates() {
         const res = await fetch(`/api/gold-rates?t=${Date.now()}`, { cache: 'no-store' });
         const json = await res.json();
         const sourceData = json.data || [];
-        
         if (sourceData.length === 0) return;
 
-        const newRates: DisplayRate[] = sourceData.map((item: any) => ({
-            key: item.key,
-            name: item.name,
+        const newRates: DisplayRate[] = (sourceData as any[]).map((item) => ({
+            key: item.key as string,
+            name: item.name as string,
             buy: item.buy || "0",
             sell: item.sell || "0",
-            status: item.trend || 'steady' // API'den gelen trendi kullan
+            status: item.trend || 'steady'
         }));
 
         setRates(newRates);

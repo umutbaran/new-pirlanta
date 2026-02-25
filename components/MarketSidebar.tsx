@@ -31,19 +31,19 @@ export default function MarketSidebar() {
 
       const newRates: Rate[] = [];
       if (Array.isArray(sourceData)) {
-        sourceData.forEach((item: any) => {
-          const apiName = item.key.toUpperCase();
+        (sourceData as Record<string, string>[]).forEach((item) => {
+          const apiName = (item.key || "").toUpperCase();
           if (allowedKeys[apiName]) {
             let status: 'up' | 'down' | 'steady' = 'steady';
-            const degisim = parseFloat(item.degisim?.replace(',', '.') || '0');
+            const degisim = parseFloat(String(item.degisim || "0").replace(',', '.'));
             if (degisim > 0) status = 'up';
             else if (degisim < 0) status = 'down';
 
             newRates.push({
               key: apiName,
               name: allowedKeys[apiName],
-              buy: item.buy,
-              sell: item.sell,
+              buy: item.buy || "0",
+              sell: item.sell || "0",
               status
             });
           }

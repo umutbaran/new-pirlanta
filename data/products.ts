@@ -1,9 +1,11 @@
+import { Prisma } from '@prisma/client';
+
 export type Category = 'pirlanta' | 'altin-22' | 'altin-14' | 'sarrafiye' | 'yeni';
 export type SubCategory = 'tektas' | 'baget' | 'alyans' | 'bilezik' | 'kolye' | 'kupe' | 'bileklik' | 'set' | 'yatirim';
 
 export interface Product {
   id: string;
-  sku: string | null; // Stok Kodu
+  sku: string | null;
   name: string;
   category: Category | string;
   subCategory: SubCategory | string | null;
@@ -11,10 +13,10 @@ export interface Product {
   oldPrice?: number | null;
   isNew?: boolean;
   description: string | null;
-  images: string[]; // Birden fazla resim
+  images: string[];
   createdAt?: Date | string;
   updatedAt?: Date | string;
-  details: any; // Veritabanından JSON geldiği için en güvenlisi any veya Record
+  details: Prisma.JsonValue; // Prisma tipiyle eşitlendi
 }
 
 export const products: Product[] = [

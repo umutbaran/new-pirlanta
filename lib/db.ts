@@ -24,17 +24,20 @@ export interface CategoryData {
 import type { HeroSlide, MosaicItem, InfoCard, StoreItem, FooterLink, UiConfig, BulletinItem } from './db_interfaces';
 export type { HeroSlide, MosaicItem, InfoCard, StoreItem, FooterLink, UiConfig, BulletinItem };
 
+import { Product } from '@/data/products';
+
 // --- Products ---
-export async function getProducts(limit?: number) {
+export async function getProducts(limit?: number): Promise<Product[]> {
   if (!process.env.DATABASE_URL) {
     console.warn('DATABASE_URL is not set, returning empty products array.');
     return [];
   }
   try {
-    return await prisma.product.findMany({
+    const products = await prisma.product.findMany({
       orderBy: { createdAt: 'desc' },
       ...(limit ? { take: limit } : {})
     });
+    return products as unknown as Product[];
   } catch (err) {
     console.error('Database error [getProducts]:', err);
     return [];

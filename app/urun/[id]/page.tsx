@@ -117,15 +117,17 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
                     <h3 className="text-[11px] font-bold text-gray-900 uppercase tracking-[0.2em] border-b border-black pb-2 inline-block">Teknik Özellikler</h3>
                     <div className="grid grid-cols-1 gap-3">
                         {(() => {
-                            const details = product.details as any;
+                            const details = product.details as Record<string, unknown>;
+                            const tasBilgisi = details?.tas_bilgisi as Record<string, string> | undefined;
+                            
                             return [
                                 { label: "Stok Kodu", value: product.sku },
-                                { label: "Materyal", value: details?.materyal },
-                                { label: "Renk", value: details?.renk },
-                                { label: "Ağırlık", value: details?.agirlik },
-                                ...(details?.tas_bilgisi ? [
-                                    { label: "Karat", value: details.tas_bilgisi.karat },
-                                    { label: "Berraklık", value: details.tas_bilgisi.berraklik }
+                                { label: "Materyal", value: details?.materyal as string },
+                                { label: "Renk", value: details?.renk as string },
+                                { label: "Ağırlık", value: details?.agirlik as string },
+                                ...(tasBilgisi ? [
+                                    { label: "Karat", value: tasBilgisi.karat },
+                                    { label: "Berraklık", value: tasBilgisi.berraklik }
                                 ] : []),
                             ];
                         })().filter(i => i.value).map((spec, i) => (

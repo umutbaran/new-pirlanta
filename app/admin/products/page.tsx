@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Plus, Edit, Trash2, Search, Loader2, Package, Filter, MoreHorizontal, ExternalLink } from 'lucide-react';
+import { Plus, Edit, Trash2, Search, Loader2, Package, Filter, ExternalLink } from 'lucide-react';
 import { Product } from '@/data/products';
 
 export default function ProductsPage() {

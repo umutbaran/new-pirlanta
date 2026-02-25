@@ -5,9 +5,10 @@ import FavoriteButton from './FavoriteButton';
 
 export default function ProductCard({ product }: { product: Product }) {
   // Gösterilecek ana özellik
-  const mainFeature = product.details.tas_bilgisi 
-    ? product.details.tas_bilgisi.karat 
-    : product.details.materyal;
+  const details = product.details as Record<string, any> || {};
+  const mainFeature = details.tas_bilgisi 
+    ? (details.tas_bilgisi as any).karat 
+    : (details.materyal as string) || "";
 
   return (
     <div className="group block bg-white hover:shadow-2xl transition-all duration-500 rounded-sm overflow-hidden border border-transparent hover:border-gray-100 h-full flex flex-col relative">

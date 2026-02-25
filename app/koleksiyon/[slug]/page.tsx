@@ -4,6 +4,7 @@ import ProductFilters from '@/components/ProductFilters';
 import { Metadata } from 'next';
 import Image from 'next/image';
 import { ChevronDown } from 'lucide-react';
+import { Product } from '@/data/products';
 
 const categoryConfig: Record<string, { title: string, desc: string, image: string }> = {
   'pirlanta': {
@@ -58,7 +59,7 @@ export default async function CategoryPage({
     image: 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?q=80' 
   };
   
-  const products = await getProducts();
+  const products = await getProducts() as unknown as Product[];
   
   // FİLTRELEME MANTIĞI
   let categoryProducts = products.filter(p => p.category === slug || (slug === 'yeni' && p.isNew));
@@ -71,8 +72,8 @@ export default async function CategoryPage({
   // 2. Renk (Sarı, Beyaz vb.)
   if (resolvedSearchParams.renk) {
     categoryProducts = categoryProducts.filter(p => {
-      const details = p.details as any;
-      return details?.renk?.toLowerCase().includes(resolvedSearchParams.renk!.toLowerCase());
+      const details = p.details as Record<string, unknown>;
+      return String(details?.renk || "").toLowerCase().includes(resolvedSearchParams.renk!.toLowerCase());
     });
   }
 

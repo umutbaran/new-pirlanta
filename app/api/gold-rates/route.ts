@@ -70,8 +70,8 @@ export async function GET() {
         { key: "EUR/TRY", name: "Euro", buy: tData["Euro"]?.Alış || "36.80", sell: tData["Euro"]?.Satış || "36.95", trend: "up" }
       ]
     });
-  } catch (err) {
-    console.error("Gold API Error:", err);
+  } catch (err: unknown) {
+    console.error("Gold API Error:", err instanceof Error ? err.message : String(err));
     return NextResponse.json({ success: false, data: FALLBACK_DATA });
   }
 }

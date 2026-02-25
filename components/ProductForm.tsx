@@ -53,9 +53,9 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
         // Hata detayını lib/upload.ts içindeki console'dan veya daha spesifik bir uyarıyla alabiliriz
         alert('Resim yüklenemedi! \n\nİpucu: Fotoğrafın 4MB\'dan küçük olduğundan ve Admin girişi yaptığınızdan emin olun.');
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
-      alert('Hata: ' + (err.message || 'Yükleme sırasında teknik bir hata oluştu.'));
+      alert('Hata: ' + (err instanceof Error ? err.message : 'Yükleme sırasında teknik bir hata oluştu.'));
     } finally {
       setUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = '';
@@ -289,19 +289,19 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Materyal</label>
-                            <input type="text" name="details.materyal" value={formData.details?.materyal || ''} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-black outline-none" placeholder="Örn: 14 Ayar Altın" />
+                            <input type="text" name="details.materyal" value={(formData.details as any)?.materyal || ''} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-black outline-none" placeholder="Örn: 14 Ayar Altın" />
                         </div>
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Renk</label>
-                            <input type="text" name="details.renk" value={formData.details?.renk || ''} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-black outline-none" placeholder="Örn: Beyaz, Sarı" />
+                            <input type="text" name="details.renk" value={(formData.details as any)?.renk || ''} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-black outline-none" placeholder="Örn: Beyaz, Sarı" />
                         </div>
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Ağırlık / Karat</label>
-                            <input type="text" name="details.agirlik" value={formData.details?.agirlik || ''} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-black outline-none" placeholder="Örn: 2.50 gr" />
+                            <input type="text" name="details.agirlik" value={(formData.details as any)?.agirlik || ''} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-black outline-none" placeholder="Örn: 2.50 gr" />
                         </div>
                         <div>
                              <label className="block text-sm font-medium text-gray-700 mb-1">Sertifika</label>
-                             <input type="text" name="details.sertifika" value={formData.details?.sertifika || ''} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-black outline-none" />
+                             <input type="text" name="details.sertifika" value={(formData.details as any)?.sertifika || ''} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-black outline-none" />
                         </div>
                     </div>
                 </div>
