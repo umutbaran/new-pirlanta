@@ -39,7 +39,7 @@ export default function AdminBulletinPage() {
     setBulletins([newItem, ...bulletins]);
   };
 
-  const updateItem = (id: string, field: keyof BulletinItem, value: any) => {
+  const updateItem = (id: string, field: keyof BulletinItem, value: string | number) => {
     setBulletins(bulletins.map(item => item.id === id ? { ...item, [field]: value } : item));
   };
 
@@ -56,7 +56,7 @@ export default function AdminBulletinPage() {
         body: JSON.stringify(bulletins),
       });
       alert('Bülten başarıyla güncellendi.');
-    } catch (err) {
+    } catch {
       alert('Kaydedilirken hata oluştu.');
     } finally {
       setSaving(false);

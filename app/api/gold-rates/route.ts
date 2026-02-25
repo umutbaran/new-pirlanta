@@ -47,7 +47,7 @@ export async function GET() {
     const tData = await tRes.json();
     
     // Değerleri güvenli bir şekilde sayıya çevir
-    const getVal = (v: any) => {
+    const getVal = (v: unknown) => {
         if (!v) return 0;
         const s = String(v).replace(/\./g, '').replace(',', '.');
         return parseFloat(s) || 0;
@@ -71,7 +71,8 @@ export async function GET() {
       ]
     });
   } catch (err: unknown) {
-    console.error("Gold API Error:", err instanceof Error ? err.message : String(err));
+    const errorMsg = err instanceof Error ? err.message : String(err);
+    console.error("Gold API Error:", errorMsg);
     return NextResponse.json({ success: false, data: FALLBACK_DATA });
   }
 }

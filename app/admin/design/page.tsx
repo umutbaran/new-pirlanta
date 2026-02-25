@@ -5,10 +5,9 @@ import Image from 'next/image';
 import { 
   Save, Plus, Trash2, Image as ImageIcon, Upload, Loader2, 
   LayoutTemplate, Grid, Info, Type, MapPin, Anchor, 
-  Instagram, Facebook, Twitter, ExternalLink, ChevronRight, 
-  Settings, Search, Smartphone, CheckCircle2, PlusCircle, XCircle, Package
+  Instagram, Facebook, Twitter, Search, XCircle, PlusCircle
 } from 'lucide-react';
-import { UiConfig, HeroSlide, MosaicItem, InfoCard, StoreItem, FooterLink } from '@/lib/db';
+import { UiConfig, HeroSlide, MosaicItem, InfoCard, StoreItem } from '@/lib/db';
 import { Product } from '@/data/products';
 import { uploadProductImage } from '@/lib/upload';
 
@@ -85,7 +84,7 @@ export default function DesignPage() {
     }
   };
 
-  const updateSlide = (index: number, field: keyof HeroSlide, value: string) => { if (!config) return; const newSlides = [...config.heroSlides]; newSlides[index] = { ...newSlides[index], [field]: value }; setConfig({ ...config, heroSlides: newSlides }); };
+  const updateSlide = (index: number, field: keyof HeroSlide, value: string) => { if (!config) return; const newSlides = [...config.heroSlides]; newSlides[index] = { ...newSlides[index], [field]: value } as HeroSlide; setConfig({ ...config, heroSlides: newSlides }); };
   const addSlide = () => { if (!config) return; const newSlide: HeroSlide = { id: Math.random().toString(36).substr(2, 9), image: 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338', title: 'Yeni Başlık', subtitle: 'Alt başlık', buttonText: 'İncele', buttonLink: '/' }; setConfig({ ...config, heroSlides: [...config.heroSlides, newSlide] }); };
   const removeSlide = (index: number) => { if (!config || !confirm('Silmek istiyor musunuz?')) return; const newSlides = config.heroSlides.filter((_, i) => i !== index); setConfig({ ...config, heroSlides: newSlides }); };
   
@@ -145,7 +144,7 @@ export default function DesignPage() {
            {id:'store', label:'Mağazalar', icon:MapPin}, 
            {id:'footer', label:'Footer', icon:Anchor}
          ].map(tab => (
-             <button key={tab.id} onClick={() => setActiveTab(tab.id as any)} className={`px-8 py-3.5 rounded-[1.5rem] text-xs font-black uppercase tracking-widest flex items-center gap-2 transition-all duration-300 ${activeTab === tab.id ? 'bg-white text-slate-900 shadow-lg' : 'text-slate-500 hover:text-slate-700 hover:bg-white/50'}`}>
+             <button key={tab.id} onClick={() => setActiveTab(tab.id as 'slider' | 'mosaic' | 'info' | 'showcase' | 'store' | 'footer')} className={`px-8 py-3.5 rounded-[1.5rem] text-xs font-black uppercase tracking-widest flex items-center gap-2 transition-all duration-300 ${activeTab === tab.id ? 'bg-white text-slate-900 shadow-lg' : 'text-slate-500 hover:text-slate-700 hover:bg-white/50'}`}>
                 <tab.icon className={`h-4.5 w-4.5 ${activeTab === tab.id ? 'text-[#D4AF37]' : ''}`} /> {tab.label}
              </button>
          ))}
