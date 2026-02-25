@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import { ChevronLeft, ChevronRight, X, ZoomIn } from 'lucide-react';
 
@@ -13,15 +13,15 @@ export default function ProductGallery({ images, productName }: ProductGalleryPr
   const [selectedImage, setSelectedImage] = useState(0);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
 
-  const nextImage = (e?: React.MouseEvent) => {
+  const nextImage = useCallback((e?: React.MouseEvent) => {
     e?.stopPropagation();
     setSelectedImage((prev) => (prev + 1) % images.length);
-  };
+  }, [images.length]);
 
-  const prevImage = (e?: React.MouseEvent) => {
+  const prevImage = useCallback((e?: React.MouseEvent) => {
     e?.stopPropagation();
     setSelectedImage((prev) => (prev - 1 + images.length) % images.length);
-  };
+  }, [images.length]);
 
   // Klavye desteği
   useEffect(() => {
@@ -33,7 +33,7 @@ export default function ProductGallery({ images, productName }: ProductGalleryPr
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isLightboxOpen, images.length]);
+  }, [isLightboxOpen, nextImage, prevImage]);
 
   const displayImages = images && images.length > 0 
     ? images 

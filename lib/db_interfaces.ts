@@ -37,6 +37,17 @@ export interface FooterLink {
   url: string;
 }
 
+export interface BulletinItem {
+  id: string;
+  date: string;
+  time: string;
+  country: string;
+  event: string;
+  importance: 1 | 2 | 3;
+  impact: 'up' | 'down' | 'neutral';
+  description?: string;
+}
+
 export interface UiConfig {
   heroSlides: HeroSlide[];
   collectionMosaic: {
@@ -70,5 +81,5 @@ export interface UiConfig {
     corporateLinks: FooterLink[];
     customerServiceLinks: FooterLink[];
   };
-  bulletins?: Record<string, unknown>[];
+  bulletins?: BulletinItem[];
 }

@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Menu, Search, User, Heart, X, ChevronDown, Calendar, ChevronRight } from 'lucide-react';
+import { Menu, Search, User, Heart, X, ChevronDown, Calendar } from 'lucide-react';
 import GoldRates from './GoldRates';
 import { CategoryData as Category } from '@/lib/db';
 import { useFavorites } from '@/context/FavoritesContext';

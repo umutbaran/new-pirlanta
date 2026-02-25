@@ -20,19 +20,9 @@ export interface CategoryData {
   subCategories: { name: string; slug: string }[];
 }
 
-export interface BulletinItem {
-  id: string;
-  date: string;
-  time: string;
-  country: string;
-  event: string;
-  importance: 1 | 2 | 3;
-  impact: 'up' | 'down' | 'neutral';
-  description?: string;
-}
-
 // Reuse interfaces from your existing types
-export type { HeroSlide, MosaicItem, InfoCard, StoreItem, FooterLink, UiConfig } from './db_interfaces';
+import type { HeroSlide, MosaicItem, InfoCard, StoreItem, FooterLink, UiConfig, BulletinItem } from './db_interfaces';
+export type { HeroSlide, MosaicItem, InfoCard, StoreItem, FooterLink, UiConfig, BulletinItem };
 
 // --- Products ---
 export async function getProducts(limit?: number) {
@@ -169,25 +159,40 @@ export async function saveCategories(categories: CategoryData[]) {
 }
 
 // --- UI Config ---
-export async function getUiConfig() {
+export async function getUiConfig(): Promise<UiConfig> {
+  const fallbackConfig: UiConfig = {
+    heroSlides: [],
+    collectionMosaic: { mainTitle: "Koleksiyonlarımız", description: "", items: [] },
+    infoCenter: { title: "Mücevher Dünyası", subtitle: "Rehberler", cards: [] },
+    showcase: { title: "Özel Vitrin", description: "", productIds: [] },
+    storeSection: { title: "Şubelerimiz", subtitle: "Bize Ulaşın", stores: [] },
+    footer: {
+      description: "",
+      copyrightText: " 2026 New Pırlanta. Tüm Hakları Saklıdır.",
+      socialMedia: { instagram: "", facebook: "", twitter: "" },
+      corporateLinks: [],
+      customerServiceLinks: []
+    }
+  };
+
   if (!process.env.DATABASE_URL) {
-    console.warn('DATABASE_URL is not set, returning empty uiConfig.');
-    return {};
+    console.warn('DATABASE_URL is not set, returning fallback uiConfig.');
+    return fallbackConfig;
   }
   try {
     const data = await prisma.uiConfig.findFirst({ where: { id: 1 } });
-    return (data?.config as Record<string, unknown>) || {};
+    return (data?.config as unknown as UiConfig) || fallbackConfig;
   } catch (err) {
     console.error('Database error [getUiConfig]:', err);
-    return {};
+    return fallbackConfig;
   }
 }
 
-export async function saveUiConfig(u: Record<string, unknown>) {
+export async function saveUiConfig(u: UiConfig) {
   return prisma.uiConfig.upsert({
     where: { id: 1 },
-    update: { config: u as Prisma.InputJsonValue },
-    create: { id: 1, config: u as Prisma.InputJsonValue }
+    update: { config: u as unknown as Prisma.InputJsonValue },
+    create: { id: 1, config: u as unknown as Prisma.InputJsonValue }
   });
 }
 
@@ -195,7 +200,7 @@ export async function saveUiConfig(u: Record<string, unknown>) {
 export async function getBulletins(): Promise<BulletinItem[]> {
   try {
     const config = await getUiConfig();
-    return (config.bulletins as BulletinItem[]) || [];
+    return config.bulletins || [];
   } catch (err) {
     console.error('Database error [getBulletins]:', err);
     return [];

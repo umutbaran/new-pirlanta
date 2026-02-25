@@ -67,7 +67,7 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
     if (name.includes('.')) {
       const [parent, child] = name.split('.');
       setFormData((prev) => {
-        const parentObj = (prev as unknown as Record<string, any>)[parent] || {};
+        const parentObj = (prev as unknown as Record<string, unknown>)[parent] as Record<string, unknown> || {};
         return {
           ...prev,
           [parent]: {
@@ -118,10 +118,10 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
       if (res.ok) {
         router.push('/admin/products');
       } else {
-        const errorData = await res.json();
+        const errorData = await res.json() as { error?: string };
         alert(`Hata: ${errorData.error || 'Ürün kaydedilemedi. Lütfen tüm alanları kontrol edin.'}`);
       }
-    } catch (error) {
+    } catch (error: unknown) {
       console.error(error);
       alert('Sunucuyla iletişim kurulurken bir hata oluştu. Lütfen internet bağlantınızı kontrol edin.');
     } finally {
