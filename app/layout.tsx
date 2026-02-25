@@ -61,14 +61,6 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const organizationJsonLd = {
-    "@context": "https://schema.org",
-    "@type": "Organization",
-    name: siteName,
-    url: siteUrl,
-    logo: `${siteUrl}/assets/logo.png`,
-  };
-
   return (
     <html lang="tr" className={`${playfair.variable} ${montserrat.variable}`}>
       <body className={`${montserrat.className} antialiased min-h-screen flex flex-col overflow-x-hidden`}>

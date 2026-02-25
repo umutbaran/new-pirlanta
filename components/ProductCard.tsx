@@ -5,9 +5,10 @@ import FavoriteButton from './FavoriteButton';
 
 export default function ProductCard({ product }: { product: Product }) {
   // Gösterilecek ana özellik
-  const details = product.details as Record<string, any> || {};
-  const mainFeature = details.tas_bilgisi 
-    ? (details.tas_bilgisi as any).karat 
+  const details = (product.details || {}) as Record<string, unknown>;
+  const tasBilgisi = details.tas_bilgisi as Record<string, unknown> | undefined;
+  const mainFeature = tasBilgisi 
+    ? (tasBilgisi.karat as string) 
     : (details.materyal as string) || "";
 
   return (

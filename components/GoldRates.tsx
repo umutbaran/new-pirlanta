@@ -22,12 +22,12 @@ export default function GoldRates() {
         const sourceData = json.data || [];
         if (sourceData.length === 0) return;
 
-        const newRates: DisplayRate[] = (sourceData as any[]).map((item) => ({
-            key: item.key as string,
-            name: item.name as string,
-            buy: item.buy || "0",
-            sell: item.sell || "0",
-            status: item.trend || 'steady'
+        const newRates: DisplayRate[] = (sourceData as Record<string, string | number>[]).map((item) => ({
+            key: String(item.key),
+            name: String(item.name),
+            buy: String(item.buy || "0"),
+            sell: String(item.sell || "0"),
+            status: (item.trend as 'up' | 'down' | 'steady') || 'steady'
         }));
 
         setRates(newRates);
