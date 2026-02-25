@@ -10,38 +10,44 @@ export const authOptions: NextAuthOptions = {
         password: { label: "Şifre", type: "password" }
       },
       async authorize(credentials) {
-        if (!process.env.ADMIN_USERNAME || !process.env.ADMIN_PASSWORD) {
-  return null;
-}
-const isValid = credentials?.username === process.env.ADMIN_USERNAME &&
-            credentials?.password === process.env.ADMIN_PASSWORD;
+        const adminUser = process.env.ADMIN_USERNAME;
+        const adminPass = process.env.ADMIN_PASSWORD;
+
+        if (!adminUser || !adminPass) {
+          console.error("KRİTİK HATA: ADMIN_USERNAME veya ADMIN_PASSWORD tanımlanmamış!");
+          return null;
+        }
+
+        const isValid = credentials?.username === adminUser && credentials?.password === adminPass;
 
         if (isValid) {
-          return { id: "1", name: "Admin User", email: "admin@newpirlanta.com", role: "admin" };
+          return { id: "1", name: "Admin", email: "info@newpirlanta.com", role: "admin" };
         }
         return null;
       }
     })
   ],
+  pages: {
+    signIn: '/admin/login',
+    error: '/admin/login', // Hata durumunda da bizim sayfada kalsın
+  },
   session: {
     strategy: "jwt",
-    maxAge: 30 * 60,
+    maxAge: 30 * 60, // 30 dakika
   },
   callbacks: {
     async jwt({ token, user }) {
-      if (user && 'role' in user) {
+      if (user) {
         token.role = (user as any).role;
       }
       return token;
     },
     async session({ session, token }) {
       if (session.user) {
-        if (session.user) {
-  (session.user as any).role = token.role;
-}
+        (session.user as any).role = token.role;
       }
       return session;
     }
   },
-  secret: process.env.NEXTAUTH_SECRET,
+  secret: process.env.NEXTAUTH_SECRET || "fallback_secret_for_dev_only",
 }

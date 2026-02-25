@@ -34,14 +34,15 @@ export interface BulletinItem {
 export type { HeroSlide, MosaicItem, InfoCard, StoreItem, FooterLink, UiConfig } from './db_interfaces';
 
 // --- Products ---
-export async function getProducts() {
+export async function getProducts(limit?: number) {
   if (!process.env.DATABASE_URL) {
     console.warn('DATABASE_URL is not set, returning empty products array.');
     return [];
   }
   try {
     return await prisma.product.findMany({
-      orderBy: { createdAt: 'desc' }
+      orderBy: { createdAt: 'desc' },
+      ...(limit ? { take: limit } : {})
     });
   } catch (err) {
     console.error('Database error [getProducts]:', err);
@@ -153,14 +154,14 @@ export async function saveCategories(categories: CategoryData[]) {
         name: cat.name,
         isActive: cat.isActive,
         isSpecial: cat.isSpecial || false,
-        subCategories: cat.subCategories as any
+        subCategories: JSON.parse(JSON.stringify(cat.subCategories))
       },
       create: {
         name: cat.name,
         slug: cat.slug,
         isActive: cat.isActive,
         isSpecial: cat.isSpecial || false,
-        subCategories: cat.subCategories as any
+        subCategories: JSON.parse(JSON.stringify(cat.subCategories))
       }
     }))
   );

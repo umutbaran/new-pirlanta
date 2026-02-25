@@ -22,6 +22,11 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Dosya bulunamadı' }, { status: 400 });
     }
 
+    // Dosya boyutu kontrolü (Max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      return NextResponse.json({ error: 'Dosya boyutu çok büyük. Maksimum 5MB yüklenebilir.' }, { status: 400 });
+    }
+
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
     const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SERVICE_ROLE_KEY;
 

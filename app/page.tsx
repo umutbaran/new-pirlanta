@@ -6,10 +6,10 @@ import ProductCard from "@/components/ProductCard";
 import HeroSlider from "@/components/HeroSlider";
 
 export default async function Home() {
-  const products = await getProducts();
+  const products = await getProducts(4);
   const uiConfig = await getUiConfig();
   
-  const showcaseProducts = products.slice(0, 4);
+  const showcaseProducts = products;
 
   // Destructure for cleaner access
   const { collectionMosaic, infoCenter, showcase, storeSection } = uiConfig;

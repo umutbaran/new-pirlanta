@@ -1,5 +1,5 @@
 // app/layout.tsx
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Playfair_Display, Montserrat } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
@@ -24,27 +24,27 @@ const montserrat = Montserrat({
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://newpirlanta.com";
 const siteName = "New Pırlanta";
 
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  userScalable: true,
+};
+
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
     default: `${siteName} | Mücevher & Tasarım`,
     template: `%s | ${siteName}`,
   },
-  description: "Lüks pırlanta ve altın mücevher koleksiyonları. Ürün tanıtımları ve rehber içerikler.",
+  description: "Lüks pırlanta ve altın mücevher koleksiyonları. Baran Kuyumculuk güvencesiyle en özel tasarımlar.",
   applicationName: siteName,
-  alternates: {
-    canonical: "/",
-  },
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: {
-      index: true,
-      follow: true,
-      "max-image-preview": "large",
-      "max-snippet": -1,
-      "max-video-preview": -1,
-    },
+  icons: {
+    icon: [
+      { url: "/favicon.ico" },
+      { url: "/icon.png" }
+    ],
+    apple: "/icon.png",
   },
   openGraph: {
     type: "website",
@@ -52,18 +52,7 @@ export const metadata: Metadata = {
     siteName,
     locale: "tr_TR",
     title: `${siteName} | Mücevher & Tasarım`,
-    description: "Lüks pırlanta ve altın mücevher koleksiyonları. Ürün tanıtımları ve rehber içerikler.",
-    // images: [{ url: "/og.png", width: 1200, height: 630, alt: siteName }], // og.png ekleyince aç
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: `${siteName} | Mücevher & Tasarım`,
-    description: "Lüks pırlanta ve altın mücevher koleksiyonları. Ürün tanıtımları ve rehber içerikler.",
-    // images: ["/og.png"], // og.png ekleyince aç
-  },
-  icons: {
-    icon: "/favicon.ico",
-    // apple: "/apple-touch-icon.png",
+    description: "Lüks pırlanta ve altın mücevher koleksiyonları.",
   },
 };
 
@@ -77,32 +66,12 @@ export default function RootLayout({
     "@type": "Organization",
     name: siteName,
     url: siteUrl,
-    // logo: `${siteUrl}/logo.png`, // public/logo.png ekleyince aç
-    // sameAs: ["https://instagram.com/..."] // varsa ekle
-  };
-
-  const websiteJsonLd = {
-    "@context": "https://schema.org",
-    "@type": "WebSite",
-    name: siteName,
-    url: siteUrl,
-    inLanguage: "tr-TR",
+    logo: `${siteUrl}/assets/logo.png`,
   };
 
   return (
     <html lang="tr" className={`${playfair.variable} ${montserrat.variable}`}>
-      <head>
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
-        />
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
-        />
-      </head>
-
-      <body className={`${montserrat.className} antialiased min-h-screen flex flex-col`}>
+      <body className={`${montserrat.className} antialiased min-h-screen flex flex-col overflow-x-hidden`}>
         <Providers>
           <MainLayout navbar={<Navbar />} footer={<Footer />} whatsapp={<FloatingWhatsapp />}>
             {children}

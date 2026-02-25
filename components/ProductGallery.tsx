@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { ChevronLeft, ChevronRight, X, ZoomIn } from 'lucide-react';
 
@@ -23,13 +23,25 @@ export default function ProductGallery({ images, productName }: ProductGalleryPr
     setSelectedImage((prev) => (prev - 1 + images.length) % images.length);
   };
 
+  // Klavye desteği
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (!isLightboxOpen) return;
+      if (e.key === 'Escape') setIsLightboxOpen(false);
+      if (e.key === 'ArrowRight') nextImage();
+      if (e.key === 'ArrowLeft') prevImage();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isLightboxOpen, images.length]);
+
   const displayImages = images && images.length > 0 
     ? images 
     : ['https://images.unsplash.com/photo-1617038260897-41a1f14a8ca0?q=80'];
 
   return (
     <div className="flex flex-col gap-4 w-full">
-      {/* Ana Görsel - Tertemiz, Arka Plansız, Kutusuız */}
+      {/* Ana Görsel */}
       <div 
           className="relative w-full aspect-square flex items-center justify-center cursor-zoom-in group"
           onClick={() => setIsLightboxOpen(true)}
@@ -44,10 +56,18 @@ export default function ProductGallery({ images, productName }: ProductGalleryPr
         
         {displayImages.length > 1 && (
           <>
-            <button onClick={prevImage} className="absolute left-0 top-1/2 -translate-y-1/2 p-2 text-gray-400 hover:text-black transition-colors opacity-0 group-hover:opacity-100">
+            <button 
+              onClick={prevImage} 
+              aria-label="Önceki resim"
+              className="absolute left-0 top-1/2 -translate-y-1/2 p-2 text-gray-400 hover:text-black transition-colors opacity-0 group-hover:opacity-100"
+            >
               <ChevronLeft className="h-8 w-8 stroke-1" />
             </button>
-            <button onClick={nextImage} className="absolute right-0 top-1/2 -translate-y-1/2 p-2 text-gray-400 hover:text-black transition-colors opacity-0 group-hover:opacity-100">
+            <button 
+              onClick={nextImage} 
+              aria-label="Sonraki resim"
+              className="absolute right-0 top-1/2 -translate-y-1/2 p-2 text-gray-400 hover:text-black transition-colors opacity-0 group-hover:opacity-100"
+            >
               <ChevronRight className="h-8 w-8 stroke-1" />
             </button>
           </>

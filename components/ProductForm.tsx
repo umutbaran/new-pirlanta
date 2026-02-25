@@ -101,8 +101,8 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
     
     const cleanData = {
         ...formData,
-        price: Number(formData.price),
-        oldPrice: formData.oldPrice ? Number(formData.oldPrice) : undefined
+        price: Math.max(0, Number(formData.price)), // Fiyatın 0'dan küçük olmasını engelle
+        oldPrice: formData.oldPrice ? Math.max(0, Number(formData.oldPrice)) : undefined
     };
 
     try {
@@ -118,11 +118,12 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
       if (res.ok) {
         router.push('/admin/products');
       } else {
-        alert('Kaydetme hatası.');
+        const errorData = await res.json();
+        alert(`Hata: ${errorData.error || 'Ürün kaydedilemedi. Lütfen tüm alanları kontrol edin.'}`);
       }
     } catch (error) {
       console.error(error);
-      alert('Bir hata oluştu.');
+      alert('Sunucuyla iletişim kurulurken bir hata oluştu. Lütfen internet bağlantınızı kontrol edin.');
     } finally {
       setLoading(false);
     }

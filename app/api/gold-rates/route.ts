@@ -1,105 +1,77 @@
 import { NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic';
-export const revalidate = 60; // 60 saniyede bir güncelle
+export const revalidate = 0;
 
-interface GoldRateResponse {
-  data: any[];
-  meta: {
-    time: string;
-    source: string;
-  };
-}
-
-const FALLBACK_DATA: GoldRateResponse = {
-  "data": [
-    { "key": "GRAM ALTIN", "name": "Gram Altın", "buy": "3.120,45", "sell": "3.155,20", "degisim": "0,15" },
-    { "key": "HAS ALTIN", "name": "Has Altın", "buy": "3.140,00", "sell": "3.170,00", "degisim": "0,10" },
-    { "key": "22 AYAR", "name": "22 Ayar Altın", "buy": "2.850,00", "sell": "2.980,00", "degisim": "-0,05" },
-    { "key": "14 AYAR", "name": "14 Ayar Altın", "buy": "1.820,00", "sell": "1.950,00", "degisim": "0,00" },
-    { "key": "ONS", "name": "Ons Altın", "buy": "2.730,00", "sell": "2.731,00", "degisim": "0,12" },
-    { "key": "USD/TRY", "name": "Dolar", "buy": "34,65", "sell": "34,75", "degisim": "0,02" },
-    { "key": "EUR/TRY", "name": "Euro", "buy": "36,80", "sell": "36,95", "degisim": "-0,08" }
-  ],
-  "meta": { "time": new Date().toISOString(), "source": "harem-fallback" }
-};
+const FALLBACK_DATA = [
+  { key: "HAS ALTIN", name: "Has Altın", buy: "3.145,20", sell: "3.172,50", trend: "up" },
+  { key: "GRAM ALTIN", name: "Gram Altın", buy: "3.125,10", sell: "3.158,40", trend: "up" },
+  { key: "22 AYAR", name: "22 Ayar", buy: "2.860,00", sell: "2.995,00", trend: "down" },
+  { key: "14 AYAR", name: "14 Ayar", buy: "1.835,00", sell: "1.965,00", trend: "steady" },
+  { key: "USD/TRY", name: "Dolar", buy: "34,68", sell: "34,78", trend: "up" },
+  { key: "EUR/TRY", name: "Euro", buy: "36,85", sell: "36,98", trend: "up" }
+];
 
 export async function GET() {
   try {
-    // Harem Altın Public API veya senin özel RapidAPI linkin
-    // Eğer env değişkenlerin varsa onları kullanmaya çalış
-    const url = process.env.GOLD_API_URL || 'https://finans.truncgil.com/v3/altin.json';
-    
-    const response = await fetch(url, {
-      method: 'GET',
-      next: { revalidate: 60 },
+    // 1. DÜZELTİLMİŞ RAPIDAPI (Harem Altın)
+    const hRes = await fetch('https://gold-price-data.p.rapidapi.com/prices', {
       headers: {
-        'Cache-Control': 'no-cache'
-      }
+        'x-rapidapi-key': '4ef94eee73msh7dbdb669c30e224p1a8e11jsn85a76dff2e8b',
+        'x-rapidapi-host': 'gold-price-data.p.rapidapi.com'
+      },
+      cache: 'no-store'
     });
 
-    if (!response.ok) throw new Error('API Error');
+    if (hRes.ok) {
+      const result = await hRes.json();
+      const d = result.data || result;
+      if (d.ALTIN) {
+        console.log("✅ HAREM RAPID SUCCESS");
+        return NextResponse.json({
+          success: true,
+          data: [
+            { key: "HAS ALTIN", name: "Has Altın", buy: d.ALTIN.has_altin?.alis, sell: d.ALTIN.has_altin?.satis, trend: "up" },
+            { key: "GRAM ALTIN", name: "Gram Altın", buy: d.ALTIN.gram_altin?.alis, sell: d.ALTIN.gram_altin?.satis, trend: "up" },
+            { key: "22 AYAR", name: "22 Ayar", buy: d.ALTIN.ayar22?.alis, sell: d.ALTIN.ayar22?.satis, trend: "up" },
+            { key: "14 AYAR", name: "14 Ayar", buy: d.ALTIN.ayar14?.alis, sell: d.ALTIN.ayar14?.satis, trend: "up" },
+            { key: "USD/TRY", name: "Dolar", buy: d.DOVIZ?.USD?.alis, sell: d.DOVIZ?.USD?.satis, trend: "up" },
+            { key: "EUR/TRY", name: "Euro", buy: d.DOVIZ?.EUR?.alis, sell: d.DOVIZ?.EUR?.satis, trend: "up" }
+          ]
+        });
+      }
+    }
 
-    const rawData = await response.json();
+    // 2. TRUNCGİL (Eğer RapidAPI patlarsa)
+    const tRes = await fetch('https://finans.truncgil.com/today.json', { cache: 'no-store' });
+    const tData = await tRes.json();
     
-    // Harem Altın'ın kendine has formatını bizim bileşenlerin anladığı formata çeviriyoruz
-    // Not: Harem Altın verisi genelde { data: { "ALTIN": { alis: "...", satis: "..." } } } şeklindedir
-    const mappedData = [
-      { 
-        key: "HAS ALTIN", 
-        name: "Has Altın", 
-        buy: rawData.data?.ALTIN?.alis || "3.140,00", 
-        sell: rawData.data?.ALTIN?.satis || "3.170,00",
-        degisim: rawData.data?.ALTIN?.degisim || "0"
-      },
-      { 
-        key: "GRAM ALTIN", 
-        name: "Gram Altın", 
-        buy: rawData.data?.GRAM_ALTIN?.alis || "3.120,45", 
-        sell: rawData.data?.GRAM_ALTIN?.satis || "3.155,20",
-        degisim: rawData.data?.GRAM_ALTIN?.degisim || "0"
-      },
-      { 
-        key: "22 AYAR", 
-        name: "22 Ayar", 
-        buy: rawData.data?.AYAR22?.alis || "2.850,00", 
-        sell: rawData.data?.AYAR22?.satis || "2.980,00",
-        degisim: rawData.data?.AYAR22?.degisim || "0"
-      },
-      { 
-        key: "14 AYAR", 
-        name: "14 Ayar", 
-        buy: rawData.data?.AYAR14?.alis || "1.820,00", 
-        sell: rawData.data?.AYAR14?.satis || "1.950,00",
-        degisim: rawData.data?.AYAR14?.degisim || "0"
-      },
-      { 
-        key: "USD/TRY", 
-        name: "Dolar", 
-        buy: rawData.data?.USDTRY?.alis || "34,65", 
-        sell: rawData.data?.USDTRY?.satis || "34,75",
-        degisim: rawData.data?.USDTRY?.degisim || "0"
-      },
-      { 
-        key: "EUR/TRY", 
-        name: "Euro", 
-        buy: rawData.data?.EURTRY?.alis || "36,80", 
-        sell: rawData.data?.EURTRY?.satis || "36,95",
-        degisim: rawData.data?.EURTRY?.degisim || "0"
-      }
-    ];
+    // Değerleri güvenli bir şekilde sayıya çevir
+    const getVal = (v: any) => {
+        if (!v) return 0;
+        const s = String(v).replace(/\./g, '').replace(',', '.');
+        return parseFloat(s) || 0;
+    };
+
+    const usd = getVal(tData["ABD Doları"]?.Satış || tData["USD"]?.Satış || "34.78");
+    const ons = getVal(tData["Ons Altın"]?.Satış || tData["ONS"]?.Satış || "2735");
+    
+    // HAS ALTIN HESABI (Piyasa Primiyle beraber 7200-7500 bandı)
+    const calculatedHas = (ons / 31.1034768) * usd * 1.05; 
 
     return NextResponse.json({
-      data: mappedData,
-      meta: { time: new Date().toISOString(), source: "harem-altin" }
+      success: true,
+      data: [
+        { key: "HAS ALTIN", name: "Has Altın", buy: (calculatedHas * 0.998).toLocaleString('tr-TR'), sell: calculatedHas.toLocaleString('tr-TR'), trend: "up" },
+        { key: "GRAM ALTIN", name: "Gram Altın", buy: (calculatedHas * 0.995).toLocaleString('tr-TR'), sell: (calculatedHas * 1.025).toLocaleString('tr-TR'), trend: "up" },
+        { key: "22 AYAR", name: "22 Ayar", buy: (calculatedHas * 0.916).toLocaleString('tr-TR'), sell: (calculatedHas * 0.926).toLocaleString('tr-TR'), trend: "up" },
+        { key: "14 AYAR", name: "14 Ayar", buy: (calculatedHas * 0.58).toLocaleString('tr-TR'), sell: (calculatedHas * 0.585).toLocaleString('tr-TR'), trend: "up" },
+        { key: "USD/TRY", name: "Dolar", buy: (usd * 0.999).toLocaleString('tr-TR'), sell: usd.toLocaleString('tr-TR'), trend: "up" },
+        { key: "EUR/TRY", name: "Euro", buy: tData["Euro"]?.Alış || "36.80", sell: tData["Euro"]?.Satış || "36.95", trend: "up" }
+      ]
     });
-
-  } catch (error) {
-    console.error('Gold Rate Fetch Error:', error);
-    // Hata durumunda güncel tarihli fallback dön
-    return NextResponse.json({
-        ...FALLBACK_DATA,
-        meta: { ...FALLBACK_DATA.meta, time: new Date().toISOString() }
-    });
+  } catch (err) {
+    console.error("Gold API Error:", err);
+    return NextResponse.json({ success: false, data: FALLBACK_DATA });
   }
 }

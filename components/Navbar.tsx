@@ -3,15 +3,19 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Menu, Search, User, Heart, X, ChevronDown, Calendar } from 'lucide-react';
+import { Menu, Search, User, Heart, X, ChevronDown, Calendar, ChevronRight } from 'lucide-react';
 import GoldRates from './GoldRates';
 import { CategoryData as Category } from '@/lib/db';
 import { useFavorites } from '@/context/FavoritesContext';
+import { useRouter } from 'next/navigation';
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const [categories, setCategories] = useState<Category[]>([]);
   const { favorites } = useFavorites(); // Context'ten favorileri çek
+  const router = useRouter();
 
   useEffect(() => {
     fetch('/api/categories')
@@ -22,9 +26,18 @@ export default function Navbar() {
       .catch(err => console.error(err));
   }, []);
 
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      router.push(`/koleksiyon/yeni?search=${encodeURIComponent(searchQuery)}`);
+      setIsSearchOpen(false);
+      setSearchQuery('');
+    }
+  };
+
   return (
-    <div className="sticky top-0 z-[100] w-full shadow-md">
-      
+    <div className="sticky top-0 z-[100] w-full shadow-md bg-white">
+
       {/* 1. TOP BAR */}
       <div className="bg-[#121212] text-gray-400 text-[10px] md:text-xs h-10 border-b border-gray-800 relative z-[101]">
         <div className="container mx-auto px-4 h-full flex justify-between items-center">
@@ -37,19 +50,18 @@ export default function Navbar() {
 
       {/* 2. MAIN NAVBAR */}
       <nav className="bg-white border-b border-gray-100 relative z-[100]">
-        <div className="container mx-auto px-4 lg:px-8 h-20 md:h-24 flex items-center justify-between">
-          
+        <div className="container mx-auto px-4 lg:px-8 h-20 md:h-24 flex items-center justify-between">   
+
           {/* A. LOGO */}
           <div className="relative flex-shrink-0 mr-4 md:mr-8 w-48 md:w-64 h-full">
             <Link href="/" className="group block h-full w-full relative flex flex-col justify-center items-center">
-              <Image 
-                src="/assets/logo.png" 
-                alt="New Pırlanta Logo" 
-                width={1000} 
-                height={300} 
-                className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-40 md:h-60 w-auto max-w-none object-contain z-10 mix-blend-multiply"
+              <Image
+                src="/assets/logo.png"
+                alt="New Pırlanta Logo"
+                width={280}
+                height={80}
+                className="h-auto w-full max-w-[200px] md:max-w-[280px] object-contain mix-blend-multiply transition-transform hover:scale-[1.02]"
                 priority
-                unoptimized
               />
             </Link>
           </div>
@@ -57,15 +69,15 @@ export default function Navbar() {
           {/* B. MEGA MENU (DYNAMIC) */}
           <div className="hidden lg:flex items-center gap-8 h-full flex-1">
              {categories.map((cat) => (
-                <div 
-                  key={cat.id} 
-                  className="relative h-full flex items-center group" 
+                <div
+                  key={cat.id}
+                  className="relative h-full flex items-center group"
                 >
-                   <Link 
-                     href={`/koleksiyon/${cat.slug}`} 
+                   <Link
+                     href={`/koleksiyon/${cat.slug}`}
                      className={`text-xs font-bold tracking-widest uppercase py-8 flex items-center gap-1 transition-colors ${cat.isSpecial ? 'text-[#D4AF37] hover:text-black' : 'text-gray-900 hover:text-[#D4AF37]'}`}
                    >
-                      {cat.name} 
+                      {cat.name}
                       {cat.subCategories.length > 0 && <ChevronDown className="h-3 w-3" />}
                    </Link>
 
@@ -98,16 +110,19 @@ export default function Navbar() {
 
           {/* C. ICONS */}
           <div className="flex-shrink-0 flex justify-end items-center gap-3 md:gap-6">
-            <button className="hidden lg:block text-gray-600 hover:text-[#D4AF37] transition-colors">
+            <button 
+              onClick={() => setIsSearchOpen(true)}
+              className="hidden lg:block text-gray-600 hover:text-[#D4AF37] transition-colors"
+            >     
                <Search className="h-5 w-5" />
             </button>
-            <Link href="/hesabim" className="hidden md:block text-gray-900 hover:text-[#D4AF37] transition-colors">
+            <Link href="/admin" className="hidden md:block text-gray-900 hover:text-[#D4AF37] transition-colors">
                <User className="h-5 w-5" />
             </Link>
-            
+
             {/* FAVORİLER BUTONU VE SAYACI - Mobilde Görünür */}
             <Link href="/favoriler" className="text-gray-900 hover:text-[#D4AF37] transition-colors relative group">
-               <Heart className="h-5 w-5 md:h-6 md:w-6 group-hover:fill-current transition-all" />
+               <Heart className="h-5 w-5 md:h-6 md:w-6 group-hover:fill-current transition-all" />        
                {favorites.length > 0 && (
                  <span className="absolute -top-2 -right-2 bg-[#D4AF37] text-white text-[8px] md:text-[9px] font-bold w-3.5 h-3.5 md:w-4 md:h-4 rounded-full flex items-center justify-center">
                    {favorites.length}
@@ -128,24 +143,49 @@ export default function Navbar() {
         </div>
       </nav>
 
+      {/* SEARCH MODAL */}
+      {isSearchOpen && (
+        <div className="fixed inset-0 z-[300] bg-black/70 backdrop-blur-md animate-in fade-in duration-300">
+           <div className="bg-white p-10 md:p-20 shadow-2xl animate-in slide-in-from-top duration-500 rounded-b-[3rem]">
+              <div className="container mx-auto">
+                 <div className="flex justify-between items-center mb-12">
+                    <span className="text-[10px] font-black uppercase tracking-[0.5em] text-gray-400">Ürün Ara</span>
+                    <button onClick={() => setIsSearchOpen(false)} className="p-4 bg-slate-50 rounded-full hover:rotate-90 transition-all shadow-sm"><X className="h-8 w-8" /></button>
+                 </div>
+                 <form onSubmit={handleSearch} className="relative max-w-6xl mx-auto">
+                    <input 
+                      type="text" 
+                      autoFocus 
+                      placeholder="Ne aramıştınız?..." 
+                      value={searchQuery} 
+                      onChange={(e) => setSearchQuery(e.target.value)} 
+                      className="w-full bg-transparent border-b-4 border-slate-100 py-8 text-4xl md:text-7xl font-serif outline-none focus:border-[#D4AF37] transition-all pr-24" 
+                    />
+                    <button type="submit" className="absolute right-4 top-1/2 -translate-y-1/2 p-4 text-[#D4AF37] hover:scale-110 transition-transform"><Search className="h-12 w-12 md:h-20 md:w-20" /></button>
+                 </form>
+              </div>
+           </div>
+        </div>
+      )}
+
       {/* MOBILE MENU */}
       {isOpen && (
-        <div className="fixed inset-0 z-[200] bg-white animate-in slide-in-from-right duration-300">
+        <div className="fixed inset-0 z-[200] bg-white animate-in slide-in-from-right duration-300">      
           <div className="flex flex-col h-full">
              <div className="flex justify-between items-center p-6 border-b border-gray-100">
-               <div className="w-24">
-                  <Image src="/assets/logo.png" alt="Logo" width={100} height={40} className="w-auto h-8 object-contain mix-blend-multiply" />
+               <div className="w-32 relative h-10">
+                  <Image src="/assets/logo.png" alt="Logo" fill className="object-contain object-left mix-blend-multiply" />
                </div>
                <button onClick={() => setIsOpen(false)} className="p-2 text-gray-900">
                  <X className="h-8 w-8" />
                </button>
              </div>
-             
+
              <nav className="flex-1 overflow-y-auto p-8 space-y-8">
                {categories.map((cat) => (
                   <div key={cat.id} className="border-b border-gray-50 pb-4">
-                    <Link 
-                      href={`/koleksiyon/${cat.slug}`} 
+                    <Link
+                      href={`/koleksiyon/${cat.slug}`}
                       onClick={() => setIsOpen(false)}
                       className={`block text-xl font-serif font-bold ${cat.isSpecial ? 'text-[#D4AF37]' : 'text-gray-900'}`}
                     >
@@ -154,8 +194,8 @@ export default function Navbar() {
                     {cat.subCategories.length > 0 && (
                       <div className="mt-4 grid grid-cols-2 gap-4">
                         {cat.subCategories.map((sub, idx) => (
-                          <Link 
-                            key={idx} 
+                          <Link
+                            key={idx}
                             href={`/koleksiyon/${cat.slug}?sub=${sub.slug}`}
                             onClick={() => setIsOpen(false)}
                             className="text-sm text-gray-500 hover:text-[#D4AF37]"
@@ -167,8 +207,8 @@ export default function Navbar() {
                     )}
                   </div>
                ))}
-               
-               <div className="pt-8 space-y-6">
+
+               <div className="pt-8 space-y-6 border-t border-gray-100">
                   <Link href="/favoriler" onClick={() => setIsOpen(false)} className="flex items-center gap-4 text-lg font-medium text-gray-900">
                      <Heart className="h-6 w-6 text-[#D4AF37]" />
                      Favorilerim ({favorites.length})
@@ -184,10 +224,10 @@ export default function Navbar() {
                   <Link href="/iletisim" onClick={() => setIsOpen(false)} className="text-sm font-bold uppercase tracking-widest text-gray-400">İletişim</Link>
                </div>
              </nav>
-             
+
              <div className="p-8 bg-gray-50 border-t border-gray-100">
                 <p className="text-[10px] text-gray-400 uppercase tracking-[0.3em] mb-4">Müşteri Hattı</p>
-                <a href="tel:05527873513" className="text-xl font-bold text-gray-900">0552 787 35 13</a>
+                <a href="tel:05527873513" className="text-xl font-bold text-gray-900">0552 787 35 13</a>  
              </div>
           </div>
         </div>

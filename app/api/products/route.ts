@@ -22,8 +22,8 @@ export async function GET() {
 export async function POST(request: Request) {
   // 1. Yetkilendirme Kontrolü
   const session = await getServerSession(authOptions);
-  if (!session) {
-    return NextResponse.json({ error: 'Yetkisiz erişim' }, { status: 401 });
+  if (!session || (session.user as any)?.role !== 'admin') {
+    return NextResponse.json({ error: 'Yetkisiz erişim - Sadece adminler ürün ekleyebilir' }, { status: 401 });
   }
 
   try {
