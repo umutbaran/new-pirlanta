@@ -78,8 +78,9 @@ export async function POST(request: Request) {
       .getPublicUrl(filePath);
 
     return NextResponse.json({ url: publicUrl });
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('CRITICAL UPLOAD ERROR:', err);
-    return NextResponse.json({ error: 'Sunucu hatası: ' + err.message }, { status: 500 });
+    const errorMsg = err instanceof Error ? err.message : String(err);
+    return NextResponse.json({ error: 'Sunucu hatası: ' + errorMsg }, { status: 500 });
   }
 }

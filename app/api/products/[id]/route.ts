@@ -18,7 +18,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
   
   // Authentication check
   const session = await getServerSession(authOptions);
-  if (!session || (session.user as any)?.role !== 'admin') {
+  if (!session || session.user.role !== 'admin') {
     return NextResponse.json({ error: 'Yetkisiz erişim' }, { status: 401 });
   }
 
@@ -43,7 +43,7 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
   const { id } = await params;
   // Authentication check
   const session = await getServerSession(authOptions);
-  if (!session || (session.user as any)?.role !== 'admin') {
+  if (!session || session.user.role !== 'admin') {
     return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
   }
   try {

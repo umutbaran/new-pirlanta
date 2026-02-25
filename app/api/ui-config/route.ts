@@ -101,7 +101,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Geçersiz konfigürasyon verisi', details: validation.error.format() }, { status: 400 });
     }
 
-    await saveUiConfig(validation.data as any);
+    await saveUiConfig(validation.data);
     return NextResponse.json({ success: true });
   } catch (err) {
     console.error(err);
