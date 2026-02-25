@@ -21,8 +21,8 @@ export async function uploadProductImage(file: File) {
 
     const data = await response.json();
     return data.url;
-  } catch (error: any) {
-    console.error('Yükleme hatası:', error);
+  } catch (error: unknown) {
+    console.error('Yükleme hatası:', error instanceof Error ? error.message : String(error));
     throw error;
   }
 }

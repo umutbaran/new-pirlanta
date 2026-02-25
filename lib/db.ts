@@ -1,3 +1,4 @@
+import { Prisma } from '@prisma/client';
 import prisma from './prisma';
 
 // Re-export interfaces for consistent usage
@@ -62,7 +63,7 @@ export async function addProduct(p: Record<string, unknown>) {
       isNew: (p.isNew as boolean) || false,
       description: p.description as string | null,
       images: (p.images as string[]) || [],
-      details: (p.details as any) || {}
+      details: (p.details as Prisma.InputJsonValue) || {}
     }
   });
 }
@@ -80,7 +81,7 @@ export async function updateProduct(id: string, p: Record<string, unknown>) {
       isNew: (p.isNew as boolean) || false,
       description: p.description as string | null,
       images: (p.images as string[]) || [],
-      details: (p.details as any) || {}
+      details: (p.details as Prisma.InputJsonValue) || {}
     }
   });
 }
@@ -175,7 +176,7 @@ export async function getUiConfig() {
   }
   try {
     const data = await prisma.uiConfig.findFirst({ where: { id: 1 } });
-    return (data?.config as any) || {};
+    return (data?.config as Record<string, unknown>) || {};
   } catch (err) {
     console.error('Database error [getUiConfig]:', err);
     return {};
@@ -185,8 +186,8 @@ export async function getUiConfig() {
 export async function saveUiConfig(u: Record<string, unknown>) {
   return prisma.uiConfig.upsert({
     where: { id: 1 },
-    update: { config: u as any },
-    create: { id: 1, config: u as any }
+    update: { config: u as Prisma.InputJsonValue },
+    create: { id: 1, config: u as Prisma.InputJsonValue }
   });
 }
 
