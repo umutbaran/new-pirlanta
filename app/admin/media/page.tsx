@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { Loader2, ExternalLink, Search } from 'lucide-react';
-import { Product } from '@/data/products';
+import { Product } from '@/lib/db';
 
 export default function MediaPage() {
   const [images, setImages] = useState<{url: string, productName: string}[]>([]);

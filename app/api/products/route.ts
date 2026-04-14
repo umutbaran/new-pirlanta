@@ -2,17 +2,7 @@ import { NextResponse } from 'next/server';
 import { getProducts, addProduct } from '@/lib/db';
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
-import { z } from 'zod';
-
-const productSchema = z.object({
-  name: z.string().min(2, "Ürün adı en az 2 karakter olmalı"),
-  category: z.string(),
-  price: z.number().min(0, "Fiyat 0'dan küçük olamaz"),
-  sku: z.string().optional(),
-  description: z.string().optional(),
-  images: z.array(z.string().url()).optional(),
-  // Diğer alanlar opsiyonel veya any olarak geçebilir şimdilik
-}).passthrough(); // Bilinmeyen ekstra alanlara izin ver (esneklik için)
+import { productSchema } from '@/lib/schemas';
 
 export async function GET() {
   const products = await getProducts();
@@ -29,16 +19,19 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
     
-    // 2. Girdi Doğrulama (Validation)
+    // 2. Merkezi Şema ile Doğrulama
     const validation = productSchema.safeParse(body);
     if (!validation.success) {
-      return NextResponse.json({ error: 'Geçersiz veri', details: validation.error.format() }, { status: 400 });
+      return NextResponse.json({ 
+        error: 'Geçersiz veri', 
+        details: validation.error.format() 
+      }, { status: 400 });
     }
 
     const newProduct = await addProduct(validation.data);
     return NextResponse.json(newProduct);
   } catch (err) {
-    console.error(err);
+    console.error('Add Product Error:', err);
     return NextResponse.json({ error: 'Ürün eklenirken bir hata oluştu' }, { status: 500 });
   }
 }

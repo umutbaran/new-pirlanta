@@ -6,8 +6,9 @@ import { TrendingUp, TrendingDown, RefreshCcw } from 'lucide-react';
 interface GoldRate {
   key: string;
   name: string;
+  buy: string;
   sell: string;
-  degisim: string;
+  trend: 'up' | 'down' | 'steady';
 }
 
 export default function AdminGoldRates() {
@@ -20,10 +21,8 @@ export default function AdminGoldRates() {
     try {
       const res = await fetch('/api/gold-rates');
       const data = await res.json();
-      // Adjust structure based on your API response
-      // Assuming data.data is the array based on your route.ts
-      if (data.data) {
-        setRates(data.data.slice(0, 4)); // Show top 4 items (Gram, Has, 22, 14 usually)
+      if (data.success && data.data) {
+        setRates(data.data.slice(0, 6)); // Gram, Has, 22, 14, USD, EUR
         setLastUpdate(new Date().toLocaleTimeString('tr-TR'));
       }
     } catch (error) {
@@ -38,46 +37,46 @@ export default function AdminGoldRates() {
   }, []);
 
   return (
-    <div className="bg-gradient-to-br from-gray-900 to-gray-800 text-white rounded-xl p-6 shadow-lg relative overflow-hidden">
+    <div className="bg-gradient-to-br from-gray-900 to-gray-800 text-white rounded-xl p-6 shadow-lg relative overflow-hidden h-full">
         {/* Background Decoration */}
         <div className="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-[#D4AF37] opacity-20 rounded-full blur-2xl"></div>
         
         <div className="flex justify-between items-center mb-6 relative z-10">
             <div>
-                <h3 className="font-bold text-lg">Piyasa Özeti</h3>
-                <p className="text-gray-400 text-xs">Son güncelleme: {lastUpdate}</p>
+                <h3 className="font-bold text-lg">Piyasa Analizi</h3>
+                <p className="text-gray-400 text-[10px] uppercase tracking-widest mt-0.5">Son Güncelleme: {lastUpdate}</p>
             </div>
             <button 
                 onClick={fetchRates} 
-                className={`p-2 rounded-full hover:bg-white/10 transition-colors ${loading ? 'animate-spin' : ''}`}
+                className={`p-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all ${loading ? 'animate-spin' : 'active:scale-95'}`}
             >
                 <RefreshCcw className="h-4 w-4 text-[#D4AF37]" />
             </button>
         </div>
 
-        <div className="grid grid-cols-2 gap-4 relative z-10">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 relative z-10">
             {loading ? (
                 // Skeletons
-                [1, 2, 3, 4].map((i) => (
-                    <div key={i} className="bg-white/5 p-3 rounded-lg animate-pulse">
-                        <div className="h-4 bg-white/10 rounded w-2/3 mb-2"></div>
-                        <div className="h-6 bg-white/10 rounded w-full"></div>
+                [1, 2, 3, 4, 5, 6].map((i) => (
+                    <div key={i} className="bg-white/5 p-4 rounded-xl animate-pulse border border-white/5">
+                        <div className="h-3 bg-white/10 rounded w-1/2 mb-3"></div>
+                        <div className="h-5 bg-white/10 rounded w-full"></div>
                     </div>
                 ))
             ) : (
                 rates.map((rate) => {
-                    const isUp = parseFloat(rate.degisim.replace(',', '.')) >= 0;
+                    const isUp = rate.trend === 'up';
+                    const isDown = rate.trend === 'down';
                     return (
-                        <div key={rate.key} className="bg-white/5 p-3 rounded-lg border border-white/10 hover:border-[#D4AF37]/50 transition-colors">
-                            <div className="flex justify-between items-start mb-1">
-                                <span className="text-xs text-gray-400">{rate.name}</span>
-                                <span className={`text-[10px] flex items-center gap-1 ${isUp ? 'text-green-400' : 'text-red-400'}`}>
-                                    {isUp ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
-                                    %{rate.degisim}
-                                </span>
+                        <div key={rate.key} className="bg-white/5 p-4 rounded-xl border border-white/10 hover:border-[#D4AF37]/40 transition-all group">
+                            <div className="flex justify-between items-center mb-2">
+                                <span className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">{rate.name}</span>
+                                <div className={`p-1 rounded-md ${isUp ? 'text-green-400' : isDown ? 'text-red-400' : 'text-gray-400'}`}>
+                                    {isUp ? <TrendingUp className="h-3 w-3" /> : isDown ? <TrendingDown className="h-3 w-3" /> : <RefreshCcw className="h-3 w-3" />}
+                                </div>
                             </div>
-                            <div className="font-mono text-lg font-semibold tracking-tight">
-                                {rate.sell} <span className="text-xs text-[#D4AF37]">₺</span>
+                            <div className="font-mono text-base font-bold tracking-tight text-white group-hover:text-[#D4AF37] transition-colors">
+                                {rate.sell} <span className="text-[10px] text-gray-500 font-normal">₺</span>
                             </div>
                         </div>
                     );

@@ -3,17 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Plus, Trash2, ChevronDown, ChevronRight, Eye, EyeOff, Edit2, X, Check } from 'lucide-react';
 import { CategoryData as Category } from '@/lib/db';
-
-const slugify = (text: string) => {
-  return text
-    .toString()
-    .toLowerCase()
-    .replace(/\s+/g, '-')           // Replace spaces with -
-    .replace(/[^\w\-]+/g, '')       // Remove all non-word chars
-    .replace(/\-\-+/g, '-')         // Replace multiple - with single -
-    .replace(/^-+/, '')             // Trim - from start of text
-    .replace(/-+$/, '');            // Trim - from end of text
-};
+import { slugify } from '@/lib/utils';
 
 export default function CategoriesPage() {
   const [categories, setCategories] = useState<Category[]>([]);

@@ -75,7 +75,7 @@ export default function HeroSlider() {
                  src={slide.image} 
                  alt={slide.title} 
                  fill
-                 priority={index === currentSlide}
+                 priority={index === 0}
                  className={`object-cover transition-transform duration-[8000ms] ease-linear ${index === currentSlide ? 'scale-105' : 'scale-100'}`}
                />
             </div>

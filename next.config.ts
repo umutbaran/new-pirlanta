@@ -15,10 +15,6 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'cdn.qukasoft.com',
       },
-      {
-        protocol: 'https',
-        hostname: '**',
-      },
     ],
   },
   serverExternalPackages: ['@prisma/client'],

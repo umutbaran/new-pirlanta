@@ -1,15 +1,24 @@
 import { ArrowRight, Phone, MapPin } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
-import { getProducts, getUiConfig, InfoCard, StoreItem } from "@/lib/db";
+import { getProducts, getUiConfig, InfoCard, StoreItem, Product } from "@/lib/db";
 import ProductCard from "@/components/ProductCard";
 import HeroSlider from "@/components/HeroSlider";
 
 export default async function Home() {
-  const products = await getProducts(4);
+  const products = await getProducts();
   const uiConfig = await getUiConfig();
   
-  const showcaseProducts = products;
+  // Showcase için seçilen ürünleri ID'ye göre filtreleyelim
+  let showcaseProducts: Product[] = [];
+  if (uiConfig.showcase.productIds && uiConfig.showcase.productIds.length > 0) {
+    showcaseProducts = products.filter(p => uiConfig.showcase.productIds.includes(p.id));
+  }
+  
+  // Eğer seçili ürün yoksa veya bulunamadıysa en yeni 4 ürünü göster
+  if (showcaseProducts.length === 0) {
+    showcaseProducts = products.slice(0, 4);
+  }
 
   // Destructure for cleaner access
   const { collectionMosaic, infoCenter, showcase, storeSection } = uiConfig;
@@ -37,36 +46,37 @@ export default async function Home() {
 
          <div className="grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-6 h-auto md:h-[600px]">
             {/* Büyük Kart */}
-            <Link href={collectionMosaic.items[0].link} className="md:col-span-8 relative group overflow-hidden cursor-pointer rounded-sm h-[350px] md:h-full block shadow-xl hover:shadow-2xl transition-all duration-500">
-               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent z-10" />
+            <Link href={collectionMosaic.items[0].link} className="md:col-span-8 relative group overflow-hidden cursor-pointer rounded-sm h-[400px] md:h-full block shadow-xl hover:shadow-2xl transition-all duration-700">
+               <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent z-10 opacity-80 group-hover:opacity-100 transition-opacity duration-500" />
                <Image 
                   src={collectionMosaic.items[0].image} 
                   alt={collectionMosaic.items[0].title}
                   fill
-                  className="object-cover transition-transform duration-1000 group-hover:scale-110" 
+                  className="object-cover transition-transform duration-[2000ms] group-hover:scale-110" 
                />
-               <div className="absolute bottom-6 left-6 md:bottom-10 md:left-10 z-20">
-                  <span className="text-[#D4AF37] text-[10px] md:text-xs tracking-[0.2em] uppercase mb-2 block font-bold">{collectionMosaic.items[0].subtitle}</span>
-                  <h3 className="text-3xl md:text-5xl font-serif text-white mb-4">{collectionMosaic.items[0].title}</h3>
-                  <span className="inline-flex items-center gap-2 text-white text-xs md:text-sm uppercase tracking-widest hover:text-[#D4AF37] transition-colors">
-                     {collectionMosaic.items[0].buttonText} <ArrowRight className="h-4 w-4" />
+               <div className="absolute bottom-8 left-8 md:bottom-12 md:left-12 z-20">
+                  <span className="text-[#D4AF37] text-[10px] md:text-xs tracking-[0.3em] uppercase mb-3 block font-bold animate-in slide-in-from-left duration-700">{collectionMosaic.items[0].subtitle}</span>
+                  <h3 className="text-3xl md:text-6xl font-serif text-white mb-6 leading-tight">{collectionMosaic.items[0].title}</h3>
+                  <span className="inline-flex items-center gap-3 text-white text-[10px] md:text-xs uppercase tracking-[0.2em] font-bold group/btn">
+                     <span className="border-b border-white pb-1 group-hover/btn:border-[#D4AF37] group-hover/btn:text-[#D4AF37] transition-all">{collectionMosaic.items[0].buttonText}</span>
+                     <ArrowRight className="h-4 w-4 group-hover/btn:translate-x-2 transition-transform" />
                   </span>
                </div>
             </Link>
 
             {/* Yan Kart */}
-            <Link href={collectionMosaic.items[1].link} className="md:col-span-4 relative group overflow-hidden cursor-pointer rounded-sm h-[300px] md:h-full block shadow-xl hover:shadow-2xl transition-all duration-500">
-               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent z-10" />
+            <Link href={collectionMosaic.items[1].link} className="md:col-span-4 relative group overflow-hidden cursor-pointer rounded-sm h-[300px] md:h-full block shadow-xl hover:shadow-2xl transition-all duration-700">
+               <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent z-10 opacity-80 group-hover:opacity-100 transition-opacity duration-500" />
                <Image 
                   src={collectionMosaic.items[1].image} 
                   alt={collectionMosaic.items[1].title}
                   fill
-                  className="object-cover transition-transform duration-1000 group-hover:scale-110" 
+                  className="object-cover transition-transform duration-[2000ms] group-hover:scale-110" 
                />
-               <div className="absolute bottom-6 left-6 md:bottom-10 md:left-10 z-20">
-                  <h3 className="text-2xl md:text-3xl font-serif text-white mb-2">{collectionMosaic.items[1].title}</h3>
-                  <p className="text-gray-300 text-xs mb-4">{collectionMosaic.items[1].subtitle}</p>
-                  <span className="text-white border-b border-white pb-1 text-[10px] md:text-xs tracking-widest uppercase group-hover:border-[#D4AF37] group-hover:text-[#D4AF37] transition-colors">
+               <div className="absolute bottom-8 left-8 md:bottom-10 md:left-10 z-20">
+                  <h3 className="text-2xl md:text-4xl font-serif text-white mb-3 leading-tight">{collectionMosaic.items[1].title}</h3>
+                  <p className="text-gray-300 text-[10px] md:text-xs uppercase tracking-widest mb-6 opacity-80">{collectionMosaic.items[1].subtitle}</p>
+                  <span className="text-white border-b border-white/30 pb-1 text-[10px] tracking-[0.2em] uppercase font-bold group-hover:border-[#D4AF37] group-hover:text-[#D4AF37] transition-all">
                      {collectionMosaic.items[1].buttonText}
                   </span>
                </div>

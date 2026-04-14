@@ -1,8 +1,10 @@
 import { PrismaClient } from '@prisma/client';
 import fs from 'fs/promises';
 import path from 'path';
-import process from 'process';
+import { fileURLToPath } from 'url';
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 const prisma = new PrismaClient();
 
 async function main() {
@@ -31,35 +33,39 @@ async function main() {
       });
     }
     console.log('✅ Kategoriler taşındı.');
-  } catch (e) { console.log('❌ Kategoriler taşınırken hata veya dosya yok:', e.message); }
+  } catch (e) { 
+    console.log('❌ Kategoriler hatası:', e.message); 
+  }
 
   // --- 2. Ürünler ---
   try {
     const productsData = await fs.readFile(path.join(process.cwd(), 'data/db.json'), 'utf-8');
     const products = JSON.parse(productsData);
     for (const p of products) {
+      // SKU benzersiz olmalı, yoksa ID'yi kullan
+      const sku = p.sku || `SKU-${p.id}`;
+      
       await prisma.product.upsert({
-        where: { sku: p.sku || p.id }, // SKU yoksa ID'yi kullan
+        where: { sku: sku },
         update: {
           name: p.name,
           category: p.category,
           subCategory: p.subCategory,
-          price: parseFloat(p.price),
+          price: parseFloat(p.price) || 0,
           oldPrice: p.oldPrice ? parseFloat(p.oldPrice) : null,
-          isNew: p.isNew || false,
+          isNew: !!p.isNew,
           description: p.description,
           images: p.images || [],
           details: p.details || {}
         },
         create: {
-          id: p.id.length > 10 ? p.id : undefined, // Eğer uuid değilse prisma oluştursun
-          sku: p.sku || p.id,
+          sku: sku,
           name: p.name,
           category: p.category,
           subCategory: p.subCategory,
-          price: parseFloat(p.price),
+          price: parseFloat(p.price) || 0,
           oldPrice: p.oldPrice ? parseFloat(p.oldPrice) : null,
-          isNew: p.isNew || false,
+          isNew: !!p.isNew,
           description: p.description,
           images: p.images || [],
           details: p.details || {}
@@ -67,7 +73,9 @@ async function main() {
       });
     }
     console.log('✅ Ürünler taşındı.');
-  } catch (e) { console.log('❌ Ürünler taşınırken hata veya dosya yok:', e.message); }
+  } catch (e) { 
+    console.log('❌ Ürünler hatası:', e.message); 
+  }
 
   // --- 3. Ayarlar ---
   try {
@@ -79,7 +87,9 @@ async function main() {
       create: { ...settings, id: 1 }
     });
     console.log('✅ Ayarlar taşındı.');
-  } catch (e) { console.log('❌ Ayarlar taşınırken hata:', e.message); }
+  } catch (e) { 
+    console.log('❌ Ayarlar hatası:', e.message); 
+  }
 
   // --- 4. UI Config ---
   try {
@@ -91,7 +101,9 @@ async function main() {
       create: { id: 1, config: uiConfig }
     });
     console.log('✅ UI Konfigürasyonu taşındı.');
-  } catch (e) { console.log('❌ UI Config taşınırken hata:', e.message); }
+  } catch (e) { 
+    console.log('❌ UI Config hatası:', e.message); 
+  }
 
   console.log('🏁 Taşıma işlemi başarıyla tamamlandı.');
 }

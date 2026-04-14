@@ -1,10 +1,10 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Save, ArrowLeft, Loader2, X, Upload, Plus, Image as ImageIcon } from 'lucide-react';
 import Link from 'next/link';
-import { Product } from '@/data/products';
+import { Product } from '@/lib/db';
 import { uploadProductImage } from '@/lib/upload';
 
 interface ProductFormProps {
@@ -18,13 +18,13 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
   
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [categories, setCategories] = useState<{id: string, name: string, slug: string}[]>([]);
   
-  const [formData, setFormData] = useState<Product>(initialData || {
-    id: crypto.randomUUID(),
+  const [formData, setFormData] = useState<Partial<Product>>(initialData || {
     sku: '',
     name: '',
     category: 'pirlanta',
-    subCategory: 'tektas',
+    subCategory: '',
     price: 0,
     oldPrice: 0,
     description: '',
@@ -36,9 +36,17 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
       garanti: '2 Yıl',
       sertifika: 'Firma Sertifikalı'
     }
-  } as Product);
+  });
 
   const [newImageUrl, setNewImageUrl] = useState('');
+
+  // Kategorileri çek
+  useEffect(() => {
+    fetch('/api/categories')
+      .then(res => res.json())
+      .then(data => setCategories(data))
+      .catch(err => console.error('Kategori yükleme hatası:', err));
+  }, []);
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -48,9 +56,8 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
     try {
       const url = await uploadProductImage(file);
       if (url) {
-        setFormData((prev) => ({ ...prev, images: [...prev.images, url] }));
+        setFormData((prev) => ({ ...prev, images: [...(prev.images || []), url] }));
       } else {
-        // Hata detayını lib/upload.ts içindeki console'dan veya daha spesifik bir uyarıyla alabiliriz
         alert('Resim yüklenemedi! \n\nİpucu: Fotoğrafın 4MB\'dan küçük olduğundan ve Admin girişi yaptığınızdan emin olun.');
       }
     } catch (err: unknown) {
@@ -67,7 +74,7 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
     if (name.includes('.')) {
       const [parent, child] = name.split('.');
       setFormData((prev) => {
-        const parentObj = (prev as unknown as Record<string, unknown>)[parent] as Record<string, unknown> || {};
+        const parentObj = (prev as Record<string, unknown>)[parent] || {};
         return {
           ...prev,
           [parent]: {
@@ -83,7 +90,7 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
 
   const addImage = () => {
     if (newImageUrl) {
-      setFormData((prev) => ({ ...prev, images: [...prev.images, newImageUrl] }));
+      setFormData((prev) => ({ ...prev, images: [...(prev.images || []), newImageUrl] }));
       setNewImageUrl('');
     }
   };
@@ -91,7 +98,7 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
   const removeImage = (index: number) => {
     setFormData((prev) => ({
       ...prev,
-      images: prev.images.filter((_, i) => i !== index)
+      images: (prev.images || []).filter((_, i) => i !== index)
     }));
   };
 
@@ -101,7 +108,7 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
     
     const cleanData = {
         ...formData,
-        price: Math.max(0, Number(formData.price)), // Fiyatın 0'dan küçük olmasını engelle
+        price: formData.price ? Math.max(0, Number(formData.price)) : 0, // Boş bırakılırsa 0 (Fiyat Alın) olur
         oldPrice: formData.oldPrice ? Math.max(0, Number(formData.oldPrice)) : undefined
     };
 
@@ -247,7 +254,7 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
                         </div>
 
                         {/* Image Grid */}
-                        {formData.images.length > 0 ? (
+                        {formData.images && formData.images.length > 0 ? (
                             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                                 {formData.images.map((img, idx) => (
                                     <div key={idx} className="relative group aspect-square bg-gray-100 rounded-lg overflow-hidden border border-gray-200">
@@ -318,10 +325,11 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Kategori</label>
                             <select name="category" value={formData.category} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-black outline-none bg-white text-sm">
-                                <option value="pirlanta">Pırlanta</option>
-                                <option value="altin-22">22 Ayar Altın</option>
-                                <option value="altin-14">14 Ayar Altın</option>
-                                <option value="sarrafiye">Sarrafiye</option>
+                                {categories.length > 0 ? categories.map(cat => (
+                                    <option key={cat.id} value={cat.slug}>{cat.name}</option>
+                                )) : (
+                                    <option value={formData.category}>{formData.category}</option>
+                                )}
                             </select>
                         </div>
                         <div>
@@ -336,17 +344,17 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
                     <h3 className="text-base font-semibold text-gray-900 mb-4">Fiyatlandırma</h3>
                     <div className="space-y-4">
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Fiyat (TL)</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Fiyat (TL) <span className="text-xs font-normal text-gray-400 ml-1">- Boş Bırakırsanız &quot;Fiyat Alın&quot; Yazar</span></label>
                             <div className="relative">
                                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">₺</span>
-                                <input type="number" name="price" value={formData.price} onChange={handleChange} className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-black outline-none text-sm" placeholder="0.00" />
+                                <input type="number" name="price" value={formData.price || ''} onChange={handleChange} className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-black outline-none text-sm" placeholder="İsteğe Bağlı" />
                             </div>
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">İndirimsiz Fiyat</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">İndirimsiz Fiyat <span className="text-xs font-normal text-gray-400 ml-1">- Üstü çizili görünür</span></label>
                             <div className="relative">
                                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">₺</span>
-                                <input type="number" name="oldPrice" value={formData.oldPrice || ''} onChange={handleChange} className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-black outline-none text-sm" placeholder="0.00" />
+                                <input type="number" name="oldPrice" value={formData.oldPrice || ''} onChange={handleChange} className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-black outline-none text-sm" placeholder="İsteğe Bağlı" />
                             </div>
                         </div>
                     </div>

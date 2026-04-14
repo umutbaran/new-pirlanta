@@ -7,8 +7,7 @@ import {
   LayoutTemplate, Grid, Info, Type, MapPin, Anchor, 
   Instagram, Facebook, Twitter, Search, XCircle, PlusCircle
 } from 'lucide-react';
-import { UiConfig, HeroSlide, MosaicItem, InfoCard, StoreItem } from '@/lib/db';
-import { Product } from '@/data/products';
+import { UiConfig, HeroSlide, MosaicItem, InfoCard, StoreItem, Product } from '@/lib/db';
 import { uploadProductImage } from '@/lib/upload';
 
 export default function DesignPage() {

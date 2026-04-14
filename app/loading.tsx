@@ -1,16 +1,14 @@
+'use client';
+
+import { Loader2 } from 'lucide-react';
+
 export default function Loading() {
   return (
-    <div className="container mx-auto px-4 py-12 animate-pulse">
-      <div className="h-8 w-64 bg-gray-200 mx-auto mb-12 rounded" />
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-        {[...Array(8)].map((_, i) => (
-          <div key={i} className="space-y-4">
-            <div className="aspect-square bg-gray-200 rounded" />
-            <div className="h-4 w-3/4 bg-gray-200 rounded" />
-            <div className="h-4 w-1/2 bg-gray-200 rounded" />
-          </div>
-        ))}
-      </div>
+    <div className="flex flex-col h-[70vh] w-full items-center justify-center space-y-4">
+      <Loader2 className="h-12 w-12 animate-spin text-[#D4AF37]" />
+      <p className="text-xs font-bold uppercase tracking-[0.3em] text-gray-400 animate-pulse">
+        New Pırlanta Yükleniyor...
+      </p>
     </div>
   );
 }

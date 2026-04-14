@@ -50,17 +50,17 @@ export default function Navbar() {
 
       {/* 2. MAIN NAVBAR */}
       <nav className="bg-white border-b border-gray-100 relative z-[100]">
-        <div className="container mx-auto px-4 lg:px-8 h-20 md:h-24 flex items-center justify-between">   
+        <div className="container mx-auto px-4 lg:px-8 h-16 md:h-20 flex items-center justify-between">   
 
           {/* A. LOGO */}
-          <div className="relative flex-shrink-0 mr-4 md:mr-8 w-48 md:w-64 h-full">
-            <Link href="/" className="group block h-full w-full relative flex flex-col justify-center items-center">
+          <div className="relative flex-shrink-0 mr-2 md:mr-8 w-32 md:w-56 h-full flex items-center">
+            <Link href="/" className="group block h-full w-full relative flex flex-col justify-center">
               <Image
                 src="/assets/logo.png"
                 alt="New Pırlanta Logo"
-                width={280}
-                height={80}
-                className="h-auto w-full max-w-[200px] md:max-w-[280px] object-contain mix-blend-multiply transition-transform hover:scale-[1.02]"
+                width={240}
+                height={60}
+                className="h-auto w-full max-w-[130px] md:max-w-[240px] object-contain transition-transform hover:scale-[1.02]"
                 priority
               />
             </Link>

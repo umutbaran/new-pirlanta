@@ -40,10 +40,7 @@ export const metadata: Metadata = {
   description: "Lüks pırlanta ve altın mücevher koleksiyonları. Baran Kuyumculuk güvencesiyle en özel tasarımlar.",
   applicationName: siteName,
   icons: {
-    icon: [
-      { url: "/favicon.ico" },
-      { url: "/icon.png" }
-    ],
+    icon: "/icon.png",
     apple: "/icon.png",
   },
   openGraph: {

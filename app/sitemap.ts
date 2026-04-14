@@ -2,7 +2,7 @@
 import type { MetadataRoute } from "next";
 import { getProducts } from "@/lib/db";
 
-import { Product } from "@/data/products";
+import { Product } from "@/lib/db";
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://newpirlanta.com";
 

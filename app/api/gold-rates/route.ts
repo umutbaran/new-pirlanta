@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic';
-export const revalidate = 0;
+export const revalidate = 300; // 5 dakikada bir sunucu tarafında güncellenir
 
 const FALLBACK_DATA = [
   { key: "HAS ALTIN", name: "Has Altın", buy: "3.145,20", sell: "3.172,50", trend: "up" },
@@ -14,20 +14,19 @@ const FALLBACK_DATA = [
 
 export async function GET() {
   try {
-    // 1. DÜZELTİLMİŞ RAPIDAPI (Harem Altın)
+    // 1. RAPIDAPI (Harem Altın) - Cache'li istek
     const hRes = await fetch('https://gold-price-data.p.rapidapi.com/prices', {
       headers: {
-        'x-rapidapi-key': '4ef94eee73msh7dbdb669c30e224p1a8e11jsn85a76dff2e8b',
+        'x-rapidapi-key': process.env.RAPIDAPI_KEY || '',
         'x-rapidapi-host': 'gold-price-data.p.rapidapi.com'
       },
-      cache: 'no-store'
+      next: { revalidate: 300 }
     });
 
     if (hRes.ok) {
       const result = await hRes.json();
       const d = result.data || result;
       if (d.ALTIN) {
-        console.log("✅ HAREM RAPID SUCCESS");
         return NextResponse.json({
           success: true,
           data: [
@@ -42,21 +41,27 @@ export async function GET() {
       }
     }
 
-    // 2. TRUNCGİL (Eğer RapidAPI patlarsa)
-    const tRes = await fetch('https://finans.truncgil.com/today.json', { cache: 'no-store' });
+    // 2. TRUNCGİL (Yedek) - Cache'li istek
+    const tRes = await fetch('https://finans.truncgil.com/today.json', { 
+      next: { revalidate: 300 } 
+    });
     const tData = await tRes.json();
     
-    // Değerleri güvenli bir şekilde sayıya çevir
-    const getVal = (v: unknown) => {
+    const safeParseNumber = (v: unknown): number => {
+        if (typeof v === 'number') return v;
         if (!v) return 0;
-        const s = String(v).replace(/\./g, '').replace(',', '.');
+        const s = String(v).replace(/\s/g, '');
+        if (s.includes(',') && s.includes('.')) {
+            return parseFloat(s.replace(/\./g, '').replace(',', '.')) || 0;
+        }
+        if (s.includes(',')) {
+            return parseFloat(s.replace(',', '.')) || 0;
+        }
         return parseFloat(s) || 0;
     };
 
-    const usd = getVal(tData["ABD Doları"]?.Satış || tData["USD"]?.Satış || "34.78");
-    const ons = getVal(tData["Ons Altın"]?.Satış || tData["ONS"]?.Satış || "2735");
-    
-    // HAS ALTIN HESABI (Piyasa Primiyle beraber 7200-7500 bandı)
+    const usd = safeParseNumber(tData["ABD Doları"]?.Satış || tData["USD"]?.Satış || "34.78");
+    const ons = safeParseNumber(tData["Ons Altın"]?.Satış || tData["ONS"]?.Satış || "2735");
     const calculatedHas = (ons / 31.1034768) * usd * 1.05; 
 
     return NextResponse.json({
@@ -71,8 +76,7 @@ export async function GET() {
       ]
     });
   } catch (err: unknown) {
-    const errorMsg = err instanceof Error ? err.message : String(err);
-    console.error("Gold API Error:", errorMsg);
+    console.error("Gold API Error:", err);
     return NextResponse.json({ success: false, data: FALLBACK_DATA });
   }
 }

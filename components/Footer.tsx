@@ -44,7 +44,7 @@ export default async function Footer() {
                </div>
                <div className="flex items-start gap-3">
                   <MapPin className="h-5 w-5 text-[#D4AF37] mt-1" />
-                  <span className="text-xs leading-5">Vezirhan Cd. No:34/41, 34120 <br/>Kapalıçarşı / Fatih / İstanbul</span>
+                  <span className="text-xs leading-5 whitespace-pre-line">{settings.address || "Kapalıçarşı / İstanbul"}</span>
                </div>
             </div>
           </div>

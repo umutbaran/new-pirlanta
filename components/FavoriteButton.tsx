@@ -2,7 +2,7 @@
 
 import { Heart } from 'lucide-react';
 import { useFavorites } from '@/context/FavoritesContext';
-import { Product } from '@/data/products';
+import { Product } from '@/lib/db';
 
 interface FavoriteButtonProps {
   product: Product;

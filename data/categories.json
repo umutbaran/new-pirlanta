@@ -2,7 +2,7 @@
   {
     "id": "cat_1",
     "name": "Pırlanta",
-    "slug": "prlanta",
+    "slug": "pirlanta",
     "isActive": true,
     "subCategories": [
       {
@@ -27,11 +27,11 @@
       },
       {
         "name": "Pırlanta Setler",
-        "slug": "prlanta-setler"
+        "slug": "pirlanta-setler"
       },
       {
         "name": "Beştaş Yüzükler",
-        "slug": "beta-yzkler"
+        "slug": "bestas"
       }
     ]
   },
@@ -43,11 +43,11 @@
     "subCategories": [
       {
         "name": "Yüzük",
-        "slug": "yzk"
+        "slug": "yuzuk"
       },
       {
         "name": "Küpe",
-        "slug": "kpe"
+        "slug": "kupe"
       },
       {
         "name": "Kolye",
@@ -59,11 +59,11 @@
       },
       {
         "name": "Künye",
-        "slug": "knye"
+        "slug": "kunye"
       },
       {
         "name": "Kelepçe",
-        "slug": "kelepe"
+        "slug": "kelepce"
       }
     ]
   },
@@ -75,11 +75,11 @@
     "subCategories": [
       {
         "name": "Yüzük",
-        "slug": "yzk"
+        "slug": "yuzuk"
       },
       {
         "name": "Küpe",
-        "slug": "kpe"
+        "slug": "kupe"
       },
       {
         "name": "Kolye",
@@ -91,11 +91,11 @@
       },
       {
         "name": "Künye",
-        "slug": "knye"
+        "slug": "kunye"
       },
       {
         "name": "Kelepçe",
-        "slug": "kelepe"
+        "slug": "kelepce"
       },
       {
         "name": "Bilezik",

@@ -4,17 +4,14 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Plus, Edit, Trash2, Search, Loader2, Package, Filter, ExternalLink } from 'lucide-react';
-import { Product } from '@/data/products';
+import { Product } from '@/lib/db';
 
 export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<{id: string, name: string, slug: string}[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
-
-  useEffect(() => {
-    fetchProducts();
-  }, []);
 
   const fetchProducts = async () => {
     try {
@@ -23,10 +20,27 @@ export default function ProductsPage() {
       setProducts(data);
     } catch (error) {
       console.error('Hata:', error);
-    } finally {
-      setLoading(false);
     }
   };
+
+  const fetchCategories = async () => {
+    try {
+      const res = await fetch('/api/categories');
+      const data = await res.json();
+      setCategories(data);
+    } catch (error) {
+      console.error('Kategori hatası:', error);
+    }
+  };
+
+  useEffect(() => {
+    Promise.all([
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      fetchProducts(),
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      fetchCategories()
+    ]).finally(() => setLoading(false));
+  }, []);
 
   const handleDelete = async (id: string) => {
     if (confirm('Bu ürünü silmek istediğinize emin misiniz?')) {
@@ -76,10 +90,9 @@ export default function ProductsPage() {
                     className="w-full pl-11 pr-10 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-[#D4AF37] focus:ring-4 focus:ring-[#D4AF37]/5 transition-all outline-none appearance-none cursor-pointer"
                 >
                     <option value="all">Tüm Kategoriler</option>
-                    <option value="pirlanta">Pırlanta</option>
-                    <option value="altin-22">22 Ayar Altın</option>
-                    <option value="altin-14">14 Ayar Altın</option>
-                    <option value="sarrafiye">Sarrafiye</option>
+                    {categories.map(cat => (
+                        <option key={cat.id} value={cat.slug}>{cat.name}</option>
+                    ))}
                 </select>
             </div>
           </div>

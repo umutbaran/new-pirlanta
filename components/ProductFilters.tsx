@@ -10,33 +10,37 @@ interface FilterOption {
   options: { label: string; value: string }[];
 }
 
-const filters: FilterOption[] = [
-  {
-    id: 'subCategory',
-    label: 'Ürün Tipi',
-    options: [
-      { label: 'Yüzük', value: 'yuzuk' },
-      { label: 'Kolye', value: 'kolye' },
-      { label: 'Küpe', value: 'kupe' },
-      { label: 'Bileklik', value: 'bileklik' },
-      { label: 'Alyans', value: 'alyans' },
-    ],
-  },
-  {
-    id: 'renk',
-    label: 'Renk',
-    options: [
-      { label: 'Beyaz Altın', value: 'Beyaz' },
-      { label: 'Sarı Altın', value: 'Sarı' },
-      { label: 'Rose Altın', value: 'Rose' },
-    ],
-  }
-];
+interface ProductFiltersProps {
+  availableSubCategories?: { name: string; slug: string }[];
+}
 
-export default function ProductFilters() {
+export default function ProductFilters({ availableSubCategories = [] }: ProductFiltersProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [isOpen, setIsOpen] = useState(false);
+
+  // Dinamik filtreleri oluştur
+  const dynamicFilters: FilterOption[] = [
+    {
+      id: 'subCategory',
+      label: 'Ürün Tipi',
+      options: availableSubCategories.map(sub => ({ 
+        label: sub.name, 
+        // URL'de slug kullanıyoruz ama veritabanında name olabilir, her ikisini de düşünelim
+        value: sub.slug 
+      })),
+    },
+    {
+      id: 'renk',
+      label: 'Renk',
+      options: [
+        { label: 'Beyaz Altın', value: 'Beyaz' },
+        { label: 'Sarı Altın', value: 'Sarı' },
+        { label: 'Rose Altın', value: 'Rose' },
+      ],
+    }
+  ].filter(f => f.options.length > 0);
+
   const [priceRange, setPriceRange] = useState({
     min: searchParams.get('min') || '',
     max: searchParams.get('max') || ''
@@ -133,7 +137,7 @@ export default function ProductFilters() {
                </div>
 
                {/* Kategori Filtreleri */}
-               {filters.map((group) => (
+               {dynamicFilters.map((group) => (
                   <div key={group.id}>
                      <h3 className="font-bold text-sm text-gray-900 mb-4 uppercase tracking-wider">{group.label}</h3>
                      <div className="space-y-3">

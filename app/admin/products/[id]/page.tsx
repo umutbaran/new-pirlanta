@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
 import ProductForm from '@/components/ProductForm';
-import { Product } from '@/data/products';
+import { Product } from '@/lib/db';
 
 export default function EditProductPage() {
   const params = useParams();
@@ -14,10 +14,10 @@ export default function EditProductPage() {
 
   const fetchProduct = useCallback(async () => {
     try {
-      const res = await fetch('/api/products');
-      const products = await res.json();
-      const found = products.find((p: Product) => p.id === id);
-      if (found) setProduct(found);
+      const res = await fetch(`/api/products/${id}`);
+      if (!res.ok) throw new Error('Ürün getirilemedi');
+      const data = await res.json();
+      setProduct(data);
     } catch (error) {
       console.error(error);
     } finally {
