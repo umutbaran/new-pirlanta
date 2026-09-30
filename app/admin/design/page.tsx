@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { 
   Save, Plus, Trash2, Image as ImageIcon, Upload, Loader2, 
   LayoutTemplate, Grid, Info, Type, MapPin, Anchor, 
-  Instagram, Facebook, Twitter, Search, XCircle, PlusCircle
+  Instagram, Facebook, Twitter, Music2, Search, XCircle, PlusCircle
 } from 'lucide-react';
 import { UiConfig, HeroSlide, MosaicItem, InfoCard, StoreItem, Product } from '@/lib/db';
 import { uploadProductImage } from '@/lib/upload';
@@ -324,6 +324,7 @@ export default function DesignPage() {
                               <div className="space-y-4">
                                  <div className="space-y-1"><label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Telefon</label><input type="text" value={store.phone} onChange={(e) => updateStore(index, 'phone', e.target.value)} className="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl text-sm font-mono" /></div>
                                  <div className="space-y-1"><label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Adres</label><textarea rows={2} value={store.address} onChange={(e) => updateStore(index, 'address', e.target.value)} className="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl text-xs" /></div>
+                                 <div className="space-y-1"><label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Çalışma Saatleri</label><textarea rows={2} value={store.hours || ''} placeholder={'Pzt - Cmt: 09:00 - 19:00\nPazar: Kapalı'} onChange={(e) => updateStore(index, 'hours', e.target.value)} className="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl text-xs" /></div>
                               </div>
                            </div>
                         </div>
@@ -348,6 +349,7 @@ export default function DesignPage() {
                           <div className="space-y-1.5"><label className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-wider"><Instagram className="h-3 w-3"/> Instagram URL</label><input type="text" value={config.footer.socialMedia.instagram} onChange={(e) => setConfig({...config, footer: {...config.footer, socialMedia: {...config.footer.socialMedia, instagram: e.target.value}}})} className="w-full bg-slate-50 border border-slate-200 p-4 rounded-2xl text-sm font-mono" /></div>
                           <div className="space-y-1.5"><label className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-wider"><Facebook className="h-3 w-3"/> Facebook URL</label><input type="text" value={config.footer.socialMedia.facebook} onChange={(e) => setConfig({...config, footer: {...config.footer, socialMedia: {...config.footer.socialMedia, facebook: e.target.value}}})} className="w-full bg-slate-50 border border-slate-200 p-4 rounded-2xl text-sm font-mono" /></div>
                           <div className="space-y-1.5"><label className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-wider"><Twitter className="h-3 w-3"/> Twitter URL</label><input type="text" value={config.footer.socialMedia.twitter} onChange={(e) => setConfig({...config, footer: {...config.footer, socialMedia: {...config.footer.socialMedia, twitter: e.target.value}}})} className="w-full bg-slate-50 border border-slate-200 p-4 rounded-2xl text-sm font-mono" /></div>
+                          <div className="space-y-1.5"><label className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-wider"><Music2 className="h-3 w-3"/> TikTok URL</label><input type="text" value={config.footer.socialMedia.tiktok || ''} onChange={(e) => setConfig({...config, footer: {...config.footer, socialMedia: {...config.footer.socialMedia, tiktok: e.target.value}}})} className="w-full bg-slate-50 border border-slate-200 p-4 rounded-2xl text-sm font-mono" /></div>
                       </div>
                   </div>
                </div>

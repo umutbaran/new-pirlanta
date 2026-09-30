@@ -46,6 +46,7 @@ export const storeItemSchema = z.object({
   badge: z.string(),
   address: z.string(),
   phone: z.string(),
+  hours: z.string().optional(),
   image: z.string().url().optional().nullable(),
 });
 
@@ -83,6 +84,7 @@ export const uiConfigSchema = z.object({
       instagram: z.string(),
       facebook: z.string(),
       twitter: z.string(),
+      tiktok: z.string().optional(),
     }),
     corporateLinks: z.array(footerLinkSchema),
     customerServiceLinks: z.array(footerLinkSchema),

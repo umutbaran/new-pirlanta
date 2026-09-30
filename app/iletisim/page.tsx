@@ -1,4 +1,12 @@
+import { Metadata } from 'next';
 import { getSettings } from '@/lib/db';
+import ContactForm from '@/components/ContactForm';
+import { telHref } from '@/lib/utils';
+
+export const metadata: Metadata = {
+  title: 'İletişim',
+  description: 'Özel tasarım talepleriniz, randevu ve fiyat bilgisi için bize ulaşın.',
+};
 
 export default async function ContactPage() {
   const settings = await getSettings();
@@ -25,7 +33,7 @@ export default async function ContactPage() {
                      {settings.address || "Adres bilgisi girilmemiş."}
                   </p>
                   {settings.phoneNumber && (
-                     <a href={`tel:${settings.phoneNumber}`} className="text-black font-medium hover:text-[#D4AF37] transition-colors">
+                     <a href={telHref(settings.phoneNumber)} className="text-black font-medium hover:text-[#D4AF37] transition-colors">
                         {settings.phoneNumber}
                      </a>
                   )}
@@ -44,31 +52,7 @@ export default async function ContactPage() {
             {/* SAĞ: FORM */}
             <div className="bg-gray-50 p-10 md:p-12">
                <h3 className="font-serif text-2xl mb-8">Bize Yazın</h3>
-               <form className="space-y-6">
-                  <div>
-                     <label className="block text-xs font-bold uppercase tracking-widest text-gray-500 mb-2">Adınız Soyadınız</label>
-                     <input type="text" className="w-full bg-white border border-gray-200 p-4 focus:outline-none focus:border-black transition-colors" />
-                  </div>
-                  <div>
-                     <label className="block text-xs font-bold uppercase tracking-widest text-gray-500 mb-2">E-Posta</label>
-                     <input type="email" className="w-full bg-white border border-gray-200 p-4 focus:outline-none focus:border-black transition-colors" />
-                  </div>
-                  <div>
-                     <label className="block text-xs font-bold uppercase tracking-widest text-gray-500 mb-2">Konu</label>
-                     <select className="w-full bg-white border border-gray-200 p-4 focus:outline-none focus:border-black transition-colors text-gray-600">
-                        <option>Genel Bilgi</option>
-                        <option>Fiyat Teklifi</option>
-                        <option>Randevu Talebi</option>
-                     </select>
-                  </div>
-                  <div>
-                     <label className="block text-xs font-bold uppercase tracking-widest text-gray-500 mb-2">Mesajınız</label>
-                     <textarea rows={4} className="w-full bg-white border border-gray-200 p-4 focus:outline-none focus:border-black transition-colors"></textarea>
-                  </div>
-                  <button type="button" className="w-full bg-black text-white py-4 font-bold tracking-widest uppercase hover:bg-[#D4AF37] transition-colors">
-                     Gönder
-                  </button>
-               </form>
+               <ContactForm whatsappNumber={settings.whatsappNumber} />
             </div>
          </div>
 

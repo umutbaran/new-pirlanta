@@ -1,85 +1,58 @@
 import { NextResponse } from 'next/server';
-import { getSettings } from '@/lib/db';
+import { parseSafeNumber } from '@/lib/utils';
 
-export const dynamic = 'force-dynamic';
-export const revalidate = 300; // 5 dakikada bir sunucu tarafında güncellenir
+const SOURCE_URL = 'https://finans.truncgil.com/today.json';
 
-const FALLBACK_DATA = [
-  { key: "HAS ALTIN", name: "Has Altın", buy: "3.145,20", sell: "3.172,50", trend: "up" },
-  { key: "GRAM ALTIN", name: "Gram Altın", buy: "3.125,10", sell: "3.158,40", trend: "up" },
-  { key: "22 AYAR", name: "22 Ayar", buy: "2.860,00", sell: "2.995,00", trend: "down" },
-  { key: "14 AYAR", name: "14 Ayar", buy: "1.835,00", sell: "1.965,00", trend: "steady" },
-  { key: "USD/TRY", name: "Dolar", buy: "34,68", sell: "34,78", trend: "up" },
-  { key: "EUR/TRY", name: "Euro", buy: "36,85", sell: "36,98", trend: "up" }
+// Gösterilecek kalemler: [kaynaktaki anahtar, bizim anahtarımız, görünen isim]
+const RATE_KEYS: [string, string, string][] = [
+  ['gram-has-altin', 'HAS ALTIN', 'Has Altın'],
+  ['gram-altin', 'GRAM ALTIN', 'Gram Altın'],
+  ['22-ayar-bilezik', '22 AYAR', '22 Ayar'],
+  ['14-ayar-altin', '14 AYAR', '14 Ayar'],
+  ['USD', 'USD/TRY', 'Dolar'],
+  ['EUR', 'EUR/TRY', 'Euro'],
 ];
+
+interface SourceRate {
+  'Alış'?: string;
+  'Satış'?: string;
+  'Değişim'?: string;
+}
+
+function trendFromChange(change: string | undefined): 'up' | 'down' | 'steady' {
+  const value = parseSafeNumber(String(change || '').replace('%', ''));
+  if (value > 0) return 'up';
+  if (value < 0) return 'down';
+  return 'steady';
+}
 
 export async function GET() {
   try {
-    // 1. RAPIDAPI (Harem Altın) - Cache'li istek
-    const hRes = await fetch('https://gold-price-data.p.rapidapi.com/prices', {
-      headers: {
-        'x-rapidapi-key': process.env.RAPIDAPI_KEY || '',
-        'x-rapidapi-host': 'gold-price-data.p.rapidapi.com'
-      },
-      next: { revalidate: 300 }
-    });
+    // Kaynak veri sunucu tarafında 5 dakika önbelleklenir
+    const res = await fetch(SOURCE_URL, { next: { revalidate: 300 } });
+    if (!res.ok) throw new Error(`Kaynak HTTP ${res.status}`);
+    const source = await res.json() as Record<string, SourceRate>;
 
-    if (hRes.ok) {
-      const result = await hRes.json();
-      const d = result.data || result;
-      if (d.ALTIN) {
-        return NextResponse.json({
-          success: true,
-          data: [
-            { key: "HAS ALTIN", name: "Has Altın", buy: d.ALTIN.has_altin?.alis, sell: d.ALTIN.has_altin?.satis, trend: "up" },
-            { key: "GRAM ALTIN", name: "Gram Altın", buy: d.ALTIN.gram_altin?.alis, sell: d.ALTIN.gram_altin?.satis, trend: "up" },
-            { key: "22 AYAR", name: "22 Ayar", buy: d.ALTIN.ayar22?.alis, sell: d.ALTIN.ayar22?.satis, trend: "up" },
-            { key: "14 AYAR", name: "14 Ayar", buy: d.ALTIN.ayar14?.alis, sell: d.ALTIN.ayar14?.satis, trend: "up" },
-            { key: "USD/TRY", name: "Dolar", buy: d.DOVIZ?.USD?.alis, sell: d.DOVIZ?.USD?.satis, trend: "up" },
-            { key: "EUR/TRY", name: "Euro", buy: d.DOVIZ?.EUR?.alis, sell: d.DOVIZ?.EUR?.satis, trend: "up" }
-          ]
-        });
-      }
-    }
+    const data = RATE_KEYS
+      .filter(([sourceKey]) => source[sourceKey]?.['Satış'])
+      .map(([sourceKey, key, name]) => {
+        const rate = source[sourceKey];
+        return {
+          key,
+          name,
+          buy: rate['Alış'] || '-',
+          sell: rate['Satış'] || '-',
+          change: rate['Değişim'] || '',
+          trend: trendFromChange(rate['Değişim']),
+        };
+      });
 
-    // 2. TRUNCGİL (Yedek) - Cache'li istek
-    const tRes = await fetch('https://finans.truncgil.com/today.json', { 
-      next: { revalidate: 300 } 
-    });
-    const tData = await tRes.json();
-    const settings = await getSettings();
-    const margin = 1 + (settings.goldPriceMargin || 0.05);
-    
-    const safeParseNumber = (v: unknown): number => {
-        if (typeof v === 'number') return v;
-        if (!v) return 0;
-        const s = String(v).replace(/\s/g, '');
-        if (s.includes(',') && s.includes('.')) {
-            return parseFloat(s.replace(/\./g, '').replace(',', '.')) || 0;
-        }
-        if (s.includes(',')) {
-            return parseFloat(s.replace(',', '.')) || 0;
-        }
-        return parseFloat(s) || 0;
-    };
+    if (data.length === 0) throw new Error('Kaynak veri formatı değişmiş olabilir');
 
-    const usd = safeParseNumber(tData["ABD Doları"]?.Satış || tData["USD"]?.Satış || "34.78");
-    const ons = safeParseNumber(tData["Ons Altın"]?.Satış || tData["ONS"]?.Satış || "2735");
-    const calculatedHas = (ons / 31.1034768) * usd * margin; 
-
-    return NextResponse.json({
-      success: true,
-      data: [
-        { key: "HAS ALTIN", name: "Has Altın", buy: (calculatedHas * 0.998).toLocaleString('tr-TR'), sell: calculatedHas.toLocaleString('tr-TR'), trend: "up" },
-        { key: "GRAM ALTIN", name: "Gram Altın", buy: (calculatedHas * 0.995).toLocaleString('tr-TR'), sell: (calculatedHas * 1.025).toLocaleString('tr-TR'), trend: "up" },
-        { key: "22 AYAR", name: "22 Ayar", buy: (calculatedHas * 0.916).toLocaleString('tr-TR'), sell: (calculatedHas * 0.926).toLocaleString('tr-TR'), trend: "up" },
-        { key: "14 AYAR", name: "14 Ayar", buy: (calculatedHas * 0.58).toLocaleString('tr-TR'), sell: (calculatedHas * 0.585).toLocaleString('tr-TR'), trend: "up" },
-        { key: "USD/TRY", name: "Dolar", buy: (usd * 0.999).toLocaleString('tr-TR'), sell: usd.toLocaleString('tr-TR'), trend: "up" },
-        { key: "EUR/TRY", name: "Euro", buy: tData["Euro"]?.Alış || "36.80", sell: tData["Euro"]?.Satış || "36.95", trend: "up" }
-      ]
-    });
+    return NextResponse.json({ success: true, updatedAt: source['Update_Date'] || null, data });
   } catch (err: unknown) {
-    console.error("Gold API Error:", err);
-    return NextResponse.json({ success: false, data: FALLBACK_DATA });
+    console.error('Gold API Error:', err);
+    // Eski/uydurma fiyat göstermek yerine boş veri döner; arayüz şeridi gizler
+    return NextResponse.json({ success: false, data: [] }, { status: 503 });
   }
 }

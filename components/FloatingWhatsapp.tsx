@@ -1,8 +1,9 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { whatsappLink } from '@/lib/utils';
 
-export default function FloatingWhatsapp() {
+export default function FloatingWhatsapp({ whatsappNumber }: { whatsappNumber: string }) {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
@@ -10,9 +11,7 @@ export default function FloatingWhatsapp() {
     return () => clearTimeout(timer);
   }, []);
 
-  const phoneNumber = "905527873513"; 
-  const message = "Merhaba, ürünleriniz hakkında bilgi almak istiyorum.";
-  const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+  const whatsappUrl = whatsappLink(whatsappNumber, "Merhaba, ürünleriniz hakkında bilgi almak istiyorum.");
 
   return (
     <a

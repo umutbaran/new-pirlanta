@@ -8,8 +8,9 @@ import GoldRates from './GoldRates';
 import { CategoryData as Category } from '@/lib/db';
 import { useFavorites } from '@/context/FavoritesContext';
 import { useRouter } from 'next/navigation';
+import { telHref } from '@/lib/utils';
 
-export default function Navbar() {
+export default function Navbar({ phoneNumber }: { phoneNumber: string }) {
   const [isOpen, setIsOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -228,7 +229,7 @@ export default function Navbar() {
 
              <div className="p-8 bg-gray-50 border-t border-gray-100">
                 <p className="text-[10px] text-gray-400 uppercase tracking-[0.3em] mb-4">Müşteri Hattı</p>
-                <a href="tel:05527873513" className="text-xl font-bold text-gray-900">0552 787 35 13</a>  
+                <a href={telHref(phoneNumber)} className="text-xl font-bold text-gray-900">{phoneNumber}</a>  
              </div>
           </div>
         </div>

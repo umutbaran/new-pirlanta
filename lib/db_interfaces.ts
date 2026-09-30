@@ -29,6 +29,7 @@ export interface StoreItem {
   badge: string;
   address: string;
   phone: string;
+  hours?: string;
   image?: string;
 }
 
@@ -77,6 +78,7 @@ export interface UiConfig {
       instagram: string;
       facebook: string;
       twitter: string;
+      tiktok?: string;
     };
     corporateLinks: FooterLink[];
     customerServiceLinks: FooterLink[];

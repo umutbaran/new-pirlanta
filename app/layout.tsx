@@ -7,6 +7,7 @@ import Footer from "@/components/Footer";
 import FloatingWhatsapp from "@/components/FloatingWhatsapp";
 import MainLayout from "@/components/MainLayout";
 import { Providers } from "@/components/Providers";
+import { getSettings } from "@/lib/db";
 
 const playfair = Playfair_Display({
   subsets: ["latin", "latin-ext"],
@@ -53,16 +54,22 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const settings = await getSettings();
+
   return (
     <html lang="tr" className={`${playfair.variable} ${montserrat.variable}`}>
       <body className={`${montserrat.className} antialiased min-h-screen flex flex-col overflow-x-hidden`}>
         <Providers>
-          <MainLayout navbar={<Navbar />} footer={<Footer />} whatsapp={<FloatingWhatsapp />}>
+          <MainLayout
+            navbar={<Navbar phoneNumber={settings.phoneNumber} />}
+            footer={<Footer />}
+            whatsapp={<FloatingWhatsapp whatsappNumber={settings.whatsappNumber} />}
+          >
             {children}
           </MainLayout>
         </Providers>

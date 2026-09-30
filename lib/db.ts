@@ -18,6 +18,7 @@ export interface SiteSettings {
   siteTitle: string;
   contactEmail: string;
   phoneNumber: string;
+  whatsappNumber: string;
   address: string;
   currency: string;
   goldPriceMargin: number;
@@ -115,7 +116,8 @@ export async function addProduct(p: Record<string, unknown>) {
 const FALLBACK_SETTINGS: SiteSettings = {
   siteTitle: "New Pırlanta",
   contactEmail: "info@newpirlanta.com",
-  phoneNumber: "905522806513",
+  phoneNumber: "+90 552 280 6513",
+  whatsappNumber: "905527873513",
   address: "Tatvan, Bitlis",
   currency: "TRY",
   goldPriceMargin: 0.05
@@ -129,6 +131,7 @@ export async function getSettings(): Promise<SiteSettings> {
       siteTitle: settings.siteTitle,
       contactEmail: settings.contactEmail || FALLBACK_SETTINGS.contactEmail,
       phoneNumber: settings.phoneNumber || FALLBACK_SETTINGS.phoneNumber,
+      whatsappNumber: settings.whatsappNumber || FALLBACK_SETTINGS.whatsappNumber,
       address: settings.address || FALLBACK_SETTINGS.address,
       currency: settings.currency,
       goldPriceMargin: settings.goldPriceMargin
@@ -212,7 +215,12 @@ const FALLBACK_UI_CONFIG: UiConfig = {
     description: "Kapalıçarşı'nın kalbinden, en özel anlarınıza eşlik edecek eşsiz tasarımlar. Güven, kalite ve zarafetin adresi.",
     copyrightText: "Tüm hakları saklıdır.",
     socialMedia: { instagram: "", facebook: "", twitter: "" },
-    corporateLinks: [],
+    corporateLinks: [
+      { label: "Hakkımızda", url: "/hakkimizda" },
+      { label: "Mağazalarımız", url: "/subelerimiz" },
+      { label: "İletişim", url: "/iletisim" },
+      { label: "Piyasa Analiz", url: "/bulten" }
+    ],
     customerServiceLinks: []
   }
 };

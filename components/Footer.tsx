@@ -1,6 +1,7 @@
 import Link from 'next/link';
-import { Instagram, Mail, Phone, MapPin, CreditCard, ShieldCheck } from 'lucide-react';
+import { Instagram, Facebook, Twitter, Mail, Phone, MapPin } from 'lucide-react';
 import { getSettings, getUiConfig } from '@/lib/db';
+import { whatsappLink, telHref } from '@/lib/utils';
 
 // TikTok SVG Icon
 const TikTokIcon = () => (
@@ -16,9 +17,36 @@ const WhatsAppIcon = () => (
   </svg>
 );
 
+/** Admin panelinden girilen sosyal medya adresini geçerli bir URL'ye çevirir; boş veya "#" ise null döner */
+function normalizeSocialUrl(value?: string): string | null {
+  const v = (value || '').trim().replace(/^#+/, '');
+  if (!v) return null;
+  return /^https?:\/\//i.test(v) ? v : `https://${v}`;
+}
+
+/** Sadece gerçek bir adrese giden linkleri göster */
+function validLinks(links: { label: string; url: string }[] = []) {
+  return links.filter(l => l.label && l.url && l.url.trim() !== '#');
+}
+
+const linkClass = "hover:text-[#D4AF37] transition-all hover:translate-x-1 inline-block uppercase text-[11px] font-bold";
+const socialClass = "w-12 h-12 bg-white/5 rounded-full flex items-center justify-center hover:bg-[#D4AF37] hover:text-black transition-all border border-white/10 group";
+
 export default async function Footer() {
-  const settings = await getSettings();
-  const uiConfig = await getUiConfig();
+  const [settings, uiConfig] = await Promise.all([getSettings(), getUiConfig()]);
+  const social = uiConfig.footer?.socialMedia;
+  const socialLinks = [
+    { url: normalizeSocialUrl(social?.instagram), label: 'Instagram', icon: <Instagram className="h-6 w-6 group-hover:scale-110 transition-transform" /> },
+    { url: normalizeSocialUrl(social?.tiktok), label: 'TikTok', icon: <TikTokIcon /> },
+    { url: normalizeSocialUrl(social?.facebook), label: 'Facebook', icon: <Facebook className="h-6 w-6 group-hover:scale-110 transition-transform" /> },
+    { url: normalizeSocialUrl(social?.twitter), label: 'X (Twitter)', icon: <Twitter className="h-6 w-6 group-hover:scale-110 transition-transform" /> },
+  ].filter(s => s.url);
+
+  const corporateLinks = validLinks(uiConfig.footer?.corporateLinks);
+  const infoLinks = [
+    ...validLinks(uiConfig.footer?.customerServiceLinks),
+    { label: 'Gizlilik ve KVKK', url: '/gizlilik-ve-kvkk' },
+  ];
 
   return (
     <footer className="bg-[#111] text-gray-400 text-sm border-t border-gray-800">
@@ -27,25 +55,29 @@ export default async function Footer() {
           
           {/* 1. Marka & İletişim */}
           <div className="space-y-6">
-            <h3 className="text-3xl font-serif text-white tracking-widest">{settings.siteTitle || "NEW PIRLANTA"}</h3>
-            <p className="text-gray-500 leading-relaxed text-xs md:text-sm">
-              {uiConfig.footer?.description || "Baran Kuyumculuk'un en seçkin koleksiyonu. Kapalıçarşı'nın ruhunu modern tasarımlarla buluşturuyoruz."}
-            </p>
+            <h3 className="text-3xl font-serif text-white tracking-widest">{settings.siteTitle}</h3>
+            {uiConfig.footer?.description && (
+              <p className="text-gray-500 leading-relaxed text-xs md:text-sm">{uiConfig.footer.description}</p>
+            )}
             <div className="space-y-4 pt-4">
                {settings.phoneNumber && (
-                 <a href={`tel:${settings.phoneNumber}`} className="flex items-center gap-3 hover:text-white transition-colors group">
+                 <a href={telHref(settings.phoneNumber)} className="flex items-center gap-3 hover:text-white transition-colors group">
                     <Phone className="h-5 w-5 text-[#D4AF37] group-hover:scale-110 transition-transform" />
                     <span className="font-bold">{settings.phoneNumber}</span>
                  </a>
                )}
-               <div className="flex items-center gap-3">
-                  <Mail className="h-5 w-5 text-[#D4AF37]" />
-                  <span>{settings.contactEmail || "info@newpirlanta.com"}</span>
-               </div>
-               <div className="flex items-start gap-3">
-                  <MapPin className="h-5 w-5 text-[#D4AF37] mt-1" />
-                  <span className="text-xs leading-5 whitespace-pre-line">{settings.address || "Kapalıçarşı / İstanbul"}</span>
-               </div>
+               {settings.contactEmail && (
+                 <a href={`mailto:${settings.contactEmail}`} className="flex items-center gap-3 hover:text-white transition-colors">
+                    <Mail className="h-5 w-5 text-[#D4AF37]" />
+                    <span>{settings.contactEmail}</span>
+                 </a>
+               )}
+               {settings.address && (
+                 <div className="flex items-start gap-3">
+                    <MapPin className="h-5 w-5 text-[#D4AF37] mt-1" />
+                    <span className="text-xs leading-5 whitespace-pre-line">{settings.address}</span>
+                 </div>
+               )}
             </div>
           </div>
 
@@ -53,48 +85,34 @@ export default async function Footer() {
           <div className="lg:pl-8">
             <h4 className="text-white font-black uppercase tracking-[0.2em] mb-8 text-[10px]">Kurumsal</h4>
             <ul className="space-y-4">
-              <li><Link href="/hakkimizda" className="hover:text-[#D4AF37] transition-all hover:translate-x-1 inline-block uppercase text-[11px] font-bold">Hakkımızda</Link></li>
-              <li><Link href="/subelerimiz" className="hover:text-[#D4AF37] transition-all hover:translate-x-1 inline-block uppercase text-[11px] font-bold">Şubelerimiz</Link></li>
-              <li><Link href="/iletisim" className="hover:text-[#D4AF37] transition-all hover:translate-x-1 inline-block uppercase text-[11px] font-bold">İletişim</Link></li>
-              <li><Link href="/banka-hesaplarimiz" className="hover:text-[#D4AF37] transition-all hover:translate-x-1 inline-block uppercase text-[11px] font-bold">Banka Hesapları</Link></li>
+              {corporateLinks.map(link => (
+                <li key={link.url + link.label}><Link href={link.url} className={linkClass}>{link.label}</Link></li>
+              ))}
             </ul>
           </div>
 
-          {/* 3. Müşteri Hizmetleri */}
+          {/* 3. Bilgi */}
           <div>
-            <h4 className="text-white font-black uppercase tracking-[0.2em] mb-8 text-[10px]">Müşteri Hizmetleri</h4>
+            <h4 className="text-white font-black uppercase tracking-[0.2em] mb-8 text-[10px]">Bilgi</h4>
             <ul className="space-y-4">
-              <li><Link href="/mesafeli-satis-sozlesmesi" className="hover:text-[#D4AF37] transition-all hover:translate-x-1 inline-block uppercase text-[11px] font-bold">Satış Sözleşmesi</Link></li>
-              <li><Link href="/iptal-ve-iade-kosullari" className="hover:text-[#D4AF37] transition-all hover:translate-x-1 inline-block uppercase text-[11px] font-bold">İptal & İade</Link></li>
-              <li><Link href="/kargo-ve-teslimat" className="hover:text-[#D4AF37] transition-all hover:translate-x-1 inline-block uppercase text-[11px] font-bold">Kargo & Teslimat</Link></li>
-              <li><Link href="/gizlilik-ve-guvenlik" className="hover:text-[#D4AF37] transition-all hover:translate-x-1 inline-block uppercase text-[11px] font-bold">Gizlilik Politikası</Link></li>
+              {infoLinks.map(link => (
+                <li key={link.url + link.label}><Link href={link.url} className={linkClass}>{link.label}</Link></li>
+              ))}
             </ul>
           </div>
 
           {/* 4. Sosyal Medya & WhatsApp */}
-          <div className="space-y-8">
-             <div>
-                <h4 className="text-white font-black uppercase tracking-[0.2em] mb-6 text-[10px]">Bizi Takip Edin</h4>
-                <div className="flex gap-4">
-                   <a href="https://instagram.com/newpirlanta" target="_blank" className="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center hover:bg-[#D4AF37] hover:text-black transition-all border border-white/10 group">
-                      <Instagram className="h-6 w-6 group-hover:scale-110 transition-transform" />
-                   </a>
-                   <a href="https://tiktok.com/@newpirlanta" target="_blank" className="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center hover:bg-[#D4AF37] hover:text-black transition-all border border-white/10 group">
-                      <TikTokIcon />
-                   </a>
-                   <a href="https://wa.me/905527873513" target="_blank" className="w-12 h-12 bg-[#25D366]/10 text-[#25D366] rounded-full flex items-center justify-center hover:bg-[#25D366] hover:text-white transition-all border border-[#25D366]/20 group">
-                      <WhatsAppIcon />
-                   </a>
-                </div>
-             </div>
-             
-             <div className="bg-white/5 p-6 rounded-2xl border border-white/5">
-                <h4 className="text-white font-bold text-xs mb-2">Güvenli Alışveriş</h4>
-                <p className="text-[10px] text-gray-500 mb-4">Tüm işlemleriniz 256-Bit SSL ile şifrelenmektedir.</p>
-                <div className="flex gap-4 grayscale opacity-40">
-                   <CreditCard className="h-6 w-6" />
-                   <ShieldCheck className="h-6 w-6" />
-                </div>
+          <div>
+             <h4 className="text-white font-black uppercase tracking-[0.2em] mb-6 text-[10px]">Bizi Takip Edin</h4>
+             <div className="flex flex-wrap gap-4">
+                {socialLinks.map(s => (
+                  <a key={s.label} href={s.url!} target="_blank" rel="noopener noreferrer" aria-label={s.label} className={socialClass}>
+                     {s.icon}
+                  </a>
+                ))}
+                <a href={whatsappLink(settings.whatsappNumber)} target="_blank" rel="noopener noreferrer" aria-label="WhatsApp" className="w-12 h-12 bg-[#25D366]/10 text-[#25D366] rounded-full flex items-center justify-center hover:bg-[#25D366] hover:text-white transition-all border border-[#25D366]/20 group">
+                   <WhatsAppIcon />
+                </a>
              </div>
           </div>
 
@@ -103,7 +121,7 @@ export default async function Footer() {
         {/* Alt Bar */}
         <div className="border-t border-white/5 mt-16 pt-8 text-center md:text-left flex flex-col md:flex-row justify-between items-center gap-6">
            <div className="text-[10px] text-gray-600 uppercase tracking-widest font-medium">
-              &copy; 2026 {settings.siteTitle || "New Pırlanta"}. {uiConfig.footer?.copyrightText || "Tüm hakları saklıdır."}
+              &copy; {new Date().getFullYear()} {settings.siteTitle}. {uiConfig.footer?.copyrightText || "Tüm hakları saklıdır."}
            </div>
            
            <div className="flex items-center gap-2 text-[10px] text-gray-500 font-bold">

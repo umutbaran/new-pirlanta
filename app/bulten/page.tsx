@@ -3,7 +3,7 @@ import { Calendar, Star, TrendingUp, TrendingDown, Minus, Globe, Zap, Info } fro
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Piyasa Analiz & Canlı Takip | New Pırlanta',
+  title: 'Piyasa Analiz & Canlı Takip',
   description: 'Küresel ekonomik takvim, anlık altın verileri ve profesyonel piyasa analizleri tek bir ekranda.',
 };
 
@@ -30,15 +30,11 @@ export default async function BulletinPage() {
               </div>
               
               <div className="flex gap-4 md:gap-12 items-center border-t border-white/5 pt-4 md:pt-0">
-                 <div className="text-right border-r border-white/10 pr-4 md:pr-12">
+                 <div className="text-right">
                     <p className="text-[8px] md:text-[9px] uppercase font-bold text-gray-500 mb-1 tracking-widest">Durum</p>
                     <p className="text-[10px] md:text-xs font-mono text-green-400 flex items-center gap-2">
                         <Zap className="h-3 w-3 fill-current" /> CANLI
                     </p>
-                 </div>
-                 <div className="text-right">
-                    <p className="text-[8px] md:text-[9px] uppercase font-bold text-gray-500 mb-1 tracking-widest">Saat</p>
-                    <p className="text-[10px] md:text-xs font-mono text-white">{new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}</p>
                  </div>
               </div>
            </div>

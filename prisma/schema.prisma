@@ -43,6 +43,7 @@ model Settings {
   siteTitle       String  @default("New Pırlanta")
   contactEmail    String?
   phoneNumber     String?
+  whatsappNumber  String?
   address         String?
   currency        String  @default("TRY")
   goldPriceMargin Float   @default(0.05)

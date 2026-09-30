@@ -7,6 +7,7 @@ const settingsSchema = z.object({
   siteTitle: z.string().min(1),
   contactEmail: z.string().email().optional().or(z.literal('')).transform(val => val || ''),
   phoneNumber: z.string().optional().transform(val => val || ''),
+  whatsappNumber: z.string().optional().transform(val => val || ''),
   address: z.string().optional().transform(val => val || ''),
   currency: z.string(),
   goldPriceMargin: z.number().min(0)

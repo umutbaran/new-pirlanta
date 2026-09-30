@@ -8,6 +8,7 @@ interface Settings {
   siteTitle: string;
   contactEmail: string;
   phoneNumber: string;
+  whatsappNumber: string;
   address: string;
   currency: string;
   goldPriceMargin: number;
@@ -20,6 +21,7 @@ export default function SettingsPage() {
     siteTitle: '',
     contactEmail: '',
     phoneNumber: '',
+    whatsappNumber: '',
     address: '',
     currency: 'TRY',
     goldPriceMargin: 0
@@ -125,11 +127,23 @@ export default function SettingsPage() {
                  <label className="block text-xs font-bold text-gray-500 mb-1">Telefon</label>
                  <input 
                    type="text" 
-                   name="phoneNumber" 
-                   value={settings.phoneNumber} 
-                   onChange={handleChange} 
-                   className="w-full border p-2 rounded text-sm" 
+                   name="phoneNumber"
+                   value={settings.phoneNumber}
+                   onChange={handleChange}
+                   className="w-full border p-2 rounded text-sm"
                  />
+              </div>
+              <div>
+                 <label className="block text-xs font-bold text-gray-500 mb-1">WhatsApp Numarası</label>
+                 <input
+                   type="text"
+                   name="whatsappNumber"
+                   value={settings.whatsappNumber || ''}
+                   onChange={handleChange}
+                   placeholder="Örn: 0552 787 35 13"
+                   className="w-full border p-2 rounded text-sm"
+                 />
+                 <p className="text-xs text-gray-400 mt-1">Sitedeki tüm WhatsApp butonları ve iletişim formu bu numaraya yönlenir.</p>
               </div>
               <div className="md:col-span-2">
                  <label className="block text-xs font-bold text-gray-500 mb-1">Adres</label>
