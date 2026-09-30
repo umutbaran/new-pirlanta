@@ -1,8 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getUiConfig, saveUiConfig } from '@/lib/db';
 import { UiConfig } from '@/lib/db_interfaces';
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/lib/auth";
+import { isAdmin, revalidateSite } from '@/lib/admin';
 import { uiConfigSchema } from '@/lib/schemas';
 
 export async function GET() {
@@ -12,8 +11,7 @@ export async function GET() {
 
 export async function POST(request: Request) {
   // 1. Yetki Kontrolü (Role-based)
-  const session = await getServerSession(authOptions);
-  if (!session || session.user.role !== 'admin') {
+  if (!(await isAdmin())) {
     return NextResponse.json({ error: 'Yetkisiz erişim - Sadece adminler bu işlemi yapabilir' }, { status: 401 });
   }
 
@@ -30,6 +28,7 @@ export async function POST(request: Request) {
     }
 
     await saveUiConfig(validation.data as unknown as UiConfig);
+    revalidateSite();
     return NextResponse.json({ success: true });
   } catch (err) {
     console.error('UI Config Update Error:', err);

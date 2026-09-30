@@ -47,6 +47,19 @@ export function parseSafeNumber(v: unknown): number {
 }
 
 /**
+ * Başarısız bir API yanıtından kullanıcıya gösterilecek hata mesajını çıkarır
+ */
+export async function getApiError(res: Response, fallback: string): Promise<string> {
+  if (res.status === 401) return 'Oturumunuz sona ermiş. Lütfen tekrar giriş yapın.';
+  try {
+    const data = await res.json() as { error?: string };
+    return data.error || fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+/**
  * Fiyatı Türk Lirası formatında gösterir
  */
 export function formatCurrency(value: number | null | undefined): string {

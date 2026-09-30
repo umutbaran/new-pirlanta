@@ -1,16 +1,12 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/lib/auth";
+import { isAdmin } from '@/lib/admin';
 
 export const dynamic = 'force-dynamic';
 
 export async function POST(request: Request) {
   try {
-    const session = await getServerSession(authOptions);
-    
-    // Auth bypass check for extreme debugging (Sadece geliştirme aşamasında log görmek için)
-    if (!session) {
+    if (!(await isAdmin())) {
       console.warn("UPLOAD ATTEMPT WITHOUT SESSION");
       return NextResponse.json({ error: 'Yetkisiz erişim - Lütfen admin girişi yapın' }, { status: 401 });
     }

@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import { updateProduct, deleteProduct, getProductById } from '@/lib/db';
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/lib/auth";
+import { isAdmin, revalidateSite } from '@/lib/admin';
 import { productSchema } from '@/lib/schemas';
 import { Prisma } from '@prisma/client';
 
@@ -19,9 +18,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
 
 export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const session = await getServerSession(authOptions);
-  
-  if (!session || session.user.role !== 'admin') {
+  if (!(await isAdmin())) {
     return NextResponse.json({ error: 'Yetkisiz erişim' }, { status: 401 });
   }
 
@@ -34,6 +31,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
     }
 
     await updateProduct(id, validation.data);
+    revalidateSite();
     return NextResponse.json({ success: true });
   } catch (err: unknown) {
     console.error('Update Product Error:', err);
@@ -48,14 +46,13 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
 
 export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const session = await getServerSession(authOptions);
-
-  if (!session || session.user.role !== 'admin') {
+  if (!(await isAdmin())) {
     return NextResponse.json({ error: 'Yetkisiz erişim' }, { status: 401 });
   }
 
   try {
     await deleteProduct(id);
+    revalidateSite();
     return NextResponse.json({ success: true });
   } catch (err) {
     console.error('Delete Product Error:', err);

@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import { UiConfig, HeroSlide, MosaicItem, InfoCard, StoreItem, Product } from '@/lib/db';
 import { uploadProductImage } from '@/lib/upload';
+import { getApiError } from '@/lib/utils';
 
 export default function DesignPage() {
   const [config, setConfig] = useState<UiConfig | null>(null);
@@ -54,7 +55,7 @@ export default function DesignPage() {
         body: JSON.stringify(config),
       });
       if (res.ok) alert('Tüm değişiklikler başarıyla kaydedildi.');
-      else alert('Kaydetme sırasında bir hata oluştu.');
+      else alert('Hata: ' + await getApiError(res, 'Kaydetme sırasında bir hata oluştu.'));
     } catch (err) {
       console.error(err);
       alert('Sistem hatası.');

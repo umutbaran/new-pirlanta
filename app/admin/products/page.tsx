@@ -4,7 +4,8 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Plus, Edit, Trash2, Search, Loader2, Package, Filter, ExternalLink } from 'lucide-react';
-import { Product } from '@/lib/db';
+import type { Product } from '@/lib/db';
+import { getApiError } from '@/lib/utils';
 
 export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -37,16 +38,19 @@ export default function ProductsPage() {
     Promise.all([
       // eslint-disable-next-line react-hooks/set-state-in-effect
       fetchProducts(),
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       fetchCategories()
     ]).finally(() => setLoading(false));
   }, []);
 
   const handleDelete = async (id: string) => {
-    if (confirm('Bu ürünü silmek istediğinize emin misiniz?')) {
-      await fetch(`/api/products/${id}`, { method: 'DELETE' });
-      fetchProducts();
+    if (!confirm('Bu ürünü silmek istediğinize emin misiniz?')) return;
+    try {
+      const res = await fetch(`/api/products/${id}`, { method: 'DELETE' });
+      if (!res.ok) alert('Hata: ' + await getApiError(res, 'Ürün silinemedi.'));
+    } catch {
+      alert('Sunucuya ulaşılamadı. Ürün silinmedi.');
     }
+    fetchProducts();
   };
 
   const filteredProducts = products.filter(p => {

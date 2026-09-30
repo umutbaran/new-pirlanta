@@ -3,6 +3,9 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { getProducts } from '@/lib/db';
 
+// Panel her açılışta güncel veriyi göstermeli (build anında dondurulmamalı)
+export const dynamic = 'force-dynamic';
+
 export default async function Dashboard() {
   const products = await getProducts();
   
@@ -16,7 +19,7 @@ export default async function Dashboard() {
   
   const topCategory = Object.entries(categories).sort((a: [string, number], b: [string, number]) => b[1] - a[1])[0];
   const uniqueCategories = Object.keys(categories).length;
-  const latestProducts = [...products].reverse().slice(0, 5);
+  const latestProducts = products.slice(0, 5); // getProducts zaten en yeniden eskiye sıralı
 
   return (
     <div className="space-y-8">

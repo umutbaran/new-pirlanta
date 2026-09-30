@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { Plus, Trash2, Calendar, Clock, Star, TrendingUp, TrendingDown, Minus, Save, Loader2, Info } from 'lucide-react';
-import { BulletinItem } from '@/lib/db';
+import type { BulletinItem } from '@/lib/db';
+import { getApiError } from '@/lib/utils';
 
 export default function AdminBulletinPage() {
   const [bulletins, setBulletins] = useState<BulletinItem[]>([]);
@@ -50,12 +51,13 @@ export default function AdminBulletinPage() {
   const saveChanges = async () => {
     setSaving(true);
     try {
-      await fetch('/api/bulletin', {
+      const res = await fetch('/api/bulletin', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(bulletins),
       });
-      alert('Bülten başarıyla güncellendi.');
+      if (res.ok) alert('Bülten başarıyla güncellendi.');
+      else alert('Hata: ' + await getApiError(res, 'Bülten kaydedilemedi. Lütfen alanları kontrol edin.'));
     } catch {
       alert('Kaydedilirken hata oluştu.');
     } finally {

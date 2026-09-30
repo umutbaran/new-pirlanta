@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Plus, Trash2, ChevronDown, ChevronRight, Eye, EyeOff, Edit2, X, Check } from 'lucide-react';
 import { CategoryData as Category } from '@/lib/db';
-import { slugify } from '@/lib/utils';
+import { slugify, getApiError } from '@/lib/utils';
 
 export default function CategoriesPage() {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -40,14 +40,18 @@ export default function CategoriesPage() {
   const saveChanges = async (newCategories: Category[]) => {
     setCategories(newCategories); // Optimistic update
     try {
-      await fetch('/api/categories', {
+      const res = await fetch('/api/categories', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newCategories),
       });
+      if (!res.ok) {
+        alert('Hata: ' + await getApiError(res, 'Kategoriler kaydedilemedi.'));
+        fetchCategories(); // Hata durumunda sunucudaki son hali geri yükle
+      }
     } catch (err) {
       console.error(err);
-      alert('Hata oluştu.');
+      alert('Sunucuya ulaşılamadı. Değişiklik kaydedilmedi.');
       fetchCategories(); // Revert on error
     }
   };

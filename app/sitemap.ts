@@ -4,6 +4,9 @@ import { getProducts } from "@/lib/db";
 
 import { Product } from "@/lib/db";
 
+// Yeni ürünler en geç 1 saat içinde sitemap'e yansısın (admin değişikliklerinde anında yenilenir)
+export const revalidate = 3600;
+
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://newpirlanta.com";
 
 function toISODate(d: unknown): Date {

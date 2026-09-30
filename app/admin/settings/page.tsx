@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Save, Loader2 } from 'lucide-react';
+import { getApiError } from '@/lib/utils';
 
 interface Settings {
   siteTitle: string;
@@ -52,12 +53,13 @@ export default function SettingsPage() {
     e.preventDefault();
     setSaving(true);
     try {
-      await fetch('/api/settings', {
+      const res = await fetch('/api/settings', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(settings),
       });
-      alert('Ayarlar kaydedildi.');
+      if (res.ok) alert('Ayarlar kaydedildi.');
+      else alert('Hata: ' + await getApiError(res, 'Ayarlar kaydedilemedi. Lütfen alanları kontrol edin.'));
     } catch (error) {
       console.error('Kaydetme hatası:', error);
       alert('Bir hata oluştu.');

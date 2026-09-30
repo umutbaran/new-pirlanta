@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getBulletins, saveBulletins } from '@/lib/db';
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/lib/auth";
+import { isAdmin, revalidateSite } from '@/lib/admin';
 import { z } from 'zod';
 
 const bulletinSchema = z.array(z.object({
@@ -21,8 +20,7 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  const session = await getServerSession(authOptions);
-  if (!session) {
+  if (!(await isAdmin())) {
     return NextResponse.json({ error: 'Yetkisiz erişim' }, { status: 401 });
   }
 
@@ -34,6 +32,7 @@ export async function POST(request: Request) {
     }
 
     await saveBulletins(validation.data);
+    revalidateSite();
     return NextResponse.json({ success: true });
   } catch (err) {
     console.error(err);
