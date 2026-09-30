@@ -1,14 +1,7 @@
 import { PrismaClient } from '@prisma/client'
 
-const prismaClientSingleton = () => {
-  return new PrismaClient({
-    datasources: {
-      db: {
-        url: process.env.DATABASE_URL || "postgresql://user:password@localhost:5432/db"
-      },
-    },
-  })
-}
+// Bağlantı adresi prisma/schema.prisma içindeki DATABASE_URL'den okunur
+const prismaClientSingleton = () => new PrismaClient()
 
 declare global {
   var prisma: undefined | ReturnType<typeof prismaClientSingleton>

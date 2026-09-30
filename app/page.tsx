@@ -26,7 +26,7 @@ export default async function Home() {
     <div className="min-h-screen bg-white overflow-hidden">
       
       {/* 1. HERO SLIDER */}
-      <HeroSlider />
+      <HeroSlider slides={uiConfig.heroSlides} />
 
       {/* 2. KOLEKSİYON MOZAİĞİ */}
       <section className="py-12 md:py-24 container mx-auto px-4 bg-white">
@@ -92,8 +92,11 @@ export default async function Home() {
            </div>
 
            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
-              {infoCenter.cards.map((card: InfoCard, idx: number) => (
-                  <div key={idx} className="group relative h-80 md:h-96 overflow-hidden cursor-pointer shadow-lg rounded-sm">
+              {infoCenter.cards.map((card: InfoCard, idx: number) => {
+                  // Admin panelinde geçerli bir link girilmemişse kart tıklanabilir görünmez
+                  const hasLink = !!card.link && card.link.trim() !== '#';
+                  const content = (
+                  <div className={`group relative h-80 md:h-96 overflow-hidden shadow-lg rounded-sm ${hasLink ? 'cursor-pointer' : ''}`}>
                      <div className="absolute inset-0 bg-black/40 group-hover:bg-black/50 transition-colors z-10" />
                      <Image 
                         src={card.image} 
@@ -106,10 +109,16 @@ export default async function Home() {
                         <p className="text-gray-200 text-xs md:text-sm mb-4 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-300 transform translate-y-0 md:translate-y-4 md:group-hover:translate-y-0">
                            {card.description}
                         </p>
-                        <span className="inline-block border-b border-white text-white text-[10px] md:text-xs font-bold uppercase tracking-widest pb-1">{card.buttonText}</span>
+                        {hasLink && card.buttonText && (
+                          <span className="inline-block border-b border-white text-white text-[10px] md:text-xs font-bold uppercase tracking-widest pb-1">{card.buttonText}</span>
+                        )}
                      </div>
                   </div>
-              ))}
+                  );
+                  return hasLink
+                    ? <Link key={idx} href={card.link} className="block">{content}</Link>
+                    : <div key={idx}>{content}</div>;
+              })}
            </div>
         </div>
       </section>

@@ -22,7 +22,7 @@ export async function POST(request: Request) {
     const validation = productSchema.safeParse(body);
     if (!validation.success) {
       return NextResponse.json({ 
-        error: 'Geçersiz veri', 
+        error: validation.error.issues[0]?.message || 'Geçersiz veri', 
         details: validation.error.format() 
       }, { status: 400 });
     }

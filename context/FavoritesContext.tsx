@@ -1,12 +1,14 @@
 'use client';
 
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import { Product } from '@/lib/db';
 
 interface FavoritesContextType {
   favorites: Product[];
   toggleFavorite: (product: Product) => void;
   isFavorite: (productId: string) => boolean;
+  isLoaded: boolean;
+  syncWithCatalog: (catalog: Product[]) => void;
 }
 
 const FavoritesContext = createContext<FavoritesContextType | undefined>(undefined);
@@ -53,8 +55,14 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
     return favorites.some((p) => p.id === productId);
   };
 
+  // Tarayıcıda saklanan ürün kopyalarını güncel katalogla eşitle: fiyat/görsel güncellenir, silinen ürünler çıkarılır
+  const syncWithCatalog = useCallback((catalog: Product[]) => {
+    const byId = new Map(catalog.map((p) => [p.id, p]));
+    setFavorites((prev) => prev.filter((p) => byId.has(p.id)).map((p) => byId.get(p.id)!));
+  }, []);
+
   return (
-    <FavoritesContext.Provider value={{ favorites, toggleFavorite, isFavorite }}>
+    <FavoritesContext.Provider value={{ favorites, toggleFavorite, isFavorite, isLoaded, syncWithCatalog }}>
       {children}
     </FavoritesContext.Provider>
   );

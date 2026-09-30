@@ -1,4 +1,7 @@
 import { z } from 'zod';
+import { isAllowedImageUrl, IMAGE_HOST_ERROR } from './images';
+
+const imageUrl = z.string().refine(isAllowedImageUrl, IMAGE_HOST_ERROR);
 
 // --- Ürün Şemaları ---
 export const productSchema = z.object({
@@ -9,7 +12,7 @@ export const productSchema = z.object({
   oldPrice: z.number().optional().nullable(),
   sku: z.string().optional().nullable(),
   description: z.string().optional().nullable(),
-  images: z.array(z.string().url("Geçerli bir resim URL'si giriniz")).optional().default([]),
+  images: z.array(imageUrl).optional().default([]),
   isNew: z.boolean().optional().default(false),
   details: z.record(z.string(), z.any()).optional().default({}),
 }).passthrough();
@@ -17,7 +20,7 @@ export const productSchema = z.object({
 // --- UI Konfigürasyon Şemaları ---
 export const heroSlideSchema = z.object({
   id: z.string(),
-  image: z.string().url(),
+  image: imageUrl,
   title: z.string(),
   subtitle: z.string(),
   buttonText: z.string(),
@@ -25,7 +28,7 @@ export const heroSlideSchema = z.object({
 });
 
 export const mosaicItemSchema = z.object({
-  image: z.string().url(),
+  image: imageUrl,
   title: z.string(),
   subtitle: z.string(),
   link: z.string(),
@@ -33,7 +36,7 @@ export const mosaicItemSchema = z.object({
 });
 
 export const infoCardSchema = z.object({
-  image: z.string().url(),
+  image: imageUrl,
   title: z.string(),
   description: z.string(),
   buttonText: z.string(),
@@ -47,7 +50,7 @@ export const storeItemSchema = z.object({
   address: z.string(),
   phone: z.string(),
   hours: z.string().optional(),
-  image: z.string().url().optional().nullable(),
+  image: imageUrl.optional().nullable(),
 });
 
 export const footerLinkSchema = z.object({
@@ -91,13 +94,3 @@ export const uiConfigSchema = z.object({
   }),
   bulletins: z.array(z.any()).optional().default([]),
 }).passthrough();
-
-// --- Ayarlar Şeması ---
-export const settingsSchema = z.object({
-  siteTitle: z.string().min(1),
-  contactEmail: z.string().email().optional().nullable(),
-  phoneNumber: z.string().optional().nullable(),
-  address: z.string().optional().nullable(),
-  currency: z.string().default("TRY"),
-  goldPriceMargin: z.number().min(0).max(1).default(0.05),
-});

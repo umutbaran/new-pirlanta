@@ -28,7 +28,7 @@ export async function POST(request: Request) {
     const body = await request.json();
     const validation = bulletinSchema.safeParse(body);
     if (!validation.success) {
-      return NextResponse.json({ error: 'Geçersiz veri formatı', details: validation.error.format() }, { status: 400 });
+      return NextResponse.json({ error: validation.error.issues[0]?.message || 'Geçersiz veri formatı', details: validation.error.format() }, { status: 400 });
     }
 
     await saveBulletins(validation.data);

@@ -79,8 +79,11 @@ export default function DesignPage() {
             else if (section === 'store' && index !== null) newConfig.storeSection.stores[index].image = url;
             setConfig(newConfig);
         }
+    } catch (err: unknown) {
+        alert('Hata: ' + (err instanceof Error ? err.message : 'Görsel yüklenemedi.'));
     } finally {
         setUploadingId(null);
+        e.target.value = ''; // Aynı dosya tekrar seçilebilsin
     }
   };
 

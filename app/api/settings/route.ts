@@ -9,8 +9,7 @@ const settingsSchema = z.object({
   phoneNumber: z.string().optional().transform(val => val || ''),
   whatsappNumber: z.string().optional().transform(val => val || ''),
   address: z.string().optional().transform(val => val || ''),
-  currency: z.string(),
-  goldPriceMargin: z.number().min(0)
+  currency: z.string()
 });
 
 export async function GET() {
@@ -30,7 +29,7 @@ export async function POST(request: Request) {
     // 2. Veri Doğrulama
     const validation = settingsSchema.safeParse(body);
     if (!validation.success) {
-      return NextResponse.json({ error: 'Geçersiz ayar verisi', details: validation.error.format() }, { status: 400 });
+      return NextResponse.json({ error: validation.error.issues[0]?.message || 'Geçersiz ayar verisi', details: validation.error.format() }, { status: 400 });
     }
 
     await saveSettings(validation.data);

@@ -4,37 +4,25 @@ import { useState, useEffect, useRef } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { HeroSlide } from '@/lib/db';
+import type { HeroSlide } from '@/lib/db';
 
-export default function HeroSlider() {
+// Admin panelinde hiç slayt yoksa gösterilecek varsayılan slayt
+const FALLBACK_SLIDES: HeroSlide[] = [
+  {
+    id: "1",
+    image: "https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&q=80",
+    title: "Sonsuza Dek Birlikte",
+    subtitle: "ALYANS KOLEKSİYONU",
+    buttonText: "Alyansları İncele",
+    buttonLink: "/koleksiyon/altin-14?subCategory=alyans"
+  }
+];
+
+// Slaytlar sunucuda çekilip prop olarak gelir; böylece sayfa açılırken boş yükleme ekranı görünmez
+export default function HeroSlider({ slides: initialSlides }: { slides: HeroSlide[] }) {
+  const slides = initialSlides?.length ? initialSlides : FALLBACK_SLIDES;
   const [currentSlide, setCurrentSlide] = useState(0);
-  const [slides, setSlides] = useState<HeroSlide[]>([]);
-  const [loading, setLoading] = useState(true);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
-
-  useEffect(() => {
-    fetch('/api/ui-config')
-      .then(res => res.json())
-      .then(data => {
-        if (data.heroSlides && data.heroSlides.length > 0) {
-          setSlides(data.heroSlides);
-        } else {
-            // Fallback veri
-            setSlides([
-                {
-                  id: "1",
-                  image: "https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&q=80",
-                  title: "Sonsuza Dek Birlikte",
-                  subtitle: "ALYANS KOLEKSİYONU",
-                  buttonText: "Alyansları İncele",
-                  buttonLink: "/koleksiyon/altin-14?subCategory=alyans"
-                }
-            ]);
-        }
-      })
-      .catch(err => console.error('Slider fetch error', err))
-      .finally(() => setLoading(false));
-  }, []);
 
   function resetTimeout() {
     if (timeoutRef.current) {
@@ -56,9 +44,6 @@ export default function HeroSlider() {
     }
   }, [currentSlide, slides]);
 
-  if (loading || slides.length === 0) {
-      return <div className="h-[85vh] w-full bg-gray-100 animate-pulse"></div>;
-  }
 
   return (
     <section className="relative h-[75vh] md:h-[85vh] w-full overflow-hidden bg-black">

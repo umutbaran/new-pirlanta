@@ -84,14 +84,3 @@ export async function getApiError(res: Response, fallback: string): Promise<stri
     return fallback;
   }
 }
-
-/**
- * Fiyatı Türk Lirası formatında gösterir
- */
-export function formatCurrency(value: number | null | undefined): string {
-  if (value === null || value === undefined || value === 0) return "Fiyat Alın";
-  return new Intl.NumberFormat('tr-TR', {
-    style: 'currency',
-    currency: 'TRY',
-  }).format(value);
-}

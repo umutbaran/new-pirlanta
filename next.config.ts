@@ -1,21 +1,9 @@
 import type { NextConfig } from "next";
+import { ALLOWED_IMAGE_HOSTS } from "./lib/images";
 
 const nextConfig: NextConfig = {
   images: {
-    remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: 'images.unsplash.com',
-      },
-      {
-        protocol: 'https',
-        hostname: '**.supabase.co',
-      },
-      {
-        protocol: 'https',
-        hostname: 'cdn.qukasoft.com',
-      },
-    ],
+    remotePatterns: ALLOWED_IMAGE_HOSTS.map(hostname => ({ protocol: 'https' as const, hostname })),
   },
   serverExternalPackages: ['@prisma/client'],
   async headers() {
@@ -30,10 +18,6 @@ const nextConfig: NextConfig = {
           {
             key: 'Strict-Transport-Security',
             value: 'max-age=63072000; includeSubDomains; preload'
-          },
-          {
-            key: 'X-XSS-Protection',
-            value: '1; mode=block'
           },
           {
             key: 'X-Frame-Options',

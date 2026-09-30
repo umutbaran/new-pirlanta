@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Menu, Search, User, Heart, X, ChevronDown, Calendar } from 'lucide-react';
@@ -10,22 +10,17 @@ import { useFavorites } from '@/context/FavoritesContext';
 import { useRouter } from 'next/navigation';
 import { telHref } from '@/lib/utils';
 
-export default function Navbar({ phoneNumber }: { phoneNumber: string }) {
+interface NavbarProps {
+  phoneNumber: string;
+  categories: Category[]; // Sunucuda çekilir; sadece aktif kategoriler gönderilir
+}
+
+export default function Navbar({ phoneNumber, categories }: NavbarProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [categories, setCategories] = useState<Category[]>([]);
   const { favorites } = useFavorites(); // Context'ten favorileri çek
   const router = useRouter();
-
-  useEffect(() => {
-    fetch('/api/categories')
-      .then(res => res.json())
-      .then(data => {
-        setCategories(data.filter((c: Category) => c.isActive));
-      })
-      .catch(err => console.error(err));
-  }, []);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();

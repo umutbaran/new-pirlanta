@@ -27,7 +27,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
     const validation = productSchema.safeParse(body);
     
     if (!validation.success) {
-      return NextResponse.json({ error: 'Geçersiz veri', details: validation.error.format() }, { status: 400 });
+      return NextResponse.json({ error: validation.error.issues[0]?.message || 'Geçersiz veri', details: validation.error.format() }, { status: 400 });
     }
 
     await updateProduct(id, validation.data);

@@ -11,7 +11,6 @@ interface Settings {
   whatsappNumber: string;
   address: string;
   currency: string;
-  goldPriceMargin: number;
 }
 
 export default function SettingsPage() {
@@ -23,8 +22,7 @@ export default function SettingsPage() {
     phoneNumber: '',
     whatsappNumber: '',
     address: '',
-    currency: 'TRY',
-    goldPriceMargin: 0
+    currency: 'TRY'
   });
 
   useEffect(() => {
@@ -47,7 +45,7 @@ export default function SettingsPage() {
     const { name, value } = e.target;
     setSettings(prev => ({
       ...prev,
-      [name]: name === 'goldPriceMargin' ? Number(value) : value
+      [name]: value
     }));
   };
 
@@ -158,23 +156,6 @@ export default function SettingsPage() {
            </div>
         </div>
 
-        <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
-           <h3 className="font-bold text-gray-900 mb-4 border-b border-gray-100 pb-2">Fiyatlandırma Ayarları</h3>
-           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                 <label className="block text-xs font-bold text-gray-500 mb-1">Altın Kar Marjı (Oran)</label>
-                 <input 
-                   type="number" 
-                   step="0.01"
-                   name="goldPriceMargin" 
-                   value={settings.goldPriceMargin} 
-                   onChange={handleChange} 
-                   className="w-full border p-2 rounded text-sm" 
-                 />
-                 <p className="text-xs text-gray-400 mt-1">Örn: 0.05 (%5 kar)</p>
-              </div>
-           </div>
-        </div>
 
         <div className="flex justify-end">
            <button 

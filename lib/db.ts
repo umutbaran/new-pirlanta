@@ -21,7 +21,6 @@ export interface SiteSettings {
   whatsappNumber: string;
   address: string;
   currency: string;
-  goldPriceMargin: number;
 }
 
 export interface CategoryData {
@@ -119,8 +118,7 @@ const FALLBACK_SETTINGS: SiteSettings = {
   phoneNumber: "+90 552 280 6513",
   whatsappNumber: "905527873513",
   address: "Tatvan, Bitlis",
-  currency: "TRY",
-  goldPriceMargin: 0.05
+  currency: "TRY"
 };
 
 export async function getSettings(): Promise<SiteSettings> {
@@ -133,8 +131,7 @@ export async function getSettings(): Promise<SiteSettings> {
       phoneNumber: settings.phoneNumber || FALLBACK_SETTINGS.phoneNumber,
       whatsappNumber: settings.whatsappNumber || FALLBACK_SETTINGS.whatsappNumber,
       address: settings.address || FALLBACK_SETTINGS.address,
-      currency: settings.currency,
-      goldPriceMargin: settings.goldPriceMargin
+      currency: settings.currency
     };
   } catch (err) {
     console.error('Database error [getSettings]:', err);
@@ -212,7 +209,7 @@ const FALLBACK_UI_CONFIG: UiConfig = {
   showcase: { title: "Sezonun En Gözde Parçaları", description: "Sizin için seçtiklerimiz", productIds: [] },
   storeSection: { title: "Size En Yakın Mağazamız", subtitle: "Baran Kuyumculuk İştirakleri", stores: [] },
   footer: {
-    description: "Kapalıçarşı'nın kalbinden, en özel anlarınıza eşlik edecek eşsiz tasarımlar. Güven, kalite ve zarafetin adresi.",
+    description: "Baran Kuyumculuk'un pırlanta ve altın mücevher koleksiyonları. Ürünlerimizi mağazalarımızda yakından inceleyebilirsiniz.",
     copyrightText: "Tüm hakları saklıdır.",
     socialMedia: { instagram: "", facebook: "", twitter: "" },
     corporateLinks: [

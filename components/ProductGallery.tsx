@@ -13,15 +13,22 @@ export default function ProductGallery({ images, productName }: ProductGalleryPr
   const [selectedImage, setSelectedImage] = useState(0);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
 
+  // Ürünün görseli yoksa varsayılan görsel kullanılır (gezinme hesapları da bu listeye göre yapılır)
+  const displayImages = images && images.length > 0 
+    ? images 
+    : ['https://images.unsplash.com/photo-1617038260897-41a1f14a8ca0?q=80'];
+
+  const imageCount = displayImages.length;
+
   const nextImage = useCallback((e?: React.MouseEvent) => {
     e?.stopPropagation();
-    setSelectedImage((prev) => (prev + 1) % images.length);
-  }, [images.length]);
+    setSelectedImage((prev) => (prev + 1) % imageCount);
+  }, [imageCount]);
 
   const prevImage = useCallback((e?: React.MouseEvent) => {
     e?.stopPropagation();
-    setSelectedImage((prev) => (prev - 1 + images.length) % images.length);
-  }, [images.length]);
+    setSelectedImage((prev) => (prev - 1 + imageCount) % imageCount);
+  }, [imageCount]);
 
   // Klavye desteği
   useEffect(() => {
@@ -34,10 +41,6 @@ export default function ProductGallery({ images, productName }: ProductGalleryPr
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isLightboxOpen, nextImage, prevImage]);
-
-  const displayImages = images && images.length > 0 
-    ? images 
-    : ['https://images.unsplash.com/photo-1617038260897-41a1f14a8ca0?q=80'];
 
   return (
     <div className="flex flex-col gap-4 w-full">

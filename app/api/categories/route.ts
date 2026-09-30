@@ -32,7 +32,7 @@ export async function POST(request: Request) {
     // 2. Veri Doğrulama
     const validation = categorySchema.safeParse(body);
     if (!validation.success) {
-      return NextResponse.json({ error: 'Geçersiz veri formatı', details: validation.error.format() }, { status: 400 });
+      return NextResponse.json({ error: validation.error.issues[0]?.message || 'Geçersiz veri formatı', details: validation.error.format() }, { status: 400 });
     }
 
     await saveCategories(validation.data);

@@ -1,72 +1,57 @@
 import { NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
 import { isAdmin } from '@/lib/admin';
+import { supabaseAdmin } from '@/lib/supabase';
 
-export const dynamic = 'force-dynamic';
+// Vercel'in istek gövdesi sınırı 4.5MB olduğundan limit 4MB tutulur
+const MAX_FILE_SIZE = 4 * 1024 * 1024;
+
+// İzin verilen türler ve dosya uzantıları (uzantı dosya adından değil, türden belirlenir)
+const ALLOWED_TYPES: Record<string, string> = {
+  'image/jpeg': 'jpg',
+  'image/png': 'png',
+  'image/webp': 'webp',
+};
 
 export async function POST(request: Request) {
   try {
     if (!(await isAdmin())) {
-      console.warn("UPLOAD ATTEMPT WITHOUT SESSION");
       return NextResponse.json({ error: 'Yetkisiz erişim - Lütfen admin girişi yapın' }, { status: 401 });
     }
 
-    const formData = await request.formData();
-    const file = formData.get('file') as File;
+    if (!supabaseAdmin) {
+      return NextResponse.json({ error: 'Yapılandırma hatası: Supabase URL veya Service Role Key eksik.' }, { status: 500 });
+    }
 
-    if (!file) {
+    const formData = await request.formData();
+    const file = formData.get('file');
+
+    if (!(file instanceof File)) {
       return NextResponse.json({ error: 'Dosya bulunamadı' }, { status: 400 });
     }
 
-    // Dosya boyutu kontrolü (Max 5MB)
-    if (file.size > 5 * 1024 * 1024) {
-      return NextResponse.json({ error: 'Dosya boyutu çok büyük. Maksimum 5MB yüklenebilir.' }, { status: 400 });
+    const fileExt = ALLOWED_TYPES[file.type];
+    if (!fileExt) {
+      return NextResponse.json({ error: 'Geçersiz dosya türü. Sadece JPEG, PNG ve WEBP kabul edilir.' }, { status: 400 });
     }
 
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SERVICE_ROLE_KEY;
-
-    // Vercel Log
-    // console.log({
-    //   hasUrl: !!supabaseUrl,
-    //   hasKey: !!supabaseServiceKey,
-    //   keyStart: supabaseServiceKey ? supabaseServiceKey.substring(0, 5) : 'NONE'
-    // });
-
-    if (!supabaseUrl || !supabaseServiceKey) {
-      return NextResponse.json({ 
-        error: `Yapılandırma hatası: ${!supabaseUrl ? 'URL' : 'Service Role Key'} eksik.` 
-      }, { status: 500 });
+    if (file.size > MAX_FILE_SIZE) {
+      return NextResponse.json({ error: 'Dosya boyutu çok büyük. Maksimum 4MB yüklenebilir.' }, { status: 400 });
     }
 
-    const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
-      auth: {
-        autoRefreshToken: false,
-        persistSession: false
-      }
-    });
-
-    const fileExt = file.name.split('.').pop();
-    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
-    if (!allowedTypes.includes(file.type)) {
-      return NextResponse.json({ error: 'Geçersiz dosya türü. Sadece jpeg, png, webp kabul edilir.' }, { status: 400 });
-    }
-    const fileName = `${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`;
-    const filePath = `product-images/${fileName}`;
-
+    const filePath = `product-images/${crypto.randomUUID()}.${fileExt}`;
     const buffer = await file.arrayBuffer();
 
     const { error: uploadError } = await supabaseAdmin.storage
       .from('products')
       .upload(filePath, buffer, {
         contentType: file.type,
-        cacheControl: '3600',
+        cacheControl: '31536000', // Dosya adları benzersiz olduğu için uzun süre önbelleklenebilir
         upsert: false
       });
 
     if (uploadError) {
       console.error('Supabase Error:', uploadError);
-      return NextResponse.json({ error: uploadError.message }, { status: 500 });
+      return NextResponse.json({ error: 'Görsel depolamaya yüklenemedi: ' + uploadError.message }, { status: 500 });
     }
 
     const { data: { publicUrl } } = supabaseAdmin.storage
@@ -76,7 +61,6 @@ export async function POST(request: Request) {
     return NextResponse.json({ url: publicUrl });
   } catch (err: unknown) {
     console.error('CRITICAL UPLOAD ERROR:', err);
-    const errorMsg = err instanceof Error ? err.message : String(err);
-    return NextResponse.json({ error: 'Sunucu hatası: ' + errorMsg }, { status: 500 });
+    return NextResponse.json({ error: 'Sunucu hatası: görsel yüklenemedi.' }, { status: 500 });
   }
 }

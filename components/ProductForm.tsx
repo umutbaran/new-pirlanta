@@ -6,6 +6,7 @@ import { Save, ArrowLeft, Loader2, X, Upload, Plus, Image as ImageIcon } from 'l
 import Link from 'next/link';
 import type { Product, CategoryData } from '@/lib/db';
 import { uploadProductImage } from '@/lib/upload';
+import { isAllowedImageUrl, IMAGE_HOST_ERROR } from '@/lib/images';
 
 interface ProductFormProps {
   initialData?: Product;
@@ -96,7 +97,11 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
 
   const addImage = () => {
     if (newImageUrl) {
-      setFormData((prev) => ({ ...prev, images: [...(prev.images || []), newImageUrl] }));
+      if (!isAllowedImageUrl(newImageUrl.trim())) {
+        alert(IMAGE_HOST_ERROR);
+        return;
+      }
+      setFormData((prev) => ({ ...prev, images: [...(prev.images || []), newImageUrl.trim()] }));
       setNewImageUrl('');
     }
   };

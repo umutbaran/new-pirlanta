@@ -1,12 +1,23 @@
 'use client';
 
+import { useEffect } from 'react';
 import { useFavorites } from '@/context/FavoritesContext';
 import ProductCard from '@/components/ProductCard';
 import Link from 'next/link';
 import { Heart, ArrowRight } from 'lucide-react';
 
 export default function FavoritesPage() {
-  const { favorites } = useFavorites();
+  const { favorites, isLoaded, syncWithCatalog } = useFavorites();
+  const hasFavorites = favorites.length > 0;
+
+  // Favoriler yüklendikten sonra bir kez güncel ürün bilgileriyle eşitle
+  useEffect(() => {
+    if (!isLoaded || !hasFavorites) return;
+    fetch('/api/products')
+      .then(res => (res.ok ? res.json() : null))
+      .then(catalog => { if (Array.isArray(catalog)) syncWithCatalog(catalog); })
+      .catch(() => { /* Ağ hatasında saklanan liste gösterilmeye devam eder */ });
+  }, [isLoaded, hasFavorites, syncWithCatalog]);
 
   return (
     <div className="bg-white min-h-screen py-20">
