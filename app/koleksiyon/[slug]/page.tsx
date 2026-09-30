@@ -1,8 +1,18 @@
-import { getProducts, getCategories, getProductsByCategory } from '@/lib/db'; 
+import { getCategories, getCatalogProducts } from '@/lib/db';
 import ProductCard from '@/components/ProductCard';
 import ProductFilters from '@/components/ProductFilters';
 import Image from 'next/image';
+import Link from 'next/link';
+import { notFound } from 'next/navigation';
 import { slugify } from '@/lib/utils';
+
+const ALL_PRODUCTS_SLUG = 'tum-urunler';
+
+function parsePriceParam(v: string | undefined): number | undefined {
+  if (!v) return undefined;
+  const n = Number(v);
+  return Number.isFinite(n) && n >= 0 ? n : undefined;
+}
 
 // Statik konfigürasyon (resimler ve açıklamalar için)
 const categoryConfig: Record<string, { title?: string, desc?: string, image?: string }> = {
@@ -26,6 +36,11 @@ const categoryConfig: Record<string, { title?: string, desc?: string, image?: st
     desc: 'Güvenli liman altın yatırımlarınız için doğru adres.',
     image: 'https://images.unsplash.com/photo-1610375460969-d941b7416972?q=80&w=2070&auto=format&fit=crop'
   },
+  'tum-urunler': {
+    title: 'Tüm Ürünler',
+    desc: 'Pırlantadan altına tüm koleksiyonlarımız tek bir yerde.',
+    image: 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?q=80&w=2070&auto=format&fit=crop'
+  },
   'yeni': {
     title: 'Yeni Gelenler',
     desc: 'Sezonun en trend parçaları ve en yeni tasarımları.',
@@ -41,37 +56,51 @@ export default async function CategoryPage({
   searchParams: Promise<{ [key: string]: string | undefined }>
 }) {
   const { slug } = await params;
-  const resolvedSearchParams = await searchParams;
-  
-  // PARALEL VERİ ÇEKME: Artık tüm ürünleri değil, sadece ihtiyacımız olanları çekiyoruz.
-  const [products, categories] = await Promise.all([
-    slug === 'yeni' ? getProducts(20) : getProductsByCategory(slug),
-    getCategories()
-  ]);
+  const { search, renk, min, max, ...rest } = await searchParams;
+  // Eski linklerle uyumluluk için '?sub=' de kabul edilir
+  const subCategory = rest.subCategory || rest.sub;
 
-  // O anki kategoriyi bul
-  const currentCategory = categories.find(c => c.slug === slug || slugify(c.name) === slug);
+  const categories = await getCategories();
+
+  // O anki kategoriyi bul ('yeni' ve 'tum-urunler' özel sayfalardır)
+  const isSpecialPage = slug === 'yeni' || slug === ALL_PRODUCTS_SLUG;
+  // Özel sayfalar kategori eşleşmesinden önceliklidir; kategori aranırken önce tam slug eşleşmesi denenir
+  const currentCategory = isSpecialPage
+    ? undefined
+    : categories.find(c => c.slug === slug) ?? categories.find(c => slugify(c.name) === slug);
+  if (!isSpecialPage && !currentCategory) notFound();
+
   const subCategories = currentCategory?.subCategories || [];
-  
+  const searchQuery = search?.trim() || undefined;
+
+  // Kategori, arama ve fiyat filtreleri veritabanında uygulanır
+  const products = await getCatalogProducts({
+    category: currentCategory?.slug,
+    search: searchQuery,
+    minPrice: parsePriceParam(min),
+    maxPrice: parsePriceParam(max),
+    limit: slug === 'yeni' ? 20 : undefined,
+  });
+
   const config = categoryConfig[slug] || {};
-  const pageTitle = config.title || currentCategory?.name || 'Koleksiyon';
+  const pageTitle = searchQuery ? `"${searchQuery}" için sonuçlar` : (config.title || currentCategory?.name || 'Koleksiyon');
   const pageDesc = config.desc || 'Özel tasarım mücevherler.';
   const pageImage = config.image || 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?q=80';
-  
-  // Başlangıç listemiz veritabanından filtrelenmiş olarak geldi
+
+  const hasActiveFilters = !!(searchQuery || subCategory || renk || min || max);
   let filtered = products;
 
-  // Sadece ek (detaylı) filtreleri bellek üzerinde uyguluyoruz (Renk, Alt Kategori vb.)
-  if (resolvedSearchParams.subCategory) {
-    const subQ = slugify(resolvedSearchParams.subCategory);
+  // Alt kategori ve renk, ürünlerde serbest metin olarak tutulduğu için bellekte (slug karşılaştırmasıyla) filtrelenir
+  if (subCategory) {
+    const subQ = slugify(subCategory);
     filtered = filtered.filter(p => slugify(p.subCategory || "") === subQ);
   }
 
-  if (resolvedSearchParams.renk) {
-    const colorQ = resolvedSearchParams.renk.toLowerCase();
+  if (renk) {
+    const colorQ = slugify(renk);
     filtered = filtered.filter(p => {
       const details = p.details as Record<string, unknown>;
-      return String(details?.renk || "").toLowerCase().includes(colorQ);
+      return slugify(String(details?.renk || "")).includes(colorQ);
     });
   }
 
@@ -98,6 +127,11 @@ export default async function CategoryPage({
                  <span className="text-xs font-bold tracking-widest uppercase text-gray-500">
                     {filtered.length} Tasarım Bulundu
                  </span>
+                 {hasActiveFilters && (
+                    <Link href={`/koleksiyon/${slug}`} scroll={false} className="text-xs font-bold tracking-widest uppercase text-[#D4AF37] hover:text-black transition-colors">
+                       Filtreleri Temizle
+                    </Link>
+                 )}
               </div>
 
               {filtered.length > 0 ? (
@@ -105,6 +139,11 @@ export default async function CategoryPage({
                   {filtered.map((product) => (
                     <ProductCard key={product.id} product={product} />
                   ))}
+                </div>
+              ) : hasActiveFilters ? (
+                <div className="text-center py-20 bg-gray-50 rounded-lg">
+                   <p className="text-xl font-serif text-gray-400 mb-2">Aradığınız kriterlere uygun ürün bulunamadı.</p>
+                   <p className="text-sm text-gray-500">Filtreleri değiştirmeyi veya <Link href={`/koleksiyon/${ALL_PRODUCTS_SLUG}`} className="underline hover:text-[#D4AF37]">tüm ürünlere</Link> göz atmayı deneyin.</p>
                 </div>
               ) : (
                 <div className="text-center py-20 bg-gray-50 rounded-lg">

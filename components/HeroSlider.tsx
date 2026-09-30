@@ -27,7 +27,7 @@ export default function HeroSlider() {
                   title: "Sonsuza Dek Birlikte",
                   subtitle: "ALYANS KOLEKSİYONU",
                   buttonText: "Alyansları İncele",
-                  buttonLink: "/koleksiyon/altin-14?sub=alyans"
+                  buttonLink: "/koleksiyon/altin-14?subCategory=alyans"
                 }
             ]);
         }

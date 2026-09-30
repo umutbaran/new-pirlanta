@@ -29,7 +29,7 @@ export default function Navbar() {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      router.push(`/koleksiyon/yeni?search=${encodeURIComponent(searchQuery)}`);
+      router.push(`/koleksiyon/tum-urunler?search=${encodeURIComponent(searchQuery)}`);
       setIsSearchOpen(false);
       setSearchQuery('');
     }
@@ -89,7 +89,7 @@ export default function Navbar() {
                                <h4 className="font-serif font-bold text-base mb-4 text-gray-900 border-b border-gray-100 pb-2">Koleksiyon</h4>
                                <ul className="space-y-3 text-sm text-gray-500">
                                   {cat.subCategories.slice(0, Math.ceil(cat.subCategories.length / 2)).map((sub, idx) => (
-                                     <li key={idx}><Link href={`/koleksiyon/${cat.slug}?sub=${sub.slug}`} className="hover:text-[#D4AF37] block">{sub.name}</Link></li>
+                                     <li key={idx}><Link href={`/koleksiyon/${cat.slug}?subCategory=${sub.slug}`} className="hover:text-[#D4AF37] block">{sub.name}</Link></li>
                                   ))}
                                </ul>
                             </div>
@@ -97,7 +97,7 @@ export default function Navbar() {
                                <h4 className="font-serif font-bold text-base mb-4 text-gray-900 border-b border-gray-100 pb-2">Öne Çıkanlar</h4>
                                <ul className="space-y-3 text-sm text-gray-500">
                                   {cat.subCategories.slice(Math.ceil(cat.subCategories.length / 2)).map((sub, idx) => (
-                                     <li key={idx}><Link href={`/koleksiyon/${cat.slug}?sub=${sub.slug}`} className="hover:text-[#D4AF37] block">{sub.name}</Link></li>
+                                     <li key={idx}><Link href={`/koleksiyon/${cat.slug}?subCategory=${sub.slug}`} className="hover:text-[#D4AF37] block">{sub.name}</Link></li>
                                   ))}
                                </ul>
                             </div>
@@ -112,7 +112,8 @@ export default function Navbar() {
           <div className="flex-shrink-0 flex justify-end items-center gap-3 md:gap-6">
             <button 
               onClick={() => setIsSearchOpen(true)}
-              className="hidden lg:block text-gray-600 hover:text-[#D4AF37] transition-colors"
+              aria-label="Ürün ara"
+              className="text-gray-600 hover:text-[#D4AF37] transition-colors"
             >     
                <Search className="h-5 w-5" />
             </button>
@@ -196,7 +197,7 @@ export default function Navbar() {
                         {cat.subCategories.map((sub, idx) => (
                           <Link
                             key={idx}
-                            href={`/koleksiyon/${cat.slug}?sub=${sub.slug}`}
+                            href={`/koleksiyon/${cat.slug}?subCategory=${sub.slug}`}
                             onClick={() => setIsOpen(false)}
                             className="text-sm text-gray-500 hover:text-[#D4AF37]"
                           >

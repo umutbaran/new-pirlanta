@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getCategories, saveCategories } from '@/lib/db';
+import { getCategories, saveCategories, CategoryRuleError } from '@/lib/db';
 import { isAdmin, revalidateSite } from '@/lib/admin';
 import { z } from 'zod';
 
@@ -39,6 +39,9 @@ export async function POST(request: Request) {
     revalidateSite();
     return NextResponse.json({ success: true });
   } catch (err) {
+    if (err instanceof CategoryRuleError) {
+      return NextResponse.json({ error: err.message }, { status: 400 });
+    }
     console.error(err);
     return NextResponse.json({ error: 'Kategoriler kaydedilemedi' }, { status: 500 });
   }

@@ -254,36 +254,61 @@ export async function getCategories(): Promise<CategoryData[]> {
   }
 }
 
-export async function saveCategories(categories: CategoryData[]) {
-  const incomingSlugs = categories.map(c => c.slug);
+/** Kullanıcıya gösterilebilecek (iş kuralı kaynaklı) kategori hatası */
+export class CategoryRuleError extends Error {}
 
-  return prisma.$transaction([
-    // Listede olmayan kategorileri sil
-    prisma.category.deleteMany({
-      where: {
-        slug: {
-          notIn: incomingSlugs
-        }
+/**
+ * Kategori listesinin tamamını kaydeder (id bazlı eşleştirme):
+ * - Veritabanında olan id'ler güncellenir; slug değişirse o kategorideki ürünler de yeni slug'a taşınır.
+ * - Veritabanında olmayan id'ler yeni kategori olarak eklenir.
+ * - Listede olmayan kategoriler silinir; ancak içinde ürün varsa silme engellenir.
+ */
+export async function saveCategories(categories: CategoryData[]) {
+  const slugs = categories.map(c => c.slug);
+  const duplicate = slugs.find((s, i) => slugs.indexOf(s) !== i);
+  if (duplicate) {
+    throw new CategoryRuleError(`"${duplicate}" adresine sahip birden fazla kategori var. Kategori isimleri benzersiz olmalı.`);
+  }
+
+  return prisma.$transaction(async (tx) => {
+    const existing = await tx.category.findMany();
+    const existingById = new Map(existing.map(c => [c.id, c]));
+    const incomingIds = new Set(categories.map(c => c.id));
+
+    // 1. Silinecek kategoriler: içinde ürün varsa engelle
+    const toDelete = existing.filter(c => !incomingIds.has(c.id));
+    for (const cat of toDelete) {
+      const productCount = await tx.product.count({ where: { category: cat.slug } });
+      if (productCount > 0) {
+        throw new CategoryRuleError(`"${cat.name}" kategorisinde ${productCount} ürün var. Silmeden önce ürünleri başka bir kategoriye taşıyın.`);
       }
-    }),
-    // Var olanları güncelle veya yenilerini ekle
-    ...categories.map(cat => prisma.category.upsert({
-      where: { slug: cat.slug },
-      update: {
-        name: cat.name,
-        isActive: cat.isActive,
-        isSpecial: cat.isSpecial || false,
-        subCategories: cat.subCategories as Prisma.InputJsonValue
-      },
-      create: {
+    }
+    if (toDelete.length > 0) {
+      await tx.category.deleteMany({ where: { id: { in: toDelete.map(c => c.id) } } });
+    }
+
+    // 2. Güncelle veya ekle
+    for (const cat of categories) {
+      const data = {
         name: cat.name,
         slug: cat.slug,
         isActive: cat.isActive,
         isSpecial: cat.isSpecial || false,
         subCategories: cat.subCategories as Prisma.InputJsonValue
+      };
+      const current = existingById.get(cat.id);
+
+      if (current) {
+        await tx.category.update({ where: { id: cat.id }, data });
+        // Kategori adı (slug) değiştiyse ürünleri yeni slug'a taşı
+        if (current.slug !== cat.slug) {
+          await tx.product.updateMany({ where: { category: current.slug }, data: { category: cat.slug } });
+        }
+      } else {
+        await tx.category.create({ data });
       }
-    }))
-  ]);
+    }
+  });
 }
 
 // --- Updates & Deletes (Products) ---
@@ -312,21 +337,46 @@ export async function deleteProduct(id: string) {
   return product;
 }
 
-export async function getProductsByCategory(categorySlug: string): Promise<Product[]> {
+export interface CatalogFilters {
+  category?: string;   // Kategori slug'ı; verilmezse tüm kategoriler
+  search?: string;     // Ürün adı, stok kodu veya açıklamada aranır
+  minPrice?: number;
+  maxPrice?: number;
+  limit?: number;
+}
+
+export async function getCatalogProducts(filters: CatalogFilters): Promise<Product[]> {
+  const { category, search, minPrice, maxPrice, limit } = filters;
+  const where: Prisma.ProductWhereInput = {};
+
+  if (category) where.category = category;
+
+  if (search) {
+    where.OR = [
+      { name: { contains: search, mode: 'insensitive' } },
+      { sku: { contains: search, mode: 'insensitive' } },
+      { description: { contains: search, mode: 'insensitive' } },
+    ];
+  }
+
+  // Fiyat filtresi varsa "Fiyat Alın" (0 TL) ürünleri hariç tut
+  if (minPrice !== undefined || maxPrice !== undefined) {
+    where.price = {
+      gt: 0,
+      ...(minPrice !== undefined ? { gte: minPrice } : {}),
+      ...(maxPrice !== undefined ? { lte: maxPrice } : {}),
+    };
+  }
+
   try {
     const products = await prisma.product.findMany({
-      where: {
-        OR: [
-          { category: categorySlug },
-          { subCategory: categorySlug },
-          { name: { contains: categorySlug, mode: 'insensitive' } }
-        ]
-      },
-      orderBy: { createdAt: 'desc' }
+      where,
+      orderBy: { createdAt: 'desc' },
+      ...(limit ? { take: limit } : {})
     });
     return products.map((p) => mapPrismaToProduct(p as Record<string, unknown>));
   } catch (err) {
-    console.error('Database error [getProductsByCategory]:', err);
+    console.error('Database error [getCatalogProducts]:', err);
     return [];
   }
 }

@@ -412,6 +412,15 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
                         <label className="block text-sm font-medium text-gray-700 mb-1">Stok Kodu (SKU)</label>
                         <input type="text" name="sku" value={formData.sku || ''} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-black outline-none text-sm" />
                     </div>
+                    <label className="flex items-center gap-2 mt-4 cursor-pointer select-none">
+                        <input
+                            type="checkbox"
+                            checked={!!formData.isNew}
+                            onChange={(e) => setFormData(prev => ({ ...prev, isNew: e.target.checked }))}
+                            className="h-4 w-4 accent-[#D4AF37]"
+                        />
+                        <span className="text-sm font-medium text-gray-700">Ürün kartında &quot;Yeni&quot; etiketi göster</span>
+                    </label>
                 </div>
 
             </div>

@@ -47,8 +47,9 @@ export default function CategoriesPage() {
       });
       if (!res.ok) {
         alert('Hata: ' + await getApiError(res, 'Kategoriler kaydedilemedi.'));
-        fetchCategories(); // Hata durumunda sunucudaki son hali geri yükle
       }
+      // Her durumda sunucudaki güncel hali yükle (yeni eklenen kategoriler gerçek id'lerini alır, hata varsa geri alınır)
+      fetchCategories();
     } catch (err) {
       console.error(err);
       alert('Sunucuya ulaşılamadı. Değişiklik kaydedilmedi.');
