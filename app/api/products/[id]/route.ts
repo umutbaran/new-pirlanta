@@ -3,6 +3,7 @@ import { updateProduct, deleteProduct, getProductById } from '@/lib/db';
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { productSchema } from '@/lib/schemas';
+import { Prisma } from '@prisma/client';
 
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -11,6 +12,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     if (!product) return NextResponse.json({ error: 'Ürün bulunamadı' }, { status: 404 });
     return NextResponse.json(product);
   } catch (err) {
+    console.error('Get Product Error:', err);
     return NextResponse.json({ error: 'Ürün getirilemedi' }, { status: 500 });
   }
 }
@@ -33,7 +35,13 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
 
     await updateProduct(id, validation.data);
     return NextResponse.json({ success: true });
-  } catch (err) {
+  } catch (err: unknown) {
+    console.error('Update Product Error:', err);
+    if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002') {
+      return NextResponse.json({
+        error: 'Bu stok kodu (SKU) zaten başka bir üründe kullanılıyor. Lütfen farklı bir kod girin.'
+      }, { status: 400 });
+    }
     return NextResponse.json({ error: 'Güncelleme başarısız oldu' }, { status: 500 });
   }
 }
@@ -50,6 +58,7 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
     await deleteProduct(id);
     return NextResponse.json({ success: true });
   } catch (err) {
+    console.error('Delete Product Error:', err);
     return NextResponse.json({ error: 'Silme işlemi başarısız' }, { status: 500 });
   }
 }

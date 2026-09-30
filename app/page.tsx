@@ -1,23 +1,22 @@
 import { ArrowRight, Phone, MapPin } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
-import { getProducts, getUiConfig, InfoCard, StoreItem, Product } from "@/lib/db";
+import { getProducts, getUiConfig, getProductsByIds, InfoCard, StoreItem, Product } from "@/lib/db";
 import ProductCard from "@/components/ProductCard";
 import HeroSlider from "@/components/HeroSlider";
 
 export default async function Home() {
-  const products = await getProducts();
   const uiConfig = await getUiConfig();
   
-  // Showcase için seçilen ürünleri ID'ye göre filtreleyelim
+  // Showcase için seçilen ürünleri direkt veritabanından çekelim
   let showcaseProducts: Product[] = [];
   if (uiConfig.showcase.productIds && uiConfig.showcase.productIds.length > 0) {
-    showcaseProducts = products.filter(p => uiConfig.showcase.productIds.includes(p.id));
+    showcaseProducts = await getProductsByIds(uiConfig.showcase.productIds);
   }
   
   // Eğer seçili ürün yoksa veya bulunamadıysa en yeni 4 ürünü göster
   if (showcaseProducts.length === 0) {
-    showcaseProducts = products.slice(0, 4);
+    showcaseProducts = await getProducts(4);
   }
 
   // Destructure for cleaner access

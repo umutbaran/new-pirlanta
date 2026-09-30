@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Save, ArrowLeft, Loader2, X, Upload, Plus, Image as ImageIcon } from 'lucide-react';
 import Link from 'next/link';
-import { Product } from '@/lib/db';
+import type { Product, CategoryData } from '@/lib/db';
 import { uploadProductImage } from '@/lib/upload';
 
 interface ProductFormProps {
@@ -18,7 +18,7 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
   
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
-  const [categories, setCategories] = useState<{id: string, name: string, slug: string}[]>([]);
+  const [categories, setCategories] = useState<CategoryData[]>([]);
   
   const [formData, setFormData] = useState<Partial<Product>>(initialData || {
     sku: '',
@@ -39,6 +39,12 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
   });
 
   const [newImageUrl, setNewImageUrl] = useState('');
+  const [customSubMode, setCustomSubMode] = useState(false);
+
+  const availableSubCategories = categories.find(c => c.slug === formData.category)?.subCategories || [];
+  // Kayıtlı alt kategori listede yoksa (eski/elle girilmiş değer) otomatik olarak elle giriş modunda göster
+  const isCustomSub = customSubMode ||
+    (!!formData.subCategory && !availableSubCategories.some(s => s.name === formData.subCategory));
 
   // Kategorileri çek
   useEffect(() => {
@@ -324,7 +330,17 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
                     <div className="space-y-4">
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Kategori</label>
-                            <select name="category" value={formData.category} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-black outline-none bg-white text-sm">
+                            <select 
+                                name="category" 
+                                value={formData.category} 
+                                onChange={(e) => {
+                                    handleChange(e);
+                                    // Kategori değişince alt kategoriyi sıfırla ki eski kategorinin tipi kalmasın
+                                    setFormData(prev => ({ ...prev, subCategory: '' }));
+                                    setCustomSubMode(false);
+                                }}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-black outline-none bg-white text-sm"
+                            >
                                 {categories.length > 0 ? categories.map(cat => (
                                     <option key={cat.id} value={cat.slug}>{cat.name}</option>
                                 )) : (
@@ -334,7 +350,36 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
                         </div>
                         <div>
                              <label className="block text-sm font-medium text-gray-700 mb-1">Alt Kategori (Tip)</label>
-                             <input type="text" name="subCategory" value={formData.subCategory || ''} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-black outline-none text-sm" placeholder="Örn: Yüzük, Kolye" />
+                             <div className="space-y-2">
+                                <select
+                                    value={isCustomSub ? 'custom' : (formData.subCategory || '')}
+                                    onChange={(e) => {
+                                        const val = e.target.value;
+                                        const custom = val === 'custom';
+                                        setCustomSubMode(custom);
+                                        setFormData(prev => ({ ...prev, subCategory: custom ? '' : val }));
+                                    }}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-black outline-none bg-white text-sm"
+                                >
+                                    <option value="">Seçiniz...</option>
+                                    {availableSubCategories.map((sub) => (
+                                        <option key={sub.slug} value={sub.name}>{sub.name}</option>
+                                    ))}
+                                    <option value="custom">+ Listede Yok (Elle Gir)</option>
+                                </select>
+
+                                {/* 'Listede Yok' seçildiyse veya mevcut değer listede değilse manuel inputu göster */}
+                                {isCustomSub && (
+                                    <input 
+                                        type="text" 
+                                        name="subCategory" 
+                                        value={formData.subCategory || ''} 
+                                        onChange={handleChange} 
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-black outline-none text-sm animate-in fade-in slide-in-from-top-1" 
+                                        placeholder="Örn: Özel Tasarım Yüzük" 
+                                    />
+                                )}
+                             </div>
                         </div>
                     </div>
                 </div>

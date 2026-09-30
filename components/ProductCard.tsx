@@ -20,7 +20,8 @@ export default function ProductCard({ product }: { product: Product }) {
       </div>
 
       <Link href={`/urun/${product.id}`} className="flex-1 flex flex-col">
-        <div className="relative aspect-[4/5] overflow-hidden bg-gray-50">
+        {/* Resim Alanı - Sabit Oran: aspect-[4/5] */}
+        <div className="relative aspect-[4/5] w-full overflow-hidden bg-gray-50">
             {/* Etiketler */}
             {product.isNew && (
             <div className="absolute top-3 left-3 bg-[#D4AF37] text-white text-[8px] md:text-[9px] font-bold px-2 md:px-3 py-1 z-20 tracking-widest uppercase shadow-sm">
@@ -33,8 +34,8 @@ export default function ProductCard({ product }: { product: Product }) {
             src={product.images[0] || 'https://images.unsplash.com/photo-1617038260897-41a1f14a8ca0?q=80'}
             alt={product.name}
             fill
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-            className="object-cover transition-transform duration-500 group-hover:scale-110"
+            sizes="(max-width: 768px) 50vw, 33vw"
+            className="object-cover transition-transform duration-700 group-hover:scale-110"
             />
             
             <div className="absolute bottom-6 left-1/2 -translate-x-1/2 translate-y-12 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-500 z-20 w-full px-6 text-center hidden md:block">

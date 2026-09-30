@@ -1,6 +1,7 @@
 import { Prisma } from '@prisma/client';
 import prisma from './prisma';
 import { parseSafeNumber } from './utils';
+import { deleteStorageFiles } from './supabase';
 import type { 
   HeroSlide, MosaicItem, InfoCard, StoreItem, 
   FooterLink, UiConfig, BulletinItem 
@@ -78,6 +79,18 @@ export async function getProductById(id: string) {
   } catch (err) {
     console.error('Database error [getProductById]:', err);
     return null;
+  }
+}
+
+export async function getProductsByIds(ids: string[]): Promise<Product[]> {
+  try {
+    const products = await prisma.product.findMany({
+      where: { id: { in: ids } }
+    });
+    return products.map((p) => mapPrismaToProduct(p as Record<string, unknown>));
+  } catch (err) {
+    console.error('Database error [getProductsByIds]:', err);
+    return [];
   }
 }
 
@@ -242,8 +255,19 @@ export async function getCategories(): Promise<CategoryData[]> {
 }
 
 export async function saveCategories(categories: CategoryData[]) {
-  return prisma.$transaction(
-    categories.map(cat => prisma.category.upsert({
+  const incomingSlugs = categories.map(c => c.slug);
+
+  return prisma.$transaction([
+    // Listede olmayan kategorileri sil
+    prisma.category.deleteMany({
+      where: {
+        slug: {
+          notIn: incomingSlugs
+        }
+      }
+    }),
+    // Var olanları güncelle veya yenilerini ekle
+    ...categories.map(cat => prisma.category.upsert({
       where: { slug: cat.slug },
       update: {
         name: cat.name,
@@ -259,7 +283,7 @@ export async function saveCategories(categories: CategoryData[]) {
         subCategories: cat.subCategories as Prisma.InputJsonValue
       }
     }))
-  );
+  ]);
 }
 
 // --- Updates & Deletes (Products) ---
@@ -282,7 +306,29 @@ export async function updateProduct(id: string, p: Record<string, unknown>) {
 }
 
 export async function deleteProduct(id: string) {
-  return prisma.product.delete({ where: { id } });
+  const product = await prisma.product.delete({ where: { id } });
+  // Ürüne ait görselleri Supabase Storage'dan da temizle
+  await deleteStorageFiles(product.images);
+  return product;
+}
+
+export async function getProductsByCategory(categorySlug: string): Promise<Product[]> {
+  try {
+    const products = await prisma.product.findMany({
+      where: {
+        OR: [
+          { category: categorySlug },
+          { subCategory: categorySlug },
+          { name: { contains: categorySlug, mode: 'insensitive' } }
+        ]
+      },
+      orderBy: { createdAt: 'desc' }
+    });
+    return products.map((p) => mapPrismaToProduct(p as Record<string, unknown>));
+  } catch (err) {
+    console.error('Database error [getProductsByCategory]:', err);
+    return [];
+  }
 }
 
 // --- Save Settings ---

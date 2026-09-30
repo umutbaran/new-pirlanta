@@ -3,6 +3,7 @@ import { getProducts, addProduct } from '@/lib/db';
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { productSchema } from '@/lib/schemas';
+import { Prisma } from '@prisma/client';
 
 export async function GET() {
   const products = await getProducts();
@@ -30,8 +31,16 @@ export async function POST(request: Request) {
 
     const newProduct = await addProduct(validation.data);
     return NextResponse.json(newProduct);
-  } catch (err) {
+  } catch (err: unknown) {
     console.error('Add Product Error:', err);
+
+    // Prisma P2002 hatası: Unique constraint failed
+    if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002') {
+      return NextResponse.json({ 
+        error: 'Bu stok kodu (SKU) zaten başka bir üründe kullanılıyor. Lütfen farklı bir kod girin.' 
+      }, { status: 400 });
+    }
+
     return NextResponse.json({ error: 'Ürün eklenirken bir hata oluştu' }, { status: 500 });
   }
 }

@@ -1,4 +1,4 @@
-import { getProducts, getCategories } from '@/lib/db'; 
+import { getProducts, getCategories, getProductsByCategory } from '@/lib/db'; 
 import ProductCard from '@/components/ProductCard';
 import ProductFilters from '@/components/ProductFilters';
 import Image from 'next/image';
@@ -43,35 +43,30 @@ export default async function CategoryPage({
   const { slug } = await params;
   const resolvedSearchParams = await searchParams;
   
-  const products = await getProducts();
-  const categories = await getCategories();
+  // PARALEL VERİ ÇEKME: Artık tüm ürünleri değil, sadece ihtiyacımız olanları çekiyoruz.
+  const [products, categories] = await Promise.all([
+    slug === 'yeni' ? getProducts(20) : getProductsByCategory(slug),
+    getCategories()
+  ]);
 
   // O anki kategoriyi bul
   const currentCategory = categories.find(c => c.slug === slug || slugify(c.name) === slug);
   const subCategories = currentCategory?.subCategories || [];
   
-  // Başlık ve resim belirleme
   const config = categoryConfig[slug] || {};
   const pageTitle = config.title || currentCategory?.name || 'Koleksiyon';
   const pageDesc = config.desc || 'Özel tasarım mücevherler.';
   const pageImage = config.image || 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?q=80';
   
-  // --- FİLTRELEME MANTIĞI ---
-  let filtered = products.filter(p => {
-    // Kategori eşleşmesi (Slug üzerinden)
-    const pSlug = slugify(p.category);
-    const isMainCat = pSlug === slug;
-    const isYeni = slug === 'yeni' && p.isNew;
-    return isMainCat || isYeni;
-  });
-  
-  // Alt Kategori Filtresi
+  // Başlangıç listemiz veritabanından filtrelenmiş olarak geldi
+  let filtered = products;
+
+  // Sadece ek (detaylı) filtreleri bellek üzerinde uyguluyoruz (Renk, Alt Kategori vb.)
   if (resolvedSearchParams.subCategory) {
-    const subSlug = resolvedSearchParams.subCategory;
-    filtered = filtered.filter(p => slugify(p.subCategory || "") === subSlug);
+    const subQ = slugify(resolvedSearchParams.subCategory);
+    filtered = filtered.filter(p => slugify(p.subCategory || "") === subQ);
   }
 
-  // Renk Filtresi
   if (resolvedSearchParams.renk) {
     const colorQ = resolvedSearchParams.renk.toLowerCase();
     filtered = filtered.filter(p => {
@@ -101,7 +96,7 @@ export default async function CategoryPage({
            <div className="flex-1">
               <div className="flex justify-between items-center mb-6 pb-4 border-b border-gray-100">
                  <span className="text-xs font-bold tracking-widest uppercase text-gray-500">
-                    {filtered.length} Tasarım
+                    {filtered.length} Tasarım Bulundu
                  </span>
               </div>
 
@@ -113,7 +108,8 @@ export default async function CategoryPage({
                 </div>
               ) : (
                 <div className="text-center py-20 bg-gray-50 rounded-lg">
-                   <p className="text-xl font-serif text-gray-400">Ürün bulunamadı.</p>
+                   <p className="text-xl font-serif text-gray-400 mb-2">Bu kategoride henüz ürün bulunmuyor.</p>
+                   <p className="text-sm text-gray-500">Kategoriler üzerinde çalışmalarımız devam ediyor.</p>
                 </div>
               )}
            </div>

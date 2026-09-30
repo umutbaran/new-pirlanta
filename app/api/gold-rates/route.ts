@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { getSettings } from '@/lib/db';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 300; // 5 dakikada bir sunucu tarafında güncellenir
@@ -46,6 +47,8 @@ export async function GET() {
       next: { revalidate: 300 } 
     });
     const tData = await tRes.json();
+    const settings = await getSettings();
+    const margin = 1 + (settings.goldPriceMargin || 0.05);
     
     const safeParseNumber = (v: unknown): number => {
         if (typeof v === 'number') return v;
@@ -62,7 +65,7 @@ export async function GET() {
 
     const usd = safeParseNumber(tData["ABD Doları"]?.Satış || tData["USD"]?.Satış || "34.78");
     const ons = safeParseNumber(tData["Ons Altın"]?.Satış || tData["ONS"]?.Satış || "2735");
-    const calculatedHas = (ons / 31.1034768) * usd * 1.05; 
+    const calculatedHas = (ons / 31.1034768) * usd * margin; 
 
     return NextResponse.json({
       success: true,
