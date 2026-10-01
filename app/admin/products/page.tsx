@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Plus, Edit, Trash2, Search, Loader2, Package, Filter, ExternalLink } from 'lucide-react';
+import { Plus, Edit, Trash2, Search, Loader2, Package, Filter, ExternalLink, AlertTriangle } from 'lucide-react';
 import type { Product } from '@/lib/db';
 import { getApiError } from '@/lib/utils';
 
@@ -13,6 +13,12 @@ export default function ProductsPage() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'image' | 'price'>('all');
+  // Tarayıcıda yüklenemeyen (silinmiş/kırık) ürün görselleri
+  const [brokenImages, setBrokenImages] = useState<Set<string>>(new Set());
+  const markBroken = (id: string) => setBrokenImages(prev => (prev.has(id) ? prev : new Set(prev).add(id)));
+  const hasImageProblem = (p: Product) => !p.images?.length || brokenImages.has(p.id);
+  const categoryName = (slug: string) => categories.find(c => c.slug === slug)?.name || slug;
 
   const fetchProducts = async () => {
     try {
@@ -57,7 +63,8 @@ export default function ProductsPage() {
     const matchesSearch = p.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
                           p.sku?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = selectedCategory === 'all' || p.category === selectedCategory;
-    return matchesSearch && matchesCategory;
+    const matchesStatus = statusFilter === 'all' || (statusFilter === 'image' ? hasImageProblem(p) : !(p.price > 0));
+    return matchesSearch && matchesCategory && matchesStatus;
   });
 
   return (
@@ -68,7 +75,7 @@ export default function ProductsPage() {
            <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Ürün Yönetimi</h1>
            <p className="text-slate-500 text-sm mt-1">Koleksiyonunuzdaki toplam {products.length} ürünü buradan yönetebilirsiniz.</p>
         </div>
-        <Link href="/admin/products/new" className="bg-[#D4AF37] text-slate-900 px-5 py-2.5 rounded-xl text-sm font-bold hover:bg-[#B4941F] transition-all flex items-center gap-2 shadow-lg shadow-[#D4AF37]/20 active:scale-95">
+        <Link href="/admin/products/new" className="bg-ink text-white px-5 py-2.5 rounded-xl text-sm font-bold hover:bg-black transition-all flex items-center gap-2 shadow-lg shadow-black/10 active:scale-95">
           <Plus className="h-5 w-5" /> Yeni Ürün Ekle
         </Link>
       </div>
@@ -80,7 +87,7 @@ export default function ProductsPage() {
             <input 
               type="text" 
               placeholder="Ürün adı veya SKU ile ara..." 
-              className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-[#D4AF37] focus:ring-4 focus:ring-[#D4AF37]/5 transition-all outline-none"
+              className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-ink focus:ring-4 focus:ring-ink/5 transition-all outline-none"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -91,7 +98,7 @@ export default function ProductsPage() {
                 <select 
                     value={selectedCategory}
                     onChange={(e) => setSelectedCategory(e.target.value)}
-                    className="w-full pl-11 pr-10 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-[#D4AF37] focus:ring-4 focus:ring-[#D4AF37]/5 transition-all outline-none appearance-none cursor-pointer"
+                    className="w-full pl-11 pr-10 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-ink focus:ring-4 focus:ring-ink/5 transition-all outline-none appearance-none cursor-pointer"
                 >
                     <option value="all">Tüm Kategoriler</option>
                     {categories.map(cat => (
@@ -99,6 +106,16 @@ export default function ProductsPage() {
                     ))}
                 </select>
             </div>
+            <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value as typeof statusFilter)}
+                aria-label="Durum filtresi"
+                className="w-full md:w-48 px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-ink cursor-pointer"
+            >
+                <option value="all">Tüm durumlar</option>
+                <option value="image">Görseli eksik ({products.filter(hasImageProblem).length})</option>
+                <option value="price">Fiyatı yok ({products.filter(p => !(p.price > 0)).length})</option>
+            </select>
           </div>
       </div>
 
@@ -106,7 +123,7 @@ export default function ProductsPage() {
       <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
         {loading ? (
           <div className="p-20 text-center text-slate-500">
-             <Loader2 className="h-10 w-10 animate-spin mx-auto mb-4 text-[#D4AF37]" />
+             <Loader2 className="h-10 w-10 animate-spin mx-auto mb-4 text-gold-deep" />
              <p className="font-medium">Koleksiyon yükleniyor...</p>
           </div>
         ) : (
@@ -125,12 +142,14 @@ export default function ProductsPage() {
                   <tr key={product.id} className="hover:bg-slate-50/50 transition-colors group">
                     <td className="px-8 py-4">
                       <div className="flex items-center gap-4">
-                        <div className="w-14 h-14 bg-slate-100 rounded-xl overflow-hidden flex-shrink-0 border border-slate-200 relative group-hover:border-[#D4AF37]/30 transition-colors">
-                            {product.images && product.images.length > 0 ? (
+                        <div className="w-14 h-14 bg-slate-100 rounded-xl overflow-hidden flex-shrink-0 border border-slate-200 relative group-hover:border-gold/40 transition-colors">
+                            {product.images && product.images.length > 0 && !brokenImages.has(product.id) ? (
                                 <Image 
                                     src={product.images[0]} 
-                                    alt={product.name} 
+                                    alt="" 
                                     fill
+                                    sizes="56px"
+                                    onError={() => markBroken(product.id)}
                                     className="object-cover" 
                                 />
                             ) : (
@@ -142,19 +161,28 @@ export default function ProductsPage() {
                         <div className="min-w-0">
                             <h3 className="font-bold text-slate-900 truncate max-w-[200px] md:max-w-[400px]">{product.name}</h3>
                             <p className="text-xs text-slate-400 font-mono mt-0.5 tracking-tight">{product.sku || 'SKU Belirtilmedi'}</p>
+                            {hasImageProblem(product) && (
+                              <span className="inline-flex items-center gap-1 mt-1.5 px-2 py-0.5 rounded bg-amber-50 text-amber-700 text-[11px] font-medium">
+                                <AlertTriangle className="h-3 w-3" /> {product.images?.length ? 'Görsel açılmıyor' : 'Görsel yok'}
+                              </span>
+                            )}
                         </div>
                       </div>
                     </td>
                     <td className="px-6 py-4">
                         <span className="inline-flex items-center px-2.5 py-1 rounded-lg bg-slate-100 text-[11px] font-bold text-slate-600 uppercase tracking-wider">
-                            {product.category}
+                            {categoryName(product.category)}
                         </span>
                     </td>
                     <td className="px-6 py-4">
-                        <div className="font-bold text-slate-900">
+                        {product.price > 0 ? (
+                          <div className="font-bold text-slate-900">
                             {Number(product.price).toLocaleString('tr-TR')} <span className="text-[10px] text-slate-400 font-normal ml-0.5">₺</span>
-                        </div>
-                        {product.oldPrice && (
+                          </div>
+                        ) : (
+                          <span className="text-xs text-slate-400">Fiyat yok</span>
+                        )}
+                        {product.price > 0 && !!product.oldPrice && product.oldPrice > product.price && (
                             <div className="text-[10px] text-slate-400 line-through">
                                 {Number(product.oldPrice).toLocaleString('tr-TR')} ₺
                             </div>
@@ -172,7 +200,7 @@ export default function ProductsPage() {
                         </Link>
                         <Link 
                             href={`/admin/products/${product.id}`} 
-                            className="p-2.5 text-blue-500 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all"
+                            className="p-2.5 text-slate-500 hover:text-ink hover:bg-slate-100 rounded-xl transition-all"
                             title="Düzenle"
                         >
                           <Edit className="h-4.5 w-4.5" />

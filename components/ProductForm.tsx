@@ -153,7 +153,7 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
         
         {/* HEADER */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8 bg-slate-900 -mx-6 md:-mx-10 -mt-10 p-6 md:p-10 shadow-xl relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-[#D4AF37]/5 rounded-full blur-3xl -mr-32 -mt-32 pointer-events-none"></div>
+            <div className="absolute top-0 right-0 w-64 h-64 bg-gold/10 rounded-full blur-3xl -mr-32 -mt-32 pointer-events-none"></div>
             <div className="flex items-center gap-4 relative z-10">
                 <Link href="/admin/products" className="p-2.5 bg-white/10 border border-white/10 rounded-xl hover:bg-white/20 transition-all text-white">
                     <ArrowLeft className="h-5 w-5" />
@@ -181,7 +181,7 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
                 <button 
                   type="submit" 
                   disabled={loading}
-                  className="flex-1 sm:flex-none px-8 py-3 bg-[#D4AF37] text-slate-900 rounded-xl text-sm font-black hover:bg-[#B4941F] transition-all flex items-center justify-center gap-2 disabled:opacity-50 shadow-lg shadow-[#D4AF37]/20"
+                  className="flex-1 sm:flex-none px-8 py-3 bg-ink text-white rounded-xl text-sm font-black hover:bg-black transition-all flex items-center justify-center gap-2 disabled:opacity-50 shadow-lg shadow-black/10"
                 >
                     {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Save className="h-5 w-5" />}
                     {isEditMode ? 'GÜNCELLE' : 'ÜRÜNÜ KAYDET'}
@@ -394,20 +394,23 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
                     <h3 className="text-base font-semibold text-gray-900 mb-4">Fiyatlandırma</h3>
                     <div className="space-y-4">
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Fiyat (TL) <span className="text-xs font-normal text-gray-400 ml-1">- Boş Bırakırsanız &quot;Fiyat Alın&quot; Yazar</span></label>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Fiyat (TL) <span className="text-xs font-normal text-gray-400 ml-1">- İsteğe bağlı</span></label>
                             <div className="relative">
                                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">₺</span>
                                 <input type="number" name="price" value={formData.price || ''} onChange={handleChange} className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-black outline-none text-sm" placeholder="İsteğe Bağlı" />
                             </div>
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">İndirimsiz Fiyat <span className="text-xs font-normal text-gray-400 ml-1">- Üstü çizili görünür</span></label>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">İndirimsiz Fiyat <span className="text-xs font-normal text-gray-400 ml-1">- Fiyattan yüksekse üstü çizili görünür</span></label>
                             <div className="relative">
                                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">₺</span>
                                 <input type="number" name="oldPrice" value={formData.oldPrice || ''} onChange={handleChange} className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-black outline-none text-sm" placeholder="İsteğe Bağlı" />
                             </div>
                         </div>
                     </div>
+                    <p className="mt-4 text-xs text-gray-500 leading-relaxed bg-gray-50 rounded-lg p-3">
+                        Fiyatların sitede görünüp görünmeyeceği <a href="/admin/settings" className="underline">Ayarlar › Fiyat Görünürlüğü</a> bölümünden yönetilir. Gizliyken ziyaretçiler fiyat için WhatsApp veya telefonla iletişime yönlendirilir.
+                    </p>
                 </div>
 
                 {/* Inventory */}
@@ -422,7 +425,7 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
                             type="checkbox"
                             checked={!!formData.isNew}
                             onChange={(e) => setFormData(prev => ({ ...prev, isNew: e.target.checked }))}
-                            className="h-4 w-4 accent-[#D4AF37]"
+                            className="h-4 w-4 accent-ink"
                         />
                         <span className="text-sm font-medium text-gray-700">Ürün kartında &quot;Yeni&quot; etiketi göster</span>
                     </label>

@@ -118,16 +118,6 @@ export default function SettingsPage() {
                    className="w-full border p-2 rounded text-sm" 
                  />
               </div>
-              <div>
-                 <label className="block text-xs font-bold text-gray-500 mb-1">Para Birimi</label>
-                 <input 
-                   type="text" 
-                   name="currency" 
-                   value={settings.currency} 
-                   onChange={handleChange} 
-                   className="w-full border p-2 rounded text-sm" 
-                 />
-              </div>
            </div>
         </div>
 
@@ -184,7 +174,7 @@ export default function SettingsPage() {
            <button 
              type="submit" 
              disabled={saving}
-             className="bg-black text-white px-8 py-3 rounded-md font-bold hover:bg-[#D4AF37] transition-colors flex items-center gap-2 disabled:opacity-50"
+             className="bg-black text-white px-8 py-3 rounded-md font-bold hover:bg-black transition-colors flex items-center gap-2 disabled:opacity-50"
            >
              <Save className="h-5 w-5" />
              {saving ? 'Kaydediliyor...' : 'Ayarları Kaydet'}

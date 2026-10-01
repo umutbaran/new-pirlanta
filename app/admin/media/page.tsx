@@ -62,7 +62,7 @@ export default function MediaPage() {
              placeholder="Ürün adına göre ara..." 
              value={searchTerm}
              onChange={(e) => setSearchTerm(e.target.value)}
-             className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-[#D4AF37] focus:ring-1 focus:ring-[#D4AF37]"
+             className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-ink focus:ring-1 focus:ring-ink"
            />
         </div>
       </div>

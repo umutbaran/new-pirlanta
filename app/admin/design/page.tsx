@@ -109,7 +109,7 @@ export default function DesignPage() {
     setConfig({ ...config, showcase: { ...config.showcase, productIds: newIds } });
   };
 
-  if (loading || !config) return <div className="flex h-screen items-center justify-center bg-[#F8FAFC]"><div className="text-center"><Loader2 className="animate-spin text-[#D4AF37] h-12 w-12 mx-auto mb-4" /><p className="text-slate-500 font-bold uppercase tracking-widest text-xs">Yükleniyor...</p></div></div>;
+  if (loading || !config) return <div className="flex h-screen items-center justify-center bg-[#F8FAFC]"><div className="text-center"><Loader2 className="animate-spin text-gold-deep h-12 w-12 mx-auto mb-4" /><p className="text-slate-500 font-bold uppercase tracking-widest text-xs">Yükleniyor...</p></div></div>;
 
   const selectedProducts = products.filter(p => config.showcase.productIds?.includes(p.id));
   const availableProducts = products.filter(p => 
@@ -121,7 +121,7 @@ export default function DesignPage() {
     <div className="space-y-8 pb-20 max-w-[1400px] mx-auto">
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-slate-900 -mx-6 md:-mx-10 -mt-10 p-6 md:p-10 mb-2 shadow-2xl relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-[#D4AF37]/5 rounded-full blur-3xl -mr-32 -mt-32 pointer-events-none"></div>
+        <div className="absolute top-0 right-0 w-64 h-64 bg-gold/10 rounded-full blur-3xl -mr-32 -mt-32 pointer-events-none"></div>
         <div className="relative z-10">
            <h1 className="text-3xl font-bold text-white tracking-tight">Vitrini Düzenle</h1>
            <p className="text-slate-400 text-sm mt-1">Mağazanızın tüm bölümlerini buradan yönetin.</p>
@@ -133,7 +133,7 @@ export default function DesignPage() {
             >
                 SIFIRLA
             </button>
-            <button onClick={saveChanges} disabled={saving} className="bg-[#D4AF37] text-slate-900 px-8 py-3.5 rounded-2xl font-black text-sm hover:bg-[#B4941F] transition-all flex items-center gap-2 shadow-xl shadow-[#D4AF37]/20 active:scale-95 disabled:opacity-50">
+            <button onClick={saveChanges} disabled={saving} className="bg-ink text-white px-8 py-3.5 rounded-2xl font-black text-sm hover:bg-black transition-all flex items-center gap-2 shadow-xl shadow-black/10 active:scale-95 disabled:opacity-50">
                 {saving ? <Loader2 className="h-5 w-5 animate-spin" /> : <Save className="h-5 w-5" />} {saving ? 'KAYDEDİLİYOR...' : 'YAYINA AL'}
             </button>
         </div>
@@ -150,7 +150,7 @@ export default function DesignPage() {
            {id:'footer', label:'Footer', icon:Anchor}
          ].map(tab => (
              <button key={tab.id} onClick={() => setActiveTab(tab.id as 'slider' | 'mosaic' | 'info' | 'showcase' | 'store' | 'footer')} className={`px-8 py-3.5 rounded-[1.5rem] text-xs font-black uppercase tracking-widest flex items-center gap-2 transition-all duration-300 ${activeTab === tab.id ? 'bg-white text-slate-900 shadow-lg' : 'text-slate-500 hover:text-slate-700 hover:bg-white/50'}`}>
-                <tab.icon className={`h-4.5 w-4.5 ${activeTab === tab.id ? 'text-[#D4AF37]' : ''}`} /> {tab.label}
+                <tab.icon className={`h-4.5 w-4.5 ${activeTab === tab.id ? 'text-gold-deep' : ''}`} /> {tab.label}
              </button>
          ))}
       </div>
@@ -162,7 +162,7 @@ export default function DesignPage() {
             <div className="space-y-6">
                 <div className="flex justify-between items-center mb-2">
                     <h3 className="text-xl font-bold text-slate-900">Ana Sayfa Slider</h3>
-                    <button onClick={addSlide} className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-[#D4AF37] hover:underline"><PlusCircle className="h-5 w-5"/> Yeni Slide</button>
+                    <button onClick={addSlide} className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-gold-deep hover:underline"><PlusCircle className="h-5 w-5"/> Yeni Slide</button>
                 </div>
                 <div className="grid gap-8">
                     {config.heroSlides.map((slide, index) => (
@@ -172,7 +172,7 @@ export default function DesignPage() {
                                 <div className="relative aspect-[16/10] bg-slate-50 rounded-[1.5rem] overflow-hidden border border-slate-100 group/img">
                                     <Image src={slide.image} alt={slide.title} fill className="object-cover" />
                                     <label className="absolute inset-0 bg-slate-900/60 opacity-0 group-hover/img:opacity-100 flex flex-col items-center justify-center text-white cursor-pointer transition-all">
-                                        {uploadingId === `slider-${index}-image` ? <Loader2 className="animate-spin text-[#D4AF37]" /> : <Upload className="h-8 w-8 mb-2" />}
+                                        {uploadingId === `slider-${index}-image` ? <Loader2 className="animate-spin text-gold-deep" /> : <Upload className="h-8 w-8 mb-2" />}
                                         <input type="file" className="hidden" accept="image/*" onChange={(e) => handleImageUpload('slider', index, 'image', e)} />
                                     </label>
                                 </div>
@@ -225,8 +225,8 @@ export default function DesignPage() {
                 <div className="bg-white p-10 rounded-[2.5rem] border border-slate-200 shadow-sm">
                     <h3 className="text-xl font-bold text-slate-900 mb-6">Bilgi Merkezi Başlıkları</h3>
                     <div className="grid md:grid-cols-2 gap-8">
-                        <div className="space-y-1.5"><label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Bölüm Başlığı</label><input type="text" value={config.infoCenter.title} onChange={(e) => setConfig({...config, infoCenter: {...config.infoCenter, title: e.target.value}})} className="w-full bg-slate-50 border border-slate-200 p-4 rounded-2xl text-sm outline-none focus:border-[#D4AF37]" /></div>
-                        <div className="space-y-1.5"><label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Üst Başlık</label><input type="text" value={config.infoCenter.subtitle} onChange={(e) => setConfig({...config, infoCenter: {...config.infoCenter, subtitle: e.target.value}})} className="w-full bg-slate-50 border border-slate-200 p-4 rounded-2xl text-sm outline-none focus:border-[#D4AF37]" /></div>
+                        <div className="space-y-1.5"><label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Bölüm Başlığı</label><input type="text" value={config.infoCenter.title} onChange={(e) => setConfig({...config, infoCenter: {...config.infoCenter, title: e.target.value}})} className="w-full bg-slate-50 border border-slate-200 p-4 rounded-2xl text-sm outline-none focus:border-ink" /></div>
+                        <div className="space-y-1.5"><label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Üst Başlık</label><input type="text" value={config.infoCenter.subtitle} onChange={(e) => setConfig({...config, infoCenter: {...config.infoCenter, subtitle: e.target.value}})} className="w-full bg-slate-50 border border-slate-200 p-4 rounded-2xl text-sm outline-none focus:border-ink" /></div>
                     </div>
                 </div>
                 <div className="grid md:grid-cols-3 gap-6">
@@ -253,17 +253,17 @@ export default function DesignPage() {
          {activeTab === 'showcase' && (
             <div className="space-y-8">
                 <div className="bg-white p-10 rounded-[2.5rem] border border-slate-200 shadow-sm">
-                    <h3 className="text-xl font-bold text-slate-900 mb-8 flex items-center gap-3"><Type className="text-[#D4AF37] h-7 w-7"/> Vitrin Alanı Metinleri</h3>
+                    <h3 className="text-xl font-bold text-slate-900 mb-8 flex items-center gap-3"><Type className="text-gold-deep h-7 w-7"/> Vitrin Alanı Metinleri</h3>
                     <div className="grid md:grid-cols-2 gap-8">
-                        <div className="space-y-2"><label className="text-[10px] font-black text-slate-400 uppercase tracking-[2px] ml-1">Bölüm Ana Başlığı</label><input type="text" value={config.showcase.title} onChange={(e) => setConfig({...config, showcase: {...config.showcase, title: e.target.value}})} className="w-full bg-slate-50 border border-slate-200 p-4 rounded-2xl text-sm focus:border-[#D4AF37] outline-none font-bold text-slate-900 shadow-inner" /></div>
-                        <div className="space-y-2"><label className="text-[10px] font-black text-slate-400 uppercase tracking-[2px] ml-1">Bölüm Alt Açıklaması</label><input type="text" value={config.showcase.description} onChange={(e) => setConfig({...config, showcase: {...config.showcase, description: e.target.value}})} className="w-full bg-slate-50 border border-slate-200 p-4 rounded-2xl text-sm focus:border-[#D4AF37] outline-none text-slate-600 shadow-inner" /></div>
+                        <div className="space-y-2"><label className="text-[10px] font-black text-slate-400 uppercase tracking-[2px] ml-1">Bölüm Ana Başlığı</label><input type="text" value={config.showcase.title} onChange={(e) => setConfig({...config, showcase: {...config.showcase, title: e.target.value}})} className="w-full bg-slate-50 border border-slate-200 p-4 rounded-2xl text-sm focus:border-ink outline-none font-bold text-slate-900 shadow-inner" /></div>
+                        <div className="space-y-2"><label className="text-[10px] font-black text-slate-400 uppercase tracking-[2px] ml-1">Bölüm Alt Açıklaması</label><input type="text" value={config.showcase.description} onChange={(e) => setConfig({...config, showcase: {...config.showcase, description: e.target.value}})} className="w-full bg-slate-50 border border-slate-200 p-4 rounded-2xl text-sm focus:border-ink outline-none text-slate-600 shadow-inner" /></div>
                     </div>
                 </div>
                 <div className="grid lg:grid-cols-5 gap-8">
                     <div className="lg:col-span-2 bg-slate-900 p-8 rounded-[2.5rem] border border-white/5 shadow-2xl relative overflow-hidden">
                         <div className="flex justify-between items-center mb-8 relative">
                             <div><h3 className="text-xl font-bold text-white">Vitrindekiler</h3><p className="text-slate-400 text-xs mt-1">Sitede yayında olanlar</p></div>
-                            <div className="bg-[#D4AF37] text-slate-900 px-5 py-2 rounded-full text-[10px] font-black tracking-widest uppercase">{selectedProducts.length} ÜRÜN</div>
+                            <div className="bg-ink text-white px-5 py-2 rounded-full text-[10px] font-black tracking-widest uppercase">{selectedProducts.length} ÜRÜN</div>
                         </div>
                         <div className="space-y-4 max-h-[600px] overflow-y-auto pr-3 custom-scrollbar min-h-[400px]">
                             {selectedProducts.length > 0 ? selectedProducts.map(product => (
@@ -278,15 +278,15 @@ export default function DesignPage() {
                     <div className="lg:col-span-3 bg-white p-8 rounded-[2.5rem] border border-slate-200 shadow-sm">
                         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
                             <div><h3 className="text-xl font-bold text-slate-900">Ürün Havuzu</h3><p className="text-slate-500 text-xs mt-1">Vitrine ekleyebileceğiniz tüm koleksiyon.</p></div>
-                            <div className="relative w-full md:w-64"><Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" /><input type="text" placeholder="Ürün ara..." value={productSearch} onChange={(e) => setProductSearch(e.target.value)} className="w-full bg-slate-50 border border-slate-200 pl-12 pr-4 py-3 rounded-2xl text-sm outline-none focus:border-[#D4AF37]" /></div>
+                            <div className="relative w-full md:w-64"><Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" /><input type="text" placeholder="Ürün ara..." value={productSearch} onChange={(e) => setProductSearch(e.target.value)} className="w-full bg-slate-50 border border-slate-200 pl-12 pr-4 py-3 rounded-2xl text-sm outline-none focus:border-ink" /></div>
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 max-h-[600px] overflow-y-auto pr-3 custom-scrollbar">
                             {availableProducts.map(product => (
-                                <div key={product.id} className="flex flex-col p-5 bg-slate-50 border border-slate-200 rounded-3xl group hover:border-[#D4AF37] transition-all relative">
+                                <div key={product.id} className="flex flex-col p-5 bg-slate-50 border border-slate-200 rounded-3xl group hover:border-gold transition-all relative">
                                     <div className="aspect-square bg-white rounded-2xl overflow-hidden mb-4 relative border border-slate-100 shadow-sm"><Image src={product.images[0]} alt={product.name} fill className="object-cover" /></div>
                                     <div className="font-bold text-slate-900 truncate text-xs mb-1">{product.name}</div>
                                     <div className="text-[9px] text-slate-400 font-mono uppercase tracking-tighter mb-4 italic">{product.sku || 'No SKU'}</div>
-                                    <button onClick={() => toggleShowcaseProduct(product.id)} className="w-full py-3 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-[#D4AF37] hover:text-slate-900 transition-all flex items-center justify-center gap-2"><PlusCircle className="h-4 w-4" /> EKLE</button>
+                                    <button onClick={() => toggleShowcaseProduct(product.id)} className="w-full py-3 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-black hover:text-slate-900 transition-all flex items-center justify-center gap-2"><PlusCircle className="h-4 w-4" /> EKLE</button>
                                 </div>
                             ))}
                         </div>
@@ -307,7 +307,7 @@ export default function DesignPage() {
                </div>
                <div className="flex justify-between items-center">
                     <h3 className="text-xl font-bold text-slate-900">Şube Listesi</h3>
-                    <button onClick={addStore} className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-[#D4AF37] hover:underline"><PlusCircle className="h-5 w-5"/> Yeni Şube</button>
+                    <button onClick={addStore} className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-gold-deep hover:underline"><PlusCircle className="h-5 w-5"/> Yeni Şube</button>
                </div>
                <div className="grid gap-8">
                   {config.storeSection.stores.map((store, index) => (
@@ -317,7 +317,7 @@ export default function DesignPage() {
                            <div className="relative aspect-video bg-slate-50 rounded-2xl overflow-hidden group/img border border-slate-100">
                               {store.image ? <Image src={store.image} alt={store.title} fill className="object-cover" /> : <div className="w-full h-full flex items-center justify-center text-slate-200"><ImageIcon className="h-10 w-10" /></div>}
                               <label className="absolute inset-0 bg-slate-900/60 opacity-0 group-hover/img:opacity-100 flex flex-col items-center justify-center text-white cursor-pointer transition-all">
-                                 {uploadingId === `store-${index}-image` ? <Loader2 className="animate-spin text-[#D4AF37]" /> : <Upload className="h-8 w-8 mb-2" />}
+                                 {uploadingId === `store-${index}-image` ? <Loader2 className="animate-spin text-gold-deep" /> : <Upload className="h-8 w-8 mb-2" />}
                                  <input type="file" className="hidden" accept="image/*" onChange={(e) => handleImageUpload('store', index, 'image', e)} />
                               </label>
                            </div>
@@ -343,8 +343,8 @@ export default function DesignPage() {
          {activeTab === 'footer' && (
             <div className="space-y-8">
                <div className="bg-white p-10 rounded-[2.5rem] border border-slate-200 shadow-sm relative overflow-hidden">
-                  <div className="absolute top-0 left-0 w-2 h-full bg-[#D4AF37]"></div>
-                  <h3 className="text-xl font-bold text-slate-900 mb-8 flex items-center gap-3"><Anchor className="text-[#D4AF37] h-6 w-6"/> Genel & Sosyal Medya</h3>
+                  <div className="absolute top-0 left-0 w-2 h-full bg-gold"></div>
+                  <h3 className="text-xl font-bold text-slate-900 mb-8 flex items-center gap-3"><Anchor className="text-gold-deep h-6 w-6"/> Genel & Sosyal Medya</h3>
                   <div className="grid md:grid-cols-2 gap-10">
                       <div className="space-y-5">
                           <div className="space-y-1.5"><label className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Kısa Hakkımızda Metni</label><textarea rows={4} value={config.footer.description} onChange={(e) => setConfig({...config, footer: {...config.footer, description: e.target.value}})} className="w-full bg-slate-50 border border-slate-200 p-4 rounded-2xl text-sm leading-relaxed" /></div>
@@ -360,10 +360,10 @@ export default function DesignPage() {
                </div>
                <div className="grid md:grid-cols-2 gap-8">
                    <div className="bg-white p-8 rounded-[2.5rem] border border-slate-200 shadow-sm">
-                       <div className="flex justify-between items-center mb-6"><h3 className="text-lg font-bold text-slate-900">Kurumsal Linkler</h3><button onClick={() => setConfig({...config, footer: {...config.footer, corporateLinks: [...config.footer.corporateLinks, {label: 'Yeni Link', url: '#'}]}})} className="text-[#D4AF37] text-xs font-black uppercase tracking-widest hover:underline flex items-center gap-1"><Plus className="h-4 w-4"/> Ekle</button></div>
+                       <div className="flex justify-between items-center mb-6"><h3 className="text-lg font-bold text-slate-900">Kurumsal Linkler</h3><button onClick={() => setConfig({...config, footer: {...config.footer, corporateLinks: [...config.footer.corporateLinks, {label: 'Yeni Link', url: '#'}]}})} className="text-gold-deep text-xs font-black uppercase tracking-widest hover:underline flex items-center gap-1"><Plus className="h-4 w-4"/> Ekle</button></div>
                        <div className="space-y-4">
                            {config.footer.corporateLinks.map((link, idx) => (
-                               <div key={idx} className="flex gap-3 items-center group bg-slate-50 p-3 rounded-2xl border border-slate-100 transition-all hover:border-[#D4AF37]/30">
+                               <div key={idx} className="flex gap-3 items-center group bg-slate-50 p-3 rounded-2xl border border-slate-100 transition-all hover:border-gold/40">
                                    <div className="flex-1 space-y-1"><label className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter ml-1">Etiket</label><input type="text" value={link.label} onChange={(e) => { const newLinks = [...config.footer.corporateLinks]; newLinks[idx].label = e.target.value; setConfig({...config, footer: {...config.footer, corporateLinks: newLinks}}); }} className="w-full bg-white border border-slate-200 p-2 rounded-xl text-xs font-bold" /></div>
                                    <div className="flex-1 space-y-1"><label className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter ml-1">URL</label><input type="text" value={link.url} onChange={(e) => { const newLinks = [...config.footer.corporateLinks]; newLinks[idx].url = e.target.value; setConfig({...config, footer: {...config.footer, corporateLinks: newLinks}}); }} className="w-full bg-white border border-slate-200 p-2 rounded-xl text-xs font-mono" /></div>
                                    <button onClick={() => setConfig({...config, footer: {...config.footer, corporateLinks: config.footer.corporateLinks.filter((_, i) => i !== idx)}})} className="p-2 text-slate-300 hover:text-red-500 transition-all mt-4"><Trash2 className="h-4 w-4"/></button>
@@ -372,10 +372,10 @@ export default function DesignPage() {
                        </div>
                    </div>
                    <div className="bg-white p-8 rounded-[2.5rem] border border-slate-200 shadow-sm">
-                       <div className="flex justify-between items-center mb-6"><h3 className="text-lg font-bold text-slate-900">Müşteri Hizmetleri</h3><button onClick={() => setConfig({...config, footer: {...config.footer, customerServiceLinks: [...config.footer.customerServiceLinks, {label: 'Yeni Link', url: '#'}]}})} className="text-[#D4AF37] text-xs font-black uppercase tracking-widest hover:underline flex items-center gap-1"><Plus className="h-4 w-4"/> Ekle</button></div>
+                       <div className="flex justify-between items-center mb-6"><h3 className="text-lg font-bold text-slate-900">Müşteri Hizmetleri</h3><button onClick={() => setConfig({...config, footer: {...config.footer, customerServiceLinks: [...config.footer.customerServiceLinks, {label: 'Yeni Link', url: '#'}]}})} className="text-gold-deep text-xs font-black uppercase tracking-widest hover:underline flex items-center gap-1"><Plus className="h-4 w-4"/> Ekle</button></div>
                        <div className="space-y-4">
                            {config.footer.customerServiceLinks.map((link, idx) => (
-                               <div key={idx} className="flex gap-3 items-center group bg-slate-50 p-3 rounded-2xl border border-slate-100 transition-all hover:border-[#D4AF37]/30">
+                               <div key={idx} className="flex gap-3 items-center group bg-slate-50 p-3 rounded-2xl border border-slate-100 transition-all hover:border-gold/40">
                                    <div className="flex-1 space-y-1"><label className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter ml-1">Etiket</label><input type="text" value={link.label} onChange={(e) => { const newLinks = [...config.footer.customerServiceLinks]; newLinks[idx].label = e.target.value; setConfig({...config, footer: {...config.footer, customerServiceLinks: newLinks}}); }} className="w-full bg-white border border-slate-200 p-2 rounded-xl text-xs font-bold" /></div>
                                    <div className="flex-1 space-y-1"><label className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter ml-1">URL</label><input type="text" value={link.url} onChange={(e) => { const newLinks = [...config.footer.customerServiceLinks]; newLinks[idx].url = e.target.value; setConfig({...config, footer: {...config.footer, customerServiceLinks: newLinks}}); }} className="w-full bg-white border border-slate-200 p-2 rounded-xl text-xs font-mono" /></div>
                                    <button onClick={() => setConfig({...config, footer: {...config.footer, customerServiceLinks: config.footer.customerServiceLinks.filter((_, i) => i !== idx)}})} className="p-2 text-slate-300 hover:text-red-500 transition-all mt-4"><Trash2 className="h-4 w-4"/></button>

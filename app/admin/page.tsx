@@ -1,200 +1,174 @@
-import { Package, Tag, Image as ImageIcon, DollarSign, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { getProducts } from '@/lib/db';
+import { Package, Eye, MessageCircle, TrendingUp, Plus, ExternalLink, AlertTriangle, CheckCircle2, ArrowRight, EyeOff } from 'lucide-react';
+import { getProducts, getCategories, getSettings, getAnalyticsSummary } from '@/lib/db';
 
 // Panel her açılışta güncel veriyi göstermeli (build anında dondurulmamalı)
 export const dynamic = 'force-dynamic';
 
-export default async function Dashboard() {
-  const products = await getProducts();
-  
-  // Calculate Stats
-  const totalProducts = products.length;
-  const categories = products.reduce((acc: Record<string, number>, curr) => {
-    const cat = curr.category || 'Diğer';
-    acc[cat] = (acc[cat] || 0) + 1;
-    return acc;
-  }, {});
-  
-  const topCategory = Object.entries(categories).sort((a: [string, number], b: [string, number]) => b[1] - a[1])[0];
-  const uniqueCategories = Object.keys(categories).length;
-  const latestProducts = products.slice(0, 5); // getProducts zaten en yeniden eskiye sıralı
-
+function StatCard({ label, value, hint, icon: Icon }: { label: string; value: string | number; hint?: string; icon: React.ElementType }) {
   return (
-    <div className="space-y-8">
-      
-      {/* Header */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
-          <div>
-              <h1 className="text-2xl font-bold text-gray-900">Genel Bakış</h1>
-              <p className="text-gray-500 mt-1">Ürün ve envanter yönetim paneli.</p>
-          </div>
-          <div className="flex gap-3">
-              <Link href="/admin/products/new" className="px-4 py-2 bg-[#D4AF37] text-white text-sm font-medium rounded-lg hover:bg-[#B4941F] shadow-sm flex items-center gap-2 transition-transform active:scale-95">
-                  <Package className="h-4 w-4" />
-                  Yeni Ürün Ekle
-              </Link>
-          </div>
+    <div className="bg-white p-5 rounded-xl border border-line">
+      <div className="flex items-center gap-2 text-xs text-muted">
+        <Icon className="h-4 w-4" strokeWidth={1.6} /> {label}
       </div>
-      
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <StatCard 
-            title="Toplam Ürün" 
-            value={totalProducts} 
-            subValue="Adet listelenen ürün"
-            icon={Package}
-            color="blue"
-        />
-        <StatCard 
-            title="Kategori Sayısı" 
-            value={uniqueCategories} 
-            subValue="Farklı ürün grubu"
-            icon={Tag}
-            color="purple"
-        />
-        <StatCard 
-            title="En Çok Ürün" 
-            value={topCategory ? topCategory[0].toUpperCase() : '-'} 
-            subValue={`${topCategory ? topCategory[1] : 0} Adet`}
-            icon={Tag}
-            color="green"
-        />
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-         
-         {/* Recent Products */}
-         <div className="lg:col-span-2 bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-            <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
-               <h3 className="font-semibold text-gray-900">Son Eklenen Ürünler</h3>
-               <Link href="/admin/products" className="text-sm text-blue-600 font-medium hover:text-blue-700">Tümünü Gör</Link>
-            </div>
-            <div className="overflow-x-auto">
-               <table className="w-full text-sm text-left">
-                  <thead className="text-gray-500 bg-gray-50/50 border-b border-gray-100">
-                     <tr>
-                        <th className="px-6 py-3 font-medium">Ürün</th>
-                        <th className="px-6 py-3 font-medium">Kategori</th>
-                        <th className="px-6 py-3 font-medium text-right">Fiyat</th>
-                        <th className="px-6 py-3 font-medium text-right">Durum</th>
-                     </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-100">
-                     {latestProducts.map((product) => (
-                         <tr key={product.id} className="hover:bg-gray-50/50 transition-colors">
-                            <td className="px-6 py-4 font-medium text-gray-900 flex items-center gap-3">
-                                {product.images && product.images.length > 0 ? (
-                                    <div className="relative w-8 h-8 rounded overflow-hidden bg-gray-100">
-                                        <Image 
-                                            src={product.images[0]} 
-                                            alt={product.name} 
-                                            fill
-                                            className="object-cover"
-                                        />
-                                    </div>
-                                ) : (
-                                    <div className="w-8 h-8 rounded bg-gray-100 flex items-center justify-center">
-                                        <Package className="h-4 w-4 text-gray-400" />
-                                    </div>
-                                )}
-                                <div>
-                                    <div className="line-clamp-1">{product.name}</div>
-                                    <div className="text-xs text-gray-400 font-normal">{product.sku}</div>
-                                </div>
-                            </td>
-                            <td className="px-6 py-4 text-gray-500 capitalize">{product.category}</td>
-                            <td className="px-6 py-4 text-right font-medium">₺{Number(product.price).toLocaleString('tr-TR')}</td>
-                            <td className="px-6 py-4 text-right">
-                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                    Yayında
-                                </span>
-                            </td>
-                         </tr>
-                     ))}
-                     {latestProducts.length === 0 && (
-                        <tr>
-                            <td colSpan={4} className="px-6 py-8 text-center text-gray-500">
-                                Henüz ürün eklenmemiş.
-                            </td>
-                        </tr>
-                     )}
-                  </tbody>
-               </table>
-            </div>
-         </div>
-
-         {/* Quick Actions */}
-         <div className="space-y-6">
-            <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-                <h3 className="font-semibold text-gray-900 mb-4">Hızlı İşlemler</h3>
-                <div className="space-y-2">
-                    <Link href="/admin/products/new" className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg group transition-colors border border-transparent hover:border-gray-100">
-                        <div className="flex items-center gap-3">
-                            <div className="p-2 bg-blue-50 text-blue-600 rounded-lg">
-                                <Package className="h-5 w-5" />
-                            </div>
-                            <span className="text-sm font-medium text-gray-700 group-hover:text-gray-900">Yeni Ürün Ekle</span>
-                        </div>
-                        <ArrowRight className="h-4 w-4 text-gray-400 group-hover:text-gray-600" />
-                    </Link>
-                    <Link href="/admin/media" className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg group transition-colors border border-transparent hover:border-gray-100">
-                        <div className="flex items-center gap-3">
-                            <div className="p-2 bg-purple-50 text-purple-600 rounded-lg">
-                                <ImageIcon className="h-5 w-5" />
-                            </div>
-                            <span className="text-sm font-medium text-gray-700 group-hover:text-gray-900">Medya Kütüphanesi</span>
-                        </div>
-                        <ArrowRight className="h-4 w-4 text-gray-400 group-hover:text-gray-600" />
-                    </Link>
-                    <Link href="/admin/settings" className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg group transition-colors border border-transparent hover:border-gray-100">
-                        <div className="flex items-center gap-3">
-                            <div className="p-2 bg-orange-50 text-orange-600 rounded-lg">
-                                <DollarSign className="h-5 w-5" />
-                            </div>
-                            <span className="text-sm font-medium text-gray-700 group-hover:text-gray-900">Site Ayarları</span>
-                        </div>
-                        <ArrowRight className="h-4 w-4 text-gray-400 group-hover:text-gray-600" />
-                    </Link>
-                </div>
-            </div>
-         </div>
-      </div>
+      <p className="mt-3 text-3xl font-light text-ink tabular-nums">{value}</p>
+      {hint && <p className="mt-1 text-xs text-muted">{hint}</p>}
     </div>
   );
 }
 
-interface StatCardProps {
-    title: string;
-    value: string | number;
-    subValue: string;
-    icon: React.ElementType;
-    color: 'blue' | 'green' | 'purple' | 'orange';
-}
+export default async function Dashboard() {
+  const [products, categories, settings, stats] = await Promise.all([
+    getProducts(),
+    getCategories(),
+    getSettings(),
+    getAnalyticsSummary(7).catch(() => null),
+  ]);
 
-function StatCard({ title, value, subValue, icon: Icon, color }: StatCardProps) {
-    const colors = {
-        blue: 'bg-blue-50 text-blue-600',
-        green: 'bg-green-50 text-green-600',
-        purple: 'bg-purple-50 text-purple-600',
-        orange: 'bg-orange-50 text-orange-600',
-    };
+  const withoutImage = products.filter(p => !p.images?.length);
+  const withoutPrice = products.filter(p => !(p.price > 0));
+  const hiddenCategorySlugs = new Set(categories.filter(c => !c.isActive).map(c => c.slug));
+  const inHiddenCategory = products.filter(p => hiddenCategorySlugs.has(p.category));
+  const categoryName = (slug: string) => categories.find(c => c.slug === slug)?.name || slug;
+  const latest = products.slice(0, 6); // getProducts en yeniden eskiye sıralı
 
-    return (
-        <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
-            <div className="flex justify-between items-start mb-4">
-                <div className={`p-2 rounded-lg ${colors[color] || colors.blue}`}>
-                    <Icon className="h-5 w-5" />
-                </div>
-            </div>
-            <div>
-                <p className="text-sm text-gray-500 font-medium mb-1">{title}</p>
-                <h3 className="text-2xl font-bold text-gray-900">{value}</h3>
-            </div>
-            <div className="mt-2">
-                <span className="text-xs text-gray-400">{subValue}</span>
-            </div>
+  const views = stats?.totals.product_view ?? 0;
+  const whatsapp = stats?.totals.whatsapp_click ?? 0;
+  const contacts = whatsapp + (stats?.totals.phone_click ?? 0);
+  const conversion = views ? `%${((contacts / views) * 100).toLocaleString('tr-TR', { maximumFractionDigits: 1 })}` : '–';
+
+  // Dikkat gerektiren işler: her biri ilgili sayfaya yönlendirir
+  const tasks = [
+    withoutImage.length > 0 && { text: `${withoutImage.length} ürünün görseli yok`, href: '/admin/products', tone: 'warn' as const },
+    inHiddenCategory.length > 0 && { text: `${inHiddenCategory.length} ürün gizli bir kategoride (sitede kategori menüsünde görünmüyor)`, href: '/admin/categories', tone: 'warn' as const },
+    withoutPrice.length > 0 && { text: `${withoutPrice.length} ürünün fiyatı girilmemiş`, href: '/admin/products', tone: 'info' as const },
+    { text: settings.showPrices ? 'Fiyatlar sitede görünüyor' : 'Fiyatlar sitede gizli (ziyaretçiler iletişime yönlendiriliyor)', href: '/admin/settings', tone: 'info' as const },
+  ].filter(Boolean) as { text: string; href: string; tone: 'warn' | 'info' }[];
+
+  return (
+    <div className="space-y-8">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
+        <div>
+          <h1 className="text-2xl font-semibold text-ink">Genel Bakış</h1>
+          <p className="text-sm text-muted mt-1">
+            {new Date().toLocaleDateString('tr-TR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Europe/Istanbul' })}
+          </p>
         </div>
-    );
+        <div className="flex gap-2">
+          <Link href="/" target="_blank" className="px-4 py-2.5 border border-line bg-white rounded-lg text-sm text-ink hover:border-ink transition-colors flex items-center gap-2">
+            <ExternalLink className="h-4 w-4" /> Siteyi Görüntüle
+          </Link>
+          <Link href="/admin/products/new" className="px-4 py-2.5 bg-ink text-white rounded-lg text-sm hover:bg-black transition-colors flex items-center gap-2">
+            <Plus className="h-4 w-4" /> Yeni Ürün
+          </Link>
+        </div>
+      </div>
+
+      {/* Özet */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <StatCard label="Toplam Ürün" value={products.length} hint={`${categories.filter(c => c.isActive).length} aktif kategori`} icon={Package} />
+        <StatCard label="Ürün Görüntüleme" value={views.toLocaleString('tr-TR')} hint="Son 7 gün" icon={Eye} />
+        <StatCard label="WhatsApp Tıklaması" value={whatsapp.toLocaleString('tr-TR')} hint="Son 7 gün" icon={MessageCircle} />
+        <StatCard label="İletişime Dönüşme" value={conversion} hint="(WhatsApp + telefon) / görüntüleme" icon={TrendingUp} />
+      </div>
+
+      <div className="grid lg:grid-cols-3 gap-6">
+        {/* Dikkat gerektirenler */}
+        <div className="bg-white rounded-xl border border-line p-6">
+          <h2 className="font-semibold text-ink mb-4">Yapılacaklar</h2>
+          <ul className="space-y-2">
+            {tasks.map(t => (
+              <li key={t.text}>
+                <Link href={t.href} className="flex items-start gap-3 p-3 -mx-3 rounded-lg hover:bg-[#F7F6F3] transition-colors group">
+                  {t.tone === 'warn'
+                    ? <AlertTriangle className="h-4 w-4 text-amber-600 shrink-0 mt-0.5" />
+                    : t.text.includes('gizli') ? <EyeOff className="h-4 w-4 text-muted shrink-0 mt-0.5" /> : <CheckCircle2 className="h-4 w-4 text-muted shrink-0 mt-0.5" />}
+                  <span className="text-sm text-ink-soft group-hover:text-ink flex-1">{t.text}</span>
+                  <ArrowRight className="h-4 w-4 text-muted opacity-0 group-hover:opacity-100 transition-opacity" />
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {/* En çok ilgi görenler */}
+        <div className="lg:col-span-2 bg-white rounded-xl border border-line p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="font-semibold text-ink">En Çok İlgi Gören Ürünler <span className="text-xs font-normal text-muted ml-1">son 7 gün</span></h2>
+            <Link href="/admin/istatistikler" className="text-sm text-gold-deep hover:text-ink">Tüm istatistikler →</Link>
+          </div>
+          {stats && stats.topProducts.length > 0 ? (
+            <ul className="divide-y divide-line">
+              {stats.topProducts.slice(0, 5).map(({ product, views, whatsappClicks }) => (
+                <li key={product.id} className="flex items-center gap-4 py-3">
+                  <div className="relative h-10 w-10 rounded bg-[#F7F6F3] overflow-hidden shrink-0">
+                    {product.images[0] && <Image src={product.images[0]} alt="" fill sizes="40px" className="object-cover" />}
+                  </div>
+                  <Link href={`/admin/products/${product.id}`} className="flex-1 min-w-0 text-sm text-ink hover:underline truncate">{product.name}</Link>
+                  <span className="text-xs text-muted tabular-nums w-24 text-right">{views} görüntüleme</span>
+                  <span className="text-xs text-ink tabular-nums w-24 text-right">{whatsappClicks} WhatsApp</span>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-sm text-muted py-8 text-center">Site yayına alındıktan sonra ziyaretçi verileri burada görünecek.</p>
+          )}
+        </div>
+      </div>
+
+      {/* Son eklenenler */}
+      <div className="bg-white rounded-xl border border-line overflow-hidden">
+        <div className="px-6 py-4 border-b border-line flex justify-between items-center">
+          <h2 className="font-semibold text-ink">Son Eklenen Ürünler</h2>
+          <Link href="/admin/products" className="text-sm text-gold-deep hover:text-ink">Tümünü gör →</Link>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm text-left">
+            <thead className="text-muted border-b border-line">
+              <tr>
+                <th className="px-6 py-3 font-medium">Ürün</th>
+                <th className="px-6 py-3 font-medium">Kategori</th>
+                <th className="px-6 py-3 font-medium text-right">Fiyat</th>
+                <th className="px-6 py-3 font-medium text-right">Durum</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-line">
+              {latest.map(product => (
+                <tr key={product.id} className="hover:bg-[#F7F6F3]/60 transition-colors">
+                  <td className="px-6 py-3">
+                    <Link href={`/admin/products/${product.id}`} className="flex items-center gap-3">
+                      <div className="relative w-9 h-9 rounded bg-[#F7F6F3] overflow-hidden shrink-0">
+                        {product.images?.[0] ? <Image src={product.images[0]} alt="" fill sizes="36px" className="object-cover" /> : <Package className="h-4 w-4 text-muted m-2.5" />}
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-ink truncate">{product.name}</p>
+                        <p className="text-xs text-muted">{product.sku || '—'}</p>
+                      </div>
+                    </Link>
+                  </td>
+                  <td className="px-6 py-3 text-ink-soft">{categoryName(product.category)}</td>
+                  <td className="px-6 py-3 text-right tabular-nums">
+                    {product.price > 0 ? `${product.price.toLocaleString('tr-TR')} ₺` : <span className="text-xs text-muted">Fiyat yok</span>}
+                  </td>
+                  <td className="px-6 py-3 text-right">
+                    {!product.images?.length ? (
+                      <span className="inline-flex px-2 py-0.5 rounded text-xs bg-amber-50 text-amber-700">Görsel yok</span>
+                    ) : hiddenCategorySlugs.has(product.category) ? (
+                      <span className="inline-flex px-2 py-0.5 rounded text-xs bg-slate-100 text-slate-600">Gizli kategori</span>
+                    ) : (
+                      <span className="inline-flex px-2 py-0.5 rounded text-xs bg-emerald-50 text-emerald-700">Yayında</span>
+                    )}
+                  </td>
+                </tr>
+              ))}
+              {latest.length === 0 && (
+                <tr><td colSpan={4} className="px-6 py-10 text-center text-muted">Henüz ürün eklenmemiş.</td></tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
 }

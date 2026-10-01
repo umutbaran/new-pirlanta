@@ -10,7 +10,7 @@ const settingsSchema = z.object({
   whatsappNumber: z.string().optional().transform(val => val || ''),
   showPrices: z.boolean().optional().default(false),
   address: z.string().optional().transform(val => val || ''),
-  currency: z.string()
+  currency: z.string().optional().default('TRY') // Arayüzde düzenlenmez; mevcut değer korunur
 });
 
 export async function GET() {

@@ -160,10 +160,10 @@ export default function CategoriesPage() {
                 placeholder="Kategori Adı (Örn: Altın Kolyeler)" 
                 value={newCatName}
                 onChange={(e) => setNewCatName(e.target.value)}
-                className="flex-1 border p-2 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#D4AF37]"
+                className="flex-1 border p-2 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-ink"
                 autoFocus
               />
-              <button onClick={addMainCategory} className="bg-[#D4AF37] text-white px-4 py-2 rounded-lg text-sm font-bold">Ekle</button>
+              <button onClick={addMainCategory} className="bg-ink text-white px-4 py-2 rounded-lg text-sm font-bold">Ekle</button>
               <button onClick={() => setIsAddingMain(false)} className="text-gray-500 px-4 py-2 hover:bg-gray-200 rounded-lg"><X className="h-4 w-4" /></button>
            </div>
         </div>
@@ -186,7 +186,7 @@ export default function CategoriesPage() {
                          type="text" 
                          value={editName} 
                          onChange={(e) => setEditName(e.target.value)} 
-                         className="border border-[#D4AF37] rounded px-2 py-1 text-lg font-bold outline-none"
+                         className="border border-gold rounded px-2 py-1 text-lg font-bold outline-none"
                        />
                        <button onClick={saveEditing} className="p-1 bg-green-100 text-green-700 rounded"><Check className="h-4 w-4" /></button>
                        <button onClick={() => setEditingId(null)} className="p-1 bg-red-100 text-red-700 rounded"><X className="h-4 w-4" /></button>
@@ -234,7 +234,7 @@ export default function CategoriesPage() {
                   
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
                      {cat.subCategories.map((sub, idx) => (
-                        <div key={idx} className="flex justify-between items-center bg-white p-3 rounded border border-gray-200 group hover:border-[#D4AF37] transition-colors">
+                        <div key={idx} className="flex justify-between items-center bg-white p-3 rounded border border-gray-200 group hover:border-gold transition-colors">
                            <span className="text-sm font-medium text-gray-700">{sub.name}</span>
                            <button 
                              onClick={() => removeSubCategory(cat.id, sub.slug)}
@@ -252,7 +252,7 @@ export default function CategoriesPage() {
                         placeholder="Yeni Alt Kategori Ekle..." 
                         value={newSubCatName}
                         onChange={(e) => setNewSubCatName(e.target.value)}
-                        className="flex-1 border border-gray-300 p-2 rounded-md text-sm focus:outline-none focus:border-[#D4AF37]"
+                        className="flex-1 border border-gray-300 p-2 rounded-md text-sm focus:outline-none focus:border-ink"
                         onKeyDown={(e) => e.key === 'Enter' && addSubCategory(cat.id)}
                      />
                      <button 

@@ -58,8 +58,8 @@ export default function AdminBulletinPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(bulletins),
       });
-      if (res.ok) alert('Bülten başarıyla güncellendi.');
-      else alert('Hata: ' + await getApiError(res, 'Bülten kaydedilemedi. Lütfen alanları kontrol edin.'));
+      if (res.ok) alert('Piyasa notları kaydedildi.');
+      else alert('Hata: ' + await getApiError(res, 'Piyasa notları kaydedilemedi. Lütfen alanları kontrol edin.'));
     } catch {
       alert('Kaydedilirken hata oluştu.');
     } finally {
@@ -73,8 +73,8 @@ export default function AdminBulletinPage() {
     <div className="max-w-5xl mx-auto pb-20">
       <div className="flex justify-between items-center mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Ekonomi Bülteni Yönetimi</h1>
-          <p className="text-gray-500 text-sm mt-1">Piyasayı etkileyecek önemli gelişmeleri buradan duyur.</p>
+          <h1 className="text-2xl font-bold text-gray-900">Piyasa Notları</h1>
+          <p className="text-gray-500 text-sm mt-1">Sitedeki Piyasa sayfasında yayınlanan kısa değerlendirmeler. Önemli gelişmeleri buradan ekleyin.</p>
         </div>
         <div className="flex gap-3">
             <button 
@@ -86,7 +86,7 @@ export default function AdminBulletinPage() {
             <button 
                 onClick={saveChanges}
                 disabled={saving}
-                className="bg-[#D4AF37] text-white px-6 py-2 rounded-lg text-sm font-bold hover:bg-[#B4941F] transition-colors flex items-center gap-2 disabled:opacity-50"
+                className="bg-ink text-white px-6 py-2 rounded-lg text-sm font-bold hover:bg-black transition-colors flex items-center gap-2 disabled:opacity-50"
             >
                 {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
                 Tümünü Kaydet
@@ -216,7 +216,7 @@ export default function AdminBulletinPage() {
         {bulletins.length === 0 && (
             <div className="text-center py-20 bg-white rounded-xl border-2 border-dashed border-gray-200">
                 <Info className="h-12 w-12 text-gray-200 mx-auto mb-4" />
-                <p className="text-gray-400">Henüz bir bülten girişi yapılmamış.</p>
+                <p className="text-gray-400">Henüz piyasa notu eklenmemiş. Sağ üstteki butonla ilk notu ekleyebilirsiniz.</p>
             </div>
         )}
       </div>
