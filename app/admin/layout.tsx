@@ -14,6 +14,7 @@ import {
   Globe, 
   Calendar,
   ChevronRight,
+  BarChart3,
   X
 } from 'lucide-react';
 
@@ -27,6 +28,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   const menuItems = [
     { name: 'Genel Bakış', icon: LayoutDashboard, href: '/admin' },
+    { name: 'İstatistikler', icon: BarChart3, href: '/admin/istatistikler' },
     { name: 'Ürün Yönetimi', icon: Package, href: '/admin/products' },
     { name: 'Kategoriler', icon: Menu, href: '/admin/categories' },
     { name: 'Vitrini Düzenle', icon: ImageIcon, href: '/admin/design' },

@@ -52,3 +52,15 @@ model UiConfig {
   id      Int  @id @default(1)
   config  Json
 }
+
+// Anonim site istatistikleri (kişisel veri tutulmaz)
+model AnalyticsEvent {
+  id        BigInt   @id @default(autoincrement())
+  type      String   // product_view | whatsapp_click | phone_click | search
+  productId String?
+  value     String?  // Arama kelimesi veya tıklamanın yapıldığı sayfa
+  createdAt DateTime @default(now())
+
+  @@index([type, createdAt])
+  @@index([productId])
+}

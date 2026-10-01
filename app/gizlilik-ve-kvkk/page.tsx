@@ -1,5 +1,6 @@
 import { Metadata } from 'next';
 import { getSettings } from '@/lib/db';
+import PageHeader from '@/components/PageHeader';
 
 export const metadata: Metadata = {
   title: 'Gizlilik ve KVKK Aydınlatma Metni',
@@ -12,20 +13,17 @@ export default async function PrivacyPage() {
   const settings = await getSettings();
 
   return (
-    <div className="bg-white min-h-screen">
-      <div className="container mx-auto px-4 py-16 md:py-24 max-w-3xl">
-        <div className="text-center mb-12 md:mb-16">
-          <span className="text-[#D4AF37] tracking-[0.3em] text-xs font-bold uppercase mb-4 block">Yasal Bilgilendirme</span>
-          <h1 className="text-3xl md:text-5xl font-serif text-gray-900">Gizlilik ve KVKK Aydınlatma Metni</h1>
-        </div>
+    <div>
+      <PageHeader title="Gizlilik ve KVKK" description="Kişisel Verilerin Korunması Kanunu kapsamında aydınlatma metni." />
+      <div className="container-lux py-16 md:py-24 max-w-3xl">
 
-        <div className="space-y-8 text-gray-600 text-sm md:text-base leading-relaxed font-light [&_h2]:font-serif [&_h2]:text-xl [&_h2]:text-gray-900 [&_h2]:mb-3 [&_ul]:list-disc [&_ul]:pl-6 [&_ul]:space-y-1">
+        <div className="space-y-8 text-ink-soft text-[15px] leading-relaxed [&_h2]:font-display [&_h2]:text-2xl [&_h2]:text-ink [&_h2]:mb-3 [&_ul]:list-disc [&_ul]:pl-6 [&_ul]:space-y-1">
           <section>
             <h2>1. Veri Sorumlusu</h2>
             <p>
               6698 sayılı Kişisel Verilerin Korunması Kanunu (&quot;KVKK&quot;) kapsamında veri sorumlusu, {settings.siteTitle} markasıyla faaliyet gösteren Baran Kuyumculuk&apos;tur.
               {settings.address && <> Adres: <span className="whitespace-pre-line">{settings.address}</span>.</>}
-              {settings.contactEmail && <> E-posta: <a href={`mailto:${settings.contactEmail}`} className="underline">{settings.contactEmail}</a>.</>}
+              {settings.contactEmail && <> E-posta: <a href={`mailto:${settings.contactEmail}`} className="underline underline-offset-2 hover:text-ink">{settings.contactEmail}</a>.</>}
             </p>
           </section>
 
@@ -59,6 +57,7 @@ export default async function PrivacyPage() {
             <ul>
               <li><strong>Favoriler:</strong> Favorilerinize eklediğiniz ürünler yalnızca kendi tarayıcınızda (localStorage) saklanır, bize iletilmez.</li>
               <li><strong>Üçüncü taraf içerikler:</strong> Piyasa Analiz sayfasında Investing.com tarafından sağlanan ekonomik takvim ve kur tabloları gösterilmektedir. Bu içerikler kendi çerezlerini kullanabilir.</li>
+              <li><strong>Anonim istatistikler:</strong> Hangi ürünlerin görüntülendiği, WhatsApp/telefon butonlarına tıklanma sayısı ve site içi aramalar, kimliğinizle ilişkilendirilmeden (IP adresi veya kişisel bilgi saklanmadan) sayılır. Genel ziyaret istatistikleri için çerez kullanmayan Vercel Web Analytics kullanılır.</li>
               <li>Sitemizde reklam veya kullanıcı takibi amaçlı çerez kullanılmamaktadır.</li>
             </ul>
           </section>
@@ -67,7 +66,7 @@ export default async function PrivacyPage() {
             <h2>6. Haklarınız</h2>
             <p>KVKK madde 11 uyarınca; kişisel verilerinizin işlenip işlenmediğini öğrenme, bilgi talep etme, düzeltilmesini veya silinmesini isteme, işlemeye itiraz etme ve zarara uğramanız halinde tazminat talep etme haklarına sahipsiniz.</p>
             <p className="mt-3">
-              Başvurularınızı {settings.contactEmail ? <a href={`mailto:${settings.contactEmail}`} className="underline">{settings.contactEmail}</a> : 'iletişim'} adresine veya mağazalarımıza yazılı olarak iletebilirsiniz. Talepleriniz en geç 30 gün içinde ücretsiz olarak sonuçlandırılır.
+              Başvurularınızı {settings.contactEmail ? <a href={`mailto:${settings.contactEmail}`} className="underline underline-offset-2 hover:text-ink">{settings.contactEmail}</a> : 'iletişim'} adresine veya mağazalarımıza yazılı olarak iletebilirsiniz. Talepleriniz en geç 30 gün içinde ücretsiz olarak sonuçlandırılır.
             </p>
           </section>
         </div>

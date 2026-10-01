@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { whatsappLink } from '@/lib/utils';
+import { track } from '@/lib/track';
 
 const SUBJECTS = ['Genel Bilgi', 'Fiyat Teklifi', 'Randevu Talebi', 'Özel Tasarım'];
 
@@ -28,11 +29,12 @@ export default function ContactForm({ whatsappNumber }: { whatsappNumber: string
       ``,
       form.message.trim(),
     ].join('\n');
+    track('whatsapp_click', { value: '/iletisim (form)' });
     window.open(whatsappLink(whatsappNumber, text), '_blank', 'noopener,noreferrer');
   };
 
-  const inputClass = "w-full bg-white border border-gray-200 p-4 focus:outline-none focus:border-black transition-colors";
-  const labelClass = "block text-xs font-bold uppercase tracking-widest text-gray-500 mb-2";
+  const inputClass = "w-full bg-white border border-line px-4 py-3.5 text-ink placeholder:text-muted/70 focus:outline-none focus:border-ink transition-colors";
+  const labelClass = "block eyebrow !text-[10px] text-ink-soft mb-2";
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
@@ -46,7 +48,7 @@ export default function ContactForm({ whatsappNumber }: { whatsappNumber: string
       </div>
       <div>
         <label htmlFor="contact-subject" className={labelClass}>Konu</label>
-        <select id="contact-subject" name="subject" value={form.subject} onChange={handleChange} className={`${inputClass} text-gray-600`}>
+        <select id="contact-subject" name="subject" value={form.subject} onChange={handleChange} className={inputClass}>
           {SUBJECTS.map(s => <option key={s}>{s}</option>)}
         </select>
       </div>
@@ -54,12 +56,12 @@ export default function ContactForm({ whatsappNumber }: { whatsappNumber: string
         <label htmlFor="contact-message" className={labelClass}>Mesajınız *</label>
         <textarea id="contact-message" name="message" rows={4} required value={form.message} onChange={handleChange} className={inputClass}></textarea>
       </div>
-      <button type="submit" className="w-full bg-black text-white py-4 font-bold tracking-widest uppercase hover:bg-[#D4AF37] transition-colors">
+      <button type="submit" className="btn-primary w-full">
         WhatsApp ile Gönder
       </button>
-      <p className="text-[11px] text-gray-400 leading-relaxed">
+      <p className="text-xs text-muted leading-relaxed">
         Gönder&apos;e bastığınızda mesajınız WhatsApp&apos;ta açılır; göndermeden önce düzenleyebilirsiniz. Kişisel verileriniz{' '}
-        <Link href="/gizlilik-ve-kvkk" className="underline hover:text-black">KVKK Aydınlatma Metni</Link> kapsamında işlenir.
+        <Link href="/gizlilik-ve-kvkk" className="underline underline-offset-2 hover:text-ink">KVKK Aydınlatma Metni</Link> kapsamında işlenir.
       </p>
     </form>
   );

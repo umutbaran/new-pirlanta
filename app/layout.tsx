@@ -1,6 +1,6 @@
 // app/layout.tsx
 import type { Metadata, Viewport } from "next";
-import { Playfair_Display, Montserrat } from "next/font/google";
+import { Cormorant_Garamond, Jost } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -8,16 +8,20 @@ import FloatingWhatsapp from "@/components/FloatingWhatsapp";
 import MainLayout from "@/components/MainLayout";
 import { Providers } from "@/components/Providers";
 import { getSettings, getCategories } from "@/lib/db";
+import AnalyticsTracker from "@/components/AnalyticsTracker";
 
-const playfair = Playfair_Display({
+// Başlıklar: ince ve zarif bir serif; metinler: sade, geometrik bir sans
+const display = Cormorant_Garamond({
   subsets: ["latin", "latin-ext"],
-  variable: "--font-serif",
+  weight: ["400", "500", "600"],
+  style: ["normal", "italic"],
+  variable: "--font-display",
   display: "swap",
 });
 
-const montserrat = Montserrat({
+const sans = Jost({
   subsets: ["latin", "latin-ext"],
-  weight: ["300", "400", "500", "600", "700"],
+  weight: ["300", "400", "500"],
   variable: "--font-sans",
   display: "swap",
 });
@@ -40,10 +44,6 @@ export const metadata: Metadata = {
   },
   description: "Lüks pırlanta ve altın mücevher koleksiyonları. Baran Kuyumculuk güvencesiyle en özel tasarımlar.",
   applicationName: siteName,
-  icons: {
-    icon: "/icon.png",
-    apple: "/icon.png",
-  },
   openGraph: {
     type: "website",
     url: siteUrl,
@@ -62,17 +62,18 @@ export default async function RootLayout({
   const [settings, categories] = await Promise.all([getSettings(), getCategories()]);
 
   return (
-    <html lang="tr" className={`${playfair.variable} ${montserrat.variable}`}>
-      <body className={`${montserrat.className} antialiased min-h-screen flex flex-col overflow-x-hidden`}>
+    <html lang="tr" className={`${display.variable} ${sans.variable}`}>
+      <body className="font-sans antialiased min-h-screen flex flex-col overflow-x-hidden">
         <Providers>
           <MainLayout
-            navbar={<Navbar phoneNumber={settings.phoneNumber} categories={categories.filter(c => c.isActive)} />}
+            navbar={<Navbar phoneNumber={settings.phoneNumber} whatsappNumber={settings.whatsappNumber} categories={categories.filter(c => c.isActive)} />}
             footer={<Footer />}
             whatsapp={<FloatingWhatsapp whatsappNumber={settings.whatsappNumber} />}
           >
             {children}
           </MainLayout>
         </Providers>
+        <AnalyticsTracker />
       </body>
     </html>
   );

@@ -32,7 +32,7 @@ export default function ShareButton({ title }: { title: string }) {
       onClick={handleShare}
       aria-label={copied ? 'Link kopyalandı' : 'Ürünü paylaş'}
       title={copied ? 'Link kopyalandı' : 'Paylaş'}
-      className="text-gray-300 hover:text-black p-1 shrink-0 transition-colors"
+      className="text-muted hover:text-ink p-1 shrink-0 transition-colors"
     >
       {copied ? <Check className="h-4 w-4 text-green-600" /> : <Share2 className="h-4 w-4" />}
     </button>

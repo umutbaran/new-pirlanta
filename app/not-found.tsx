@@ -1,21 +1,17 @@
 import Link from 'next/link';
 
-
 export default function NotFound() {
   return (
-    <div className="min-h-[70vh] flex flex-col items-center justify-center px-4 text-center">
-      <h1 className="text-9xl font-serif font-bold text-gray-100 absolute -z-10">404</h1>
-      <h2 className="text-3xl font-serif font-bold text-gray-900 mb-4">Aradığınız Işıltıyı Bulamadık</h2>
-      <p className="text-gray-600 mb-8 max-w-md">
-        Aradığınız sayfa kaldırılmış, adı değiştirilmiş veya geçici olarak kullanım dışı olabilir. 
-        Koleksiyonlarımıza göz atmaya ne dersiniz?
+    <div className="container-lux min-h-[65vh] flex flex-col items-center justify-center py-24 text-center">
+      <p className="font-display text-[120px] md:text-[160px] leading-none text-line select-none" aria-hidden>404</p>
+      <h1 className="mt-2 font-display text-4xl md:text-5xl text-ink">Aradığınız ışıltıyı bulamadık</h1>
+      <p className="mt-4 text-ink-soft max-w-md leading-relaxed">
+        Aradığınız sayfa kaldırılmış veya adı değiştirilmiş olabilir. Koleksiyonlarımıza göz atmaya ne dersiniz?
       </p>
-      <Link 
-        href="/" 
-        className="bg-gray-900 text-white px-8 py-3 font-medium hover:bg-[var(--color-brand-gold)] transition-colors"
-      >
-        Ana Sayfaya Dön
-      </Link>
+      <div className="mt-10 flex flex-col sm:flex-row gap-3">
+        <Link href="/koleksiyon/tum-urunler" className="btn-primary">Koleksiyonu Keşfet</Link>
+        <Link href="/" className="btn-outline">Ana Sayfa</Link>
+      </div>
     </div>
   );
 }

@@ -2,27 +2,42 @@
 
 import { Heart } from 'lucide-react';
 import { useFavorites } from '@/context/FavoritesContext';
-import { Product } from '@/lib/db';
+import type { Product } from '@/lib/db';
 
 interface FavoriteButtonProps {
   product: Product;
+  /** icon: ürün kartının köşesindeki sade ikon; full: ürün sayfasındaki çerçeveli buton */
+  variant?: 'icon' | 'full';
 }
 
-export default function FavoriteButton({ product }: FavoriteButtonProps) {
+export default function FavoriteButton({ product, variant = 'full' }: FavoriteButtonProps) {
   const { isFavorite, toggleFavorite } = useFavorites();
   const active = isFavorite(product.id);
+  const label = active ? 'Favorilerden çıkar' : 'Favorilere ekle';
+
+  if (variant === 'icon') {
+    return (
+      <button
+        type="button"
+        onClick={() => toggleFavorite(product)}
+        aria-label={label}
+        aria-pressed={active}
+        className="m-1.5 h-9 w-9 rounded-full bg-white/85 backdrop-blur flex items-center justify-center text-ink/80 hover:text-ink transition-colors"
+      >
+        <Heart className={`h-[18px] w-[18px] transition-transform duration-300 active:scale-90 ${active ? 'fill-ink text-ink' : ''}`} strokeWidth={1.4} />
+      </button>
+    );
+  }
 
   return (
-    <button 
+    <button
+      type="button"
       onClick={() => toggleFavorite(product)}
-      className={`w-16 border flex items-center justify-center transition-all duration-300 rounded-sm group relative overflow-hidden ${
-        active 
-        ? 'border-red-200 bg-red-50 text-red-500' 
-        : 'border-gray-200 bg-white text-gray-400 hover:border-red-200 hover:text-red-400'
-      }`}
-      aria-label={active ? "Favorilerden Çıkar" : "Favorilere Ekle"}
+      aria-label={label}
+      aria-pressed={active}
+      className={`h-12 w-12 shrink-0 border flex items-center justify-center transition-colors ${active ? 'border-ink bg-ink text-white' : 'border-line text-ink hover:border-ink'}`}
     >
-      <Heart className={`h-5 w-5 transition-transform group-hover:scale-110 ${active ? 'fill-current' : ''}`} />
+      <Heart className={`h-[18px] w-[18px] ${active ? 'fill-current' : ''}`} strokeWidth={1.4} />
     </button>
   );
 }

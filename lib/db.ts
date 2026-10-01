@@ -410,3 +410,105 @@ export async function saveBulletins(b: BulletinItem[]) {
   const config = await getUiConfig();
   return saveUiConfig({ ...config, bulletins: b });
 }
+
+// --- Analytics (anonim istatistik) ---
+export const ANALYTICS_EVENT_TYPES = ['product_view', 'whatsapp_click', 'phone_click', 'search'] as const;
+export type AnalyticsEventType = typeof ANALYTICS_EVENT_TYPES[number];
+
+export async function recordEvent(type: AnalyticsEventType, productId?: string | null, value?: string | null) {
+  try {
+    await prisma.analyticsEvent.create({ data: { type, productId: productId || null, value: value || null } });
+  } catch (err) {
+    // İstatistik kaydı başarısız olsa bile ziyaretçi deneyimi etkilenmemeli
+    console.error('Database error [recordEvent]:', err);
+  }
+}
+
+export interface ProductStat {
+  product: Pick<Product, 'id' | 'name' | 'images' | 'category'>;
+  views: number;
+  whatsappClicks: number;
+}
+
+export interface AnalyticsSummary {
+  days: number;
+  totals: Record<AnalyticsEventType, number>;
+  daily: { date: string; views: number; whatsappClicks: number }[];
+  topProducts: ProductStat[];
+  topSearches: { query: string; count: number }[];
+  whatsappSources: { page: string; count: number }[];
+}
+
+export async function getAnalyticsSummary(days: number): Promise<AnalyticsSummary> {
+  const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+  const inRange = { createdAt: { gte: since } };
+
+  const [totalsRaw, viewsByProduct, clicksByProduct, searches, sources, dailyRaw] = await Promise.all([
+    prisma.analyticsEvent.groupBy({ by: ['type'], where: inRange, _count: { _all: true } }),
+    prisma.analyticsEvent.groupBy({
+      by: ['productId'], where: { ...inRange, type: 'product_view', productId: { not: null } },
+      _count: { _all: true }, orderBy: { _count: { productId: 'desc' } }, take: 50,
+    }),
+    prisma.analyticsEvent.groupBy({
+      by: ['productId'], where: { ...inRange, type: 'whatsapp_click', productId: { not: null } },
+      _count: { _all: true }, orderBy: { _count: { productId: 'desc' } }, take: 50,
+    }),
+    prisma.analyticsEvent.groupBy({
+      by: ['value'], where: { ...inRange, type: 'search', value: { not: null } },
+      _count: { _all: true }, orderBy: { _count: { value: 'desc' } }, take: 15,
+    }),
+    prisma.analyticsEvent.groupBy({
+      by: ['value'], where: { ...inRange, type: 'whatsapp_click' },
+      _count: { _all: true }, orderBy: { _count: { value: 'desc' } }, take: 10,
+    }),
+    // Günlük seri Türkiye saatine göre gruplanır (createdAt UTC tutulur)
+    prisma.$queryRaw<{ day: Date; type: string; count: bigint }[]>`
+      SELECT date_trunc('day', "createdAt" AT TIME ZONE 'UTC' AT TIME ZONE 'Europe/Istanbul') AS day, "type", COUNT(*) AS count
+      FROM "AnalyticsEvent"
+      WHERE "createdAt" >= ${since} AND "type" IN ('product_view', 'whatsapp_click')
+      GROUP BY 1, 2 ORDER BY 1`,
+  ]);
+
+  const totals = Object.fromEntries(ANALYTICS_EVENT_TYPES.map(t => [t, 0])) as Record<AnalyticsEventType, number>;
+  for (const row of totalsRaw) {
+    if ((ANALYTICS_EVENT_TYPES as readonly string[]).includes(row.type)) totals[row.type as AnalyticsEventType] = row._count._all;
+  }
+
+  // Görüntülenme ve WhatsApp tıklamalarını ürün bazında birleştir (silinmiş ürünler atlanır)
+  const views = new Map(viewsByProduct.map(r => [r.productId!, r._count._all]));
+  const clicks = new Map(clicksByProduct.map(r => [r.productId!, r._count._all]));
+  const productIds = [...new Set([...views.keys(), ...clicks.keys()])];
+  const products = productIds.length ? await getProductsByIds(productIds) : [];
+  const topProducts = products
+    .map(p => ({
+      product: { id: p.id, name: p.name, images: p.images, category: p.category },
+      views: views.get(p.id) || 0,
+      whatsappClicks: clicks.get(p.id) || 0,
+    }))
+    .sort((a, b) => b.whatsappClicks - a.whatsappClicks || b.views - a.views)
+    .slice(0, 15);
+
+  // Boş günler de grafikte görünsün diye tüm günleri doldur
+  const dayKey = (d: Date) => d.toISOString().slice(0, 10);
+  const dailyMap = new Map<string, { views: number; whatsappClicks: number }>();
+  for (let i = days - 1; i >= 0; i--) {
+    const d = new Date(Date.now() - i * 24 * 60 * 60 * 1000);
+    const key = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Istanbul' }).format(d); // YYYY-MM-DD
+    dailyMap.set(key, { views: 0, whatsappClicks: 0 });
+  }
+  for (const row of dailyRaw) {
+    const entry = dailyMap.get(dayKey(row.day));
+    if (!entry) continue;
+    if (row.type === 'product_view') entry.views = Number(row.count);
+    else entry.whatsappClicks = Number(row.count);
+  }
+
+  return {
+    days,
+    totals,
+    daily: [...dailyMap.entries()].map(([date, v]) => ({ date, ...v })),
+    topProducts,
+    topSearches: searches.map(s => ({ query: s.value!, count: s._count._all })),
+    whatsappSources: sources.map(s => ({ page: s.value || 'Bilinmiyor', count: s._count._all })),
+  };
+}

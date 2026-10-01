@@ -10,10 +10,6 @@ export default function MediaPage() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
 
-  useEffect(() => {
-    fetchImages();
-  }, []);
-
   const fetchImages = async () => {
     try {
       const res = await fetch('/api/products');
@@ -33,6 +29,12 @@ export default function MediaPage() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    // Veri sayfa açılışında çekilir; state güncellemesi await sonrası (asenkron) yapılır
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    fetchImages();
+  }, []);
 
   const filteredImages = images.filter(img => 
     img.productName.toLowerCase().includes(searchTerm.toLowerCase())

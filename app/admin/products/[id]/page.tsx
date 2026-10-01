@@ -26,6 +26,8 @@ export default function EditProductPage() {
   }, [id]);
 
   useEffect(() => {
+    // Veri sayfa açılışında çekilir; state güncellemesi await sonrası (asenkron) yapılır
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchProduct();
   }, [fetchProduct]);
 

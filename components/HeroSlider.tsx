@@ -1,9 +1,9 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { ArrowRight } from 'lucide-react';
 import type { HeroSlide } from '@/lib/db';
 
 // Admin panelinde hiç slayt yoksa gösterilecek varsayılan slayt
@@ -12,117 +12,110 @@ const FALLBACK_SLIDES: HeroSlide[] = [
     id: "1",
     image: "https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&q=80",
     title: "Sonsuza Dek Birlikte",
-    subtitle: "ALYANS KOLEKSİYONU",
-    buttonText: "Alyansları İncele",
-    buttonLink: "/koleksiyon/altin-14?subCategory=alyans"
+    subtitle: "Alyans Koleksiyonu",
+    buttonText: "Koleksiyonu Keşfet",
+    buttonLink: "/koleksiyon/tum-urunler"
   }
 ];
+
+const INTERVAL_MS = 7000;
 
 // Slaytlar sunucuda çekilip prop olarak gelir; böylece sayfa açılırken boş yükleme ekranı görünmez
 export default function HeroSlider({ slides: initialSlides }: { slides: HeroSlide[] }) {
   const slides = initialSlides?.length ? initialSlides : FALLBACK_SLIDES;
-  const [currentSlide, setCurrentSlide] = useState(0);
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const [current, setCurrent] = useState(0);
+  const [paused, setPaused] = useState(false);
+  const [failed, setFailed] = useState<Record<string, boolean>>({});
+  const touchStartX = useRef<number | null>(null);
 
-  function resetTimeout() {
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-    }
-  }
+  const go = useCallback((delta: number) => {
+    setCurrent(prev => (prev + delta + slides.length) % slides.length);
+  }, [slides.length]);
 
   useEffect(() => {
-    if (slides.length > 1) {
-      resetTimeout();
-      timeoutRef.current = setTimeout(
-        () => setCurrentSlide((prevIndex) => (prevIndex === slides.length - 1 ? 0 : prevIndex + 1)),
-        6000
-      );
-
-      return () => {
-        resetTimeout();
-      };
-    }
-  }, [currentSlide, slides]);
-
+    if (slides.length < 2 || paused) return;
+    const timer = setTimeout(() => go(1), INTERVAL_MS);
+    return () => clearTimeout(timer);
+  }, [current, paused, slides.length, go]);
 
   return (
-    <section className="relative h-[75vh] md:h-[85vh] w-full overflow-hidden bg-black">
-        {slides.map((slide, index) => (
-          <div 
+    <section
+      className="relative h-[78svh] min-h-[480px] lg:h-[calc(100svh-153px)] lg:min-h-[560px] lg:max-h-[860px] w-full overflow-hidden bg-ink"
+      aria-roledescription="carousel"
+      aria-label="Öne çıkan koleksiyonlar"
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+      onTouchStart={(e) => { touchStartX.current = e.touches[0].clientX; }}
+      onTouchEnd={(e) => {
+        if (touchStartX.current === null) return;
+        const dx = e.changedTouches[0].clientX - touchStartX.current;
+        if (Math.abs(dx) > 50) go(dx < 0 ? 1 : -1);
+        touchStartX.current = null;
+      }}
+    >
+      {slides.map((slide, index) => {
+        const active = index === current;
+        return (
+          <div
             key={slide.id}
-            className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${index === currentSlide ? 'opacity-100 z-10' : 'opacity-0 z-0'}`}
+            className={`absolute inset-0 transition-opacity duration-[1200ms] ease-in-out ${active ? 'opacity-100 z-10' : 'opacity-0 z-0'}`}
+            aria-hidden={!active}
           >
-            {/* Arka Plan */}
-            <div className="absolute inset-0">
-               <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent z-20 md:block hidden" />
-               <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent z-20 md:hidden" />
-               <Image 
-                 src={slide.image} 
-                 alt={slide.title} 
-                 fill
-                 priority={index === 0}
-                 className={`object-cover transition-transform duration-[8000ms] ease-linear ${index === currentSlide ? 'scale-105' : 'scale-100'}`}
-               />
-            </div>
+            {failed[slide.id] ? (
+              <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_70%_30%,#3a332b_0%,#141414_65%)]" />
+            ) : (
+              <Image
+                src={slide.image}
+                alt=""
+                fill
+                priority={index === 0}
+                sizes="100vw"
+                onError={() => setFailed(f => ({ ...f, [slide.id]: true }))}
+                className={`object-cover transition-transform duration-[8000ms] ease-out ${active ? 'scale-[1.04]' : 'scale-100'}`}
+              />
+            )}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-black/10" />
 
-            {/* İçerik */}
-            <div className="relative z-30 container mx-auto h-full flex flex-col justify-end md:justify-center px-6 md:px-12 pb-20 md:pb-0">
-               <div className={`max-w-2xl transition-all duration-1000 transform ${index === currentSlide ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
-                  
-                  <div className="flex items-center gap-4 mb-4 md:mb-6">
-                     <div className="h-[1px] w-8 md:w-12 bg-[#D4AF37]" />
-                     <span className="text-[#D4AF37] tracking-[0.2em] md:tracking-[0.3em] text-[10px] md:text-xs font-bold uppercase">
-                        {slide.subtitle}
-                     </span>
-                  </div>
-                  
-                  <h1 className="text-3xl md:text-7xl font-serif text-white leading-[1.2] md:leading-[1.1] mb-6">
-                     {slide.title}
-                  </h1>
-                  
-                  <Link 
-                     href={slide.buttonLink} 
-                     className="inline-block bg-white text-black border border-white px-8 md:px-10 py-3 md:py-4 text-xs md:text-sm font-bold tracking-widest uppercase hover:bg-transparent hover:text-white transition-all duration-300"
-                  >
-                     {slide.buttonText}
+            <div className="relative z-10 h-full container-lux flex flex-col justify-end pb-20 md:pb-24">
+              <div className={`max-w-2xl text-white transition-all duration-1000 delay-200 ${active ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}>
+                {slide.subtitle && <p className="eyebrow text-white/80 mb-5">{slide.subtitle}</p>}
+                {index === 0
+                  ? <h1 className="font-display text-[44px] leading-[1.05] md:text-7xl lg:text-[84px] font-medium">{slide.title}</h1>
+                  : <h2 className="font-display text-[44px] leading-[1.05] md:text-7xl lg:text-[84px] font-medium">{slide.title}</h2>}
+                {slide.buttonText && slide.buttonLink && (
+                  <Link href={slide.buttonLink} className="link-underline mt-8 text-white" tabIndex={active ? 0 : -1}>
+                    {slide.buttonText} <ArrowRight className="h-3.5 w-3.5" />
                   </Link>
-
-               </div>
+                )}
+              </div>
             </div>
           </div>
-        ))}
+        );
+      })}
 
-        {/* Progress Bar */}
-        {slides.length > 1 && (
-            <div className="absolute bottom-0 left-0 w-full h-1 bg-white/10 z-40 flex">
-            {slides.map((_, idx) => (
-                <div key={idx} className="flex-1 h-full relative">
-                    <div 
-                        className={`absolute inset-0 bg-[#D4AF37] transition-all duration-[6000ms] ease-linear ${currentSlide === idx ? 'w-full' : 'w-0'}`}
-                        style={{ width: currentSlide === idx ? '100%' : '0%', opacity: currentSlide === idx ? 1 : 0 }}
-                    />
-                </div>
-            ))}
+      {/* Slayt göstergesi */}
+      {slides.length > 1 && (
+        <div className="absolute z-20 bottom-8 md:bottom-10 inset-x-0">
+          <div className="container-lux flex items-center justify-end gap-4 text-white">
+            <span className="text-xs tabular-nums tracking-[0.2em] text-white/70">
+              {String(current + 1).padStart(2, '0')} / {String(slides.length).padStart(2, '0')}
+            </span>
+            <div className="flex gap-2">
+              {slides.map((s, i) => (
+                <button
+                  key={s.id}
+                  onClick={() => setCurrent(i)}
+                  aria-label={`${i + 1}. slayta git`}
+                  aria-current={i === current}
+                  className="py-3"
+                >
+                  <span className={`block h-px transition-all duration-500 ${i === current ? 'w-10 bg-white' : 'w-5 bg-white/40 hover:bg-white/70'}`} />
+                </button>
+              ))}
             </div>
-        )}
-
-        {/* Controls */}
-        {slides.length > 1 && (
-            <div className="absolute bottom-8 right-6 md:bottom-12 md:right-12 z-40 flex gap-3 md:gap-4">
-            <button 
-                onClick={() => setCurrentSlide(prev => (prev === 0 ? slides.length - 1 : prev - 1))}
-                className="p-2 md:p-3 border border-white/20 text-white hover:bg-white hover:text-black transition-colors rounded-full"
-            >
-                <ChevronLeft className="h-4 w-4 md:h-5 md:w-5" />
-            </button>
-            <button 
-                onClick={() => setCurrentSlide(prev => (prev === slides.length - 1 ? 0 : prev + 1))}
-                className="p-2 md:p-3 border border-white/20 text-white hover:bg-white hover:text-black transition-colors rounded-full"
-            >
-                <ChevronRight className="h-4 w-4 md:h-5 md:w-5" />
-            </button>
-            </div>
-        )}
+          </div>
+        </div>
+      )}
     </section>
   );
 }

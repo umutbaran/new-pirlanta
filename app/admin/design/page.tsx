@@ -20,10 +20,6 @@ export default function DesignPage() {
   const [uploadingId, setUploadingId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'slider' | 'mosaic' | 'info' | 'showcase' | 'store' | 'footer'>('slider');
 
-  useEffect(() => {
-    fetchConfigAndProducts();
-  }, []);
-
   const fetchConfigAndProducts = async () => {
     try {
       const [configRes, productsRes] = await Promise.all([
@@ -44,6 +40,12 @@ export default function DesignPage() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    // Veri sayfa açılışında çekilir; state güncellemesi await sonrası (asenkron) yapılır
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    fetchConfigAndProducts();
+  }, []);
 
   const saveChanges = async () => {
     if (!config) return;

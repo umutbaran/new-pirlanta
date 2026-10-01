@@ -1,12 +1,15 @@
-import { getCategories, getCatalogProducts } from '@/lib/db';
-import ProductCard from '@/components/ProductCard';
-import ProductFilters from '@/components/ProductFilters';
-import Image from 'next/image';
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import { X } from 'lucide-react';
+import { getCategories, getCatalogProducts, type CategoryData, type Product } from '@/lib/db';
+import ProductCard from '@/components/ProductCard';
+import ProductFilters, { MobileFilters, SortSelect } from '@/components/ProductFilters';
 import { slugify } from '@/lib/utils';
 
 const ALL_PRODUCTS_SLUG = 'tum-urunler';
+
+type SearchParams = { [key: string]: string | undefined };
 
 function parsePriceParam(v: string | undefined): number | undefined {
   if (!v) return undefined;
@@ -14,144 +17,175 @@ function parsePriceParam(v: string | undefined): number | undefined {
   return Number.isFinite(n) && n >= 0 ? n : undefined;
 }
 
-// Statik konfigürasyon (resimler ve açıklamalar için)
-const categoryConfig: Record<string, { title?: string, desc?: string, image?: string }> = {
-  'pirlanta': {
-    title: 'Pırlanta Koleksiyonu',
-    desc: 'Sonsuz aşkın ve zarafetin simgesi, sertifikalı pırlantalar.',
-    image: 'https://images.unsplash.com/photo-1599643478514-4a4e98f6d654?q=80&w=2070&auto=format&fit=crop'
-  },
-  'altin-22': {
-    title: '22 Ayar Altın',
-    desc: 'Yatırımın en şık hali. Geleneksel işlemeler, modern dokunuşlar.',
-    image: 'https://images.unsplash.com/photo-1611591437281-460bfbe1220a?q=80&w=2070&auto=format&fit=crop'
-  },
-  'altin-14': {
-    title: '14 Ayar Altın',
-    desc: 'Günlük şıklığınızı tamamlayan modern altın tasarımlar.',
-    image: 'https://images.unsplash.com/photo-1601121141461-9d6647bca1ed?q=80&w=2070&auto=format&fit=crop'
-  },
-  'sarrafiye': {
-    title: 'Sarrafiye & Yatırım',
-    desc: 'Güvenli liman altın yatırımlarınız için doğru adres.',
-    image: 'https://images.unsplash.com/photo-1610375460969-d941b7416972?q=80&w=2070&auto=format&fit=crop'
-  },
-  'tum-urunler': {
-    title: 'Tüm Ürünler',
-    desc: 'Pırlantadan altına tüm koleksiyonlarımız tek bir yerde.',
-    image: 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?q=80&w=2070&auto=format&fit=crop'
-  },
-  'yeni': {
-    title: 'Yeni Gelenler',
-    desc: 'Sezonun en trend parçaları ve en yeni tasarımları.',
-    image: 'https://images.unsplash.com/photo-1573408301145-b98c414a0d92?q=80&w=2070&auto=format&fit=crop'
-  }
+// Sayfa başlıkları ve açıklamaları (kategori adı yeterli değilse)
+const categoryConfig: Record<string, { title?: string, desc?: string }> = {
+  'pirlanta': { title: 'Pırlanta Koleksiyonu', desc: 'Sonsuz aşkın ve zarafetin simgesi, ışıltısı ömür boyu sürecek pırlanta tasarımlar.' },
+  'altin-22': { title: '22 Ayar Altın', desc: 'Geleneksel işçilik ve modern çizgilerle 22 ayar altın koleksiyonu.' },
+  'altin-14': { title: '14 Ayar Altın', desc: 'Günlük şıklığınızı tamamlayan zarif 14 ayar altın tasarımlar.' },
+  'sarrafiye': { title: 'Sarrafiye', desc: 'Çeyrek, yarım ve tam altın ile güvenli yatırım seçenekleri.' },
+  'tum-urunler': { title: 'Tüm Ürünler', desc: 'Pırlantadan altına tüm koleksiyonlarımız tek bir yerde.' },
+  'yeni': { title: 'Yeni Gelenler', desc: 'Koleksiyonumuza en son eklenen parçalar.' },
 };
 
-export default async function CategoryPage({ 
-  params,
-  searchParams 
-}: { 
-  params: Promise<{ slug: string }>,
-  searchParams: Promise<{ [key: string]: string | undefined }>
-}) {
+async function resolvePage(slug: string) {
+  const categories = await getCategories();
+  const isSpecialPage = slug === 'yeni' || slug === ALL_PRODUCTS_SLUG;
+  // Özel sayfalar kategori eşleşmesinden önceliklidir; kategori aranırken önce tam slug eşleşmesi denenir
+  const currentCategory: CategoryData | undefined = isSpecialPage
+    ? undefined
+    : categories.find(c => c.slug === slug) ?? categories.find(c => slugify(c.name) === slug);
+  const config = categoryConfig[slug] || {};
+  return {
+    isSpecialPage,
+    currentCategory,
+    title: config.title || currentCategory?.name || 'Koleksiyon',
+    description: config.desc || 'Özel tasarım mücevherler.',
+  };
+}
+
+export async function generateMetadata({ params, searchParams }: { params: Promise<{ slug: string }>; searchParams: Promise<SearchParams> }): Promise<Metadata> {
   const { slug } = await params;
-  const { search, renk, min, max, ...rest } = await searchParams;
+  const { search } = await searchParams;
+  const page = await resolvePage(slug);
+  if (!page.isSpecialPage && !page.currentCategory) return { title: 'Koleksiyon Bulunamadı' };
+  return {
+    title: search ? `"${search}" araması` : page.title,
+    description: page.description,
+    // Arama sonuçları ve filtrelenmiş sayfalar arama motorlarında ayrı sayfa olarak listelenmesin
+    ...(search ? { robots: { index: false, follow: true } } : {}),
+  };
+}
+
+function sortProducts(products: Product[], sort?: string): Product[] {
+  const byPrice = (dir: 1 | -1) => [...products].sort((a, b) => {
+    // Fiyatı olmayan ("iletişime geçin") ürünler her iki yönde de sonda
+    if (!a.price && !b.price) return 0;
+    if (!a.price) return 1;
+    if (!b.price) return -1;
+    return (a.price - b.price) * dir;
+  });
+  if (sort === 'fiyat-artan') return byPrice(1);
+  if (sort === 'fiyat-azalan') return byPrice(-1);
+  return products; // Önerilen ve en yeni: veritabanından en yeniden eskiye gelir
+}
+
+export default async function CategoryPage({ params, searchParams }: { params: Promise<{ slug: string }>; searchParams: Promise<SearchParams> }) {
+  const { slug } = await params;
+  const { search, renk, min, max, sirala, ...rest } = await searchParams;
   // Eski linklerle uyumluluk için '?sub=' de kabul edilir
   const subCategory = rest.subCategory || rest.sub;
 
-  const categories = await getCategories();
+  const page = await resolvePage(slug);
+  if (!page.isSpecialPage && !page.currentCategory) notFound();
 
-  // O anki kategoriyi bul ('yeni' ve 'tum-urunler' özel sayfalardır)
-  const isSpecialPage = slug === 'yeni' || slug === ALL_PRODUCTS_SLUG;
-  // Özel sayfalar kategori eşleşmesinden önceliklidir; kategori aranırken önce tam slug eşleşmesi denenir
-  const currentCategory = isSpecialPage
-    ? undefined
-    : categories.find(c => c.slug === slug) ?? categories.find(c => slugify(c.name) === slug);
-  if (!isSpecialPage && !currentCategory) notFound();
-
-  const subCategories = currentCategory?.subCategories || [];
+  const subCategories = page.currentCategory?.subCategories || [];
   const searchQuery = search?.trim() || undefined;
 
   // Kategori, arama ve fiyat filtreleri veritabanında uygulanır
   const products = await getCatalogProducts({
-    category: currentCategory?.slug,
+    category: page.currentCategory?.slug,
     search: searchQuery,
     minPrice: parsePriceParam(min),
     maxPrice: parsePriceParam(max),
     limit: slug === 'yeni' ? 20 : undefined,
   });
 
-  const config = categoryConfig[slug] || {};
-  const pageTitle = searchQuery ? `"${searchQuery}" için sonuçlar` : (config.title || currentCategory?.name || 'Koleksiyon');
-  const pageDesc = config.desc || 'Özel tasarım mücevherler.';
-  const pageImage = config.image || 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?q=80';
-
-  const hasActiveFilters = !!(searchQuery || subCategory || renk || min || max);
   let filtered = products;
-
   // Alt kategori ve renk, ürünlerde serbest metin olarak tutulduğu için bellekte (slug karşılaştırmasıyla) filtrelenir
   if (subCategory) {
     const subQ = slugify(subCategory);
     filtered = filtered.filter(p => slugify(p.subCategory || "") === subQ);
   }
-
   if (renk) {
     const colorQ = slugify(renk);
-    filtered = filtered.filter(p => {
-      const details = p.details as Record<string, unknown>;
-      return slugify(String(details?.renk || "")).includes(colorQ);
-    });
+    filtered = filtered.filter(p => slugify(String((p.details as Record<string, unknown>)?.renk || "")).includes(colorQ));
   }
+  filtered = sortProducts(filtered, sirala);
+
+  // Aktif filtre etiketleri: her biri kendi parametresi kaldırılmış bir link
+  const currentParams = { search, renk, min, max, sirala, subCategory };
+  const removeLink = (...keys: string[]) => {
+    const p = new URLSearchParams();
+    for (const [k, v] of Object.entries(currentParams)) if (v && !keys.includes(k)) p.set(k, v);
+    const qs = p.toString();
+    return `/koleksiyon/${slug}${qs ? `?${qs}` : ''}`;
+  };
+  const subName = subCategories.find(s => s.slug === subCategory)?.name || subCategory;
+  const chips = [
+    searchQuery && { label: `“${searchQuery}”`, href: removeLink('search') },
+    subCategory && { label: subName, href: removeLink('subCategory') },
+    renk && { label: renk, href: removeLink('renk') },
+    (min || max) && { label: `${min ? `${Number(min).toLocaleString('tr-TR')} ₺` : '0'} – ${max ? `${Number(max).toLocaleString('tr-TR')} ₺` : '∞'}`, href: removeLink('min', 'max') },
+  ].filter(Boolean) as { label: string; href: string }[];
+  const activeFilterCount = chips.length;
 
   return (
-    <div className="bg-white min-h-screen">
-      <div className="relative h-[30vh] md:h-[40vh] bg-black overflow-hidden flex items-center justify-center text-center">
-         <div className="absolute inset-0 opacity-60">
-            <Image src={pageImage} alt={pageTitle} fill priority className="object-cover" />
-         </div>
-         <div className="relative z-20 px-4 animate-fade-in-up">
-            <h1 className="text-3xl md:text-5xl font-serif text-white mb-2 md:mb-4">{pageTitle}</h1>
-            <p className="text-gray-200 text-sm md:text-lg font-light max-w-2xl mx-auto">{pageDesc}</p>
-         </div>
-      </div>
+    <div>
+      {/* Başlık */}
+      <header className="bg-ivory border-b border-line">
+        <div className="container-lux py-12 md:py-20 text-center">
+          <nav className="eyebrow !text-[10px] text-muted mb-6" aria-label="Sayfa yolu">
+            <Link href="/" className="hover:text-ink">Anasayfa</Link>
+            <span className="mx-3">/</span>
+            <span className="text-ink-soft">{page.title}</span>
+          </nav>
+          <h1 className="font-display text-[44px] md:text-6xl leading-tight text-ink">
+            {searchQuery ? <>“{searchQuery}”</> : page.title}
+          </h1>
+          <p className="mt-4 text-ink-soft max-w-xl mx-auto">
+            {searchQuery ? 'Arama sonuçları' : page.description}
+          </p>
+        </div>
+      </header>
 
-      <div className="container mx-auto px-4 py-8 md:py-12">
-        <div className="flex flex-col md:flex-row gap-8 lg:gap-12">
-           <aside className="md:w-64 flex-shrink-0">
-              <ProductFilters availableSubCategories={subCategories} />
-           </aside>
+      <div className="container-lux py-8 md:py-12">
+        <div className="lg:grid lg:grid-cols-[220px_1fr] lg:gap-14">
+          <aside className="hidden lg:block">
+            <ProductFilters availableSubCategories={subCategories} />
+          </aside>
 
-           <div className="flex-1">
-              <div className="flex justify-between items-center mb-6 pb-4 border-b border-gray-100">
-                 <span className="text-xs font-bold tracking-widest uppercase text-gray-500">
-                    {filtered.length} Tasarım Bulundu
-                 </span>
-                 {hasActiveFilters && (
-                    <Link href={`/koleksiyon/${slug}`} scroll={false} className="text-xs font-bold tracking-widest uppercase text-[#D4AF37] hover:text-black transition-colors">
-                       Filtreleri Temizle
-                    </Link>
-                 )}
+          <div>
+            {/* Araç çubuğu */}
+            <div className="flex items-center justify-between gap-4 pb-4 border-b border-line">
+              <MobileFilters availableSubCategories={subCategories} activeCount={activeFilterCount} resultCount={filtered.length} />
+              <p className="hidden lg:block text-sm text-muted">{filtered.length} ürün</p>
+              <SortSelect />
+            </div>
+
+            {chips.length > 0 && (
+              <div className="flex flex-wrap items-center gap-2 pt-4">
+                {chips.map(chip => (
+                  <Link key={chip.label} href={chip.href} scroll={false} className="inline-flex items-center gap-1.5 border border-line px-3 py-1.5 text-xs text-ink hover:border-ink transition-colors">
+                    {chip.label} <X className="h-3 w-3" />
+                  </Link>
+                ))}
+                <Link href={`/koleksiyon/${slug}`} scroll={false} className="text-xs text-muted underline underline-offset-4 hover:text-ink ml-1">
+                  Tümünü temizle
+                </Link>
               </div>
+            )}
 
-              {filtered.length > 0 ? (
-                <div className="grid grid-cols-2 lg:grid-cols-3 gap-x-4 gap-y-8 md:gap-x-8 md:gap-y-12">
-                  {filtered.map((product) => (
-                    <ProductCard key={product.id} product={product} />
-                  ))}
+            {filtered.length > 0 ? (
+              <div className="mt-8 grid grid-cols-2 xl:grid-cols-3 gap-x-4 gap-y-10 md:gap-x-6 md:gap-y-14">
+                {filtered.map((product, i) => (
+                  <ProductCard key={product.id} product={product} priority={i < 4} />
+                ))}
+              </div>
+            ) : (
+              <div className="py-24 text-center">
+                <p className="font-display text-3xl text-ink">
+                  {activeFilterCount > 0 ? 'Aradığınız kriterlere uygun ürün bulunamadı' : 'Bu koleksiyona yakında yeni parçalar eklenecek'}
+                </p>
+                <p className="mt-3 text-sm text-ink-soft">
+                  {activeFilterCount > 0 ? 'Filtreleri değiştirmeyi veya tüm ürünlere göz atmayı deneyin.' : 'Aradığınız özel bir parça varsa bize yazın, sizin için bulalım.'}
+                </p>
+                <div className="mt-8 flex flex-col sm:flex-row gap-3 justify-center">
+                  <Link href={`/koleksiyon/${ALL_PRODUCTS_SLUG}`} className="btn-outline">Tüm Ürünler</Link>
+                  <Link href="/iletisim" className="btn-primary">Bize Ulaşın</Link>
                 </div>
-              ) : hasActiveFilters ? (
-                <div className="text-center py-20 bg-gray-50 rounded-lg">
-                   <p className="text-xl font-serif text-gray-400 mb-2">Aradığınız kriterlere uygun ürün bulunamadı.</p>
-                   <p className="text-sm text-gray-500">Filtreleri değiştirmeyi veya <Link href={`/koleksiyon/${ALL_PRODUCTS_SLUG}`} className="underline hover:text-[#D4AF37]">tüm ürünlere</Link> göz atmayı deneyin.</p>
-                </div>
-              ) : (
-                <div className="text-center py-20 bg-gray-50 rounded-lg">
-                   <p className="text-xl font-serif text-gray-400 mb-2">Bu kategoride henüz ürün bulunmuyor.</p>
-                   <p className="text-sm text-gray-500">Kategoriler üzerinde çalışmalarımız devam ediyor.</p>
-                </div>
-              )}
-           </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>

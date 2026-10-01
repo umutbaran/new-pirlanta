@@ -1,30 +1,40 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #1c1c1c;
-  --color-brand-gold: #D4AF37;
-}
-
+/*
+ * New Pırlanta tasarım sistemi — "minimal lüks"
+ * Kurallar:
+ *  - gold: sadece çizgi, ikon ve büyük başlık vurgusu (küçük metinde kontrast yetersiz)
+ *  - gold-deep: altın tonlu küçük metinler (beyaz üzerinde 5:1)
+ *  - ivory: bölüm zeminleri; line: ince ayraçlar
+ */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-serif: var(--font-serif);
-  --font-sans: var(--font-sans);
-  
-  --animate-fade-in-up: fadeInUp 0.8s ease-out forwards;
-  --animate-fade-in: fadeIn 1s ease-out forwards;
-  --animate-scroll: scroll 40s linear infinite;
-}
+  --color-ink: #141414;
+  --color-ink-soft: #4A4743;
+  --color-muted: #6F6A62;
+  --color-line: #E6E0D6;
+  --color-ivory: #F8F5F0;
+  --color-gold: #B08D57;
+  --color-gold-deep: #8A6A3B;
 
-@keyframes scroll {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
+  --font-display: var(--font-display);
+  --font-sans: var(--font-sans);
+  /* Eski sınıf adlarıyla uyumluluk (admin paneli) */
+  --font-serif: var(--font-display);
+
+  --ease-lux: cubic-bezier(0.22, 1, 0.36, 1);
+
+  --animate-fade-in-up: fadeInUp 0.9s var(--ease-lux) both;
+  --animate-fade-in: fadeIn 0.6s ease-out both;
 }
 
 @keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(20px); }
+  from { opacity: 0; transform: translateY(16px); }
   to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes loadingBar {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(300%); }
 }
 
 @keyframes fadeIn {
@@ -32,77 +42,128 @@
   to { opacity: 1; }
 }
 
-/* LAPTOP & DESKTOP SCALING FIX */
-@media (min-width: 1024px) {
-  html {
-    font-size: 14px; /* Laptoplarda fontları biraz küçülterek her şeyin sığmasını sağlıyoruz */
-  }
-}
-
-@media (min-width: 1440px) {
-  html {
-    font-size: 15px; /* Büyük ekranlarda biraz daha büyütebiliriz */
-  }
-  .container {
-    max-width: 1300px; /* Konteyner genişliğini sınırlıyoruz */
-  }
-}
-
-html {
-  scroll-behavior: smooth;
-  -webkit-text-size-adjust: 100%;
-}
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  overflow-x: hidden;
-}
-
-/* Mobilde öğelerin taşmasını önleyelim */
-* {
-  box-sizing: border-box;
-}
-
-h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-serif), serif;
-}
-
-/* Lüks Buton Efekti */
-.btn-luxury {
-  position: relative;
-  overflow: hidden;
-  transition: all 0.3s ease;
-}
-
-.btn-luxury::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
+/* Sayfa içerik genişliği: tüm genel sayfalarda aynı kenar boşlukları */
+@utility container-lux {
   width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-  transition: 0.5s;
+  max-width: 1320px;
+  margin-inline: auto;
+  padding-inline: 1.25rem;
+  @media (min-width: 768px) {
+    padding-inline: 2.5rem;
+  }
 }
 
-.btn-luxury:hover::after {
-  left: 100%;
+/* Küçük, geniş aralıklı büyük harf etiketler (bölüm üst başlıkları, menü) */
+@utility eyebrow {
+  font-family: var(--font-sans), system-ui, sans-serif;
+  font-size: 0.6875rem;
+  line-height: 1rem;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
 }
 
-/* Custom Scrollbar */
-::-webkit-scrollbar {
-  width: 6px;
+/* Birincil buton: mürekkep zemin */
+@utility btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.625rem;
+  min-height: 3rem;
+  padding-inline: 1.75rem;
+  background: var(--color-ink);
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  transition: background-color 0.3s var(--ease-lux);
+  &:hover { background: #2a2826; }
 }
-::-webkit-scrollbar-track {
-  background: #f1f1f1;
+
+/* İkincil buton: ince çerçeve */
+@utility btn-outline {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.625rem;
+  min-height: 3rem;
+  padding-inline: 1.75rem;
+  border: 1px solid var(--color-ink);
+  color: var(--color-ink);
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  transition: background-color 0.3s var(--ease-lux), color 0.3s var(--ease-lux);
+  &:hover { background: var(--color-ink); color: #fff; }
 }
-::-webkit-scrollbar-thumb {
-  background: #D4AF37;
-  border-radius: 10px;
+
+/* Alt çizgili metin link (ör. "Koleksiyonu Keşfet") */
+@utility link-underline {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding-bottom: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  background-image: linear-gradient(currentColor, currentColor);
+  background-size: 100% 1px;
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+  transition: background-size 0.4s var(--ease-lux);
+  &:hover { background-size: 40% 1px; }
 }
-::-webkit-scrollbar-thumb:hover {
-  background: #b4941f;
+
+/* Yatay kaydırılabilir alanlarda kaydırma çubuğunu gizle */
+@utility no-scrollbar {
+  scrollbar-width: none;
+  &::-webkit-scrollbar { display: none; }
+}
+
+/* Temel stiller "base" katmanında: utility sınıfları (ör. font-sans, eyebrow) bunları ezebilsin */
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background: #ffffff;
+    color: var(--color-ink);
+    font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display), Georgia, serif;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+  }
+
+  /* Cormorant varsayılan olarak "eski usul" rakam kullanır; ürün adlarında (0.70 Karat, 14 Ayar) düz rakam daha okunaklı */
+  h1, h2, h3, h4, h5, h6, .font-display {
+    font-variant-numeric: lining-nums;
+  }
+
+  ::selection {
+    background: #EDE3D2;
+    color: var(--color-ink);
+  }
+
+  :focus-visible {
+    outline: 1px solid var(--color-ink);
+    outline-offset: 3px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

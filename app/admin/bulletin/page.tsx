@@ -10,10 +10,6 @@ export default function AdminBulletinPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
-  useEffect(() => {
-    fetchBulletins();
-  }, []);
-
   const fetchBulletins = async () => {
     try {
       const res = await fetch('/api/bulletin');
@@ -25,6 +21,12 @@ export default function AdminBulletinPage() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    // Veri sayfa açılışında çekilir; state güncellemesi await sonrası (asenkron) yapılır
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    fetchBulletins();
+  }, []);
 
   const addEvent = () => {
     const newItem: BulletinItem = {

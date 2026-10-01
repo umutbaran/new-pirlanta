@@ -21,10 +21,6 @@ export default function CategoriesPage() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editName, setEditName] = useState('');
 
-  useEffect(() => {
-    fetchCategories();
-  }, []);
-
   const fetchCategories = async () => {
     try {
       const res = await fetch('/api/categories');
@@ -36,6 +32,12 @@ export default function CategoriesPage() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    // Veri sayfa açılışında çekilir; state güncellemesi await sonrası (asenkron) yapılır
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    fetchCategories();
+  }, []);
 
   const saveChanges = async (newCategories: Category[]) => {
     setCategories(newCategories); // Optimistic update
