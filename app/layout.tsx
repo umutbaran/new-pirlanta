@@ -67,7 +67,7 @@ export default async function RootLayout({
   return (
     <html lang="tr" className={`${display.variable} ${sans.variable}`}>
       <body className="font-sans antialiased min-h-screen flex flex-col overflow-x-hidden">
-        <Providers>
+        <Providers siteConfig={{ showPrices: settings.showPrices }}>
           <MainLayout
             navbar={<Navbar phoneNumber={settings.phoneNumber} whatsappNumber={settings.whatsappNumber} categories={categories.filter(c => c.isActive)} featured={featured} />}
             footer={<Footer />}

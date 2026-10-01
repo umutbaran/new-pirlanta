@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { updateProduct, deleteProduct, getProductById } from '@/lib/db';
-import { isAdmin, revalidateSite } from '@/lib/admin';
+import { isAdmin, revalidateSite, publicProductView } from '@/lib/admin';
 import { productSchema } from '@/lib/schemas';
 import { Prisma } from '@prisma/client';
 
@@ -9,7 +9,8 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
   try {
     const product = await getProductById(id);
     if (!product) return NextResponse.json({ error: 'Ürün bulunamadı' }, { status: 404 });
-    return NextResponse.json(product);
+    const [visible] = await publicProductView([product]);
+    return NextResponse.json(visible);
   } catch (err) {
     console.error('Get Product Error:', err);
     return NextResponse.json({ error: 'Ürün getirilemedi' }, { status: 500 });

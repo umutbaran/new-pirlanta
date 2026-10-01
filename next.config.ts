@@ -2,6 +2,8 @@ import type { NextConfig } from "next";
 import { ALLOWED_IMAGE_HOSTS } from "./lib/images";
 
 const nextConfig: NextConfig = {
+  // Yerel testlerde çalışan "npm run dev" ile çakışmamak için ayrı derleme klasörü seçilebilir (varsayılan .next)
+  distDir: process.env.NEXT_DIST_DIR || '.next',
   images: {
     remotePatterns: ALLOWED_IMAGE_HOSTS.map(hostname => ({ protocol: 'https' as const, hostname })),
   },

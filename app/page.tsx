@@ -4,7 +4,7 @@ import { getProducts, getUiConfig, getProductsByIds, getSettings, getCategories,
 import ProductCard from "@/components/ProductCard";
 import HeroSlider from "@/components/HeroSlider";
 import SmartImage from "@/components/SmartImage";
-import { telHref, whatsappLink } from "@/lib/utils";
+import { telHref, whatsappLink, withVisiblePrices } from "@/lib/utils";
 import { getRates, type RatesResult } from "@/lib/gold-rates";
 import { MarketDataProvider } from "@/components/market/MarketDataProvider";
 import KeyStats from "@/components/market/KeyStats";
@@ -39,6 +39,7 @@ export default async function Home() {
     showcaseProducts = uiConfig.showcase.productIds.map(id => selected.find(p => p.id === id)).filter((p): p is Product => !!p);
   }
   if (showcaseProducts.length === 0) showcaseProducts = await getProducts(8);
+  showcaseProducts = withVisiblePrices(showcaseProducts, settings.showPrices);
 
   const { collectionMosaic, infoCenter, showcase, storeSection } = uiConfig;
   const collections = categories.filter(c => c.isActive && !c.isSpecial);

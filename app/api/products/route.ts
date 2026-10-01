@@ -1,12 +1,12 @@
 import { NextResponse } from 'next/server';
 import { getProducts, addProduct } from '@/lib/db';
-import { isAdmin, revalidateSite } from '@/lib/admin';
+import { isAdmin, revalidateSite, publicProductView } from '@/lib/admin';
 import { productSchema } from '@/lib/schemas';
 import { Prisma } from '@prisma/client';
 
 export async function GET() {
   const products = await getProducts();
-  return NextResponse.json(products);
+  return NextResponse.json(await publicProductView(products));
 }
 
 export async function POST(request: Request) {

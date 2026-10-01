@@ -8,6 +8,7 @@ const settingsSchema = z.object({
   contactEmail: z.string().email().optional().or(z.literal('')).transform(val => val || ''),
   phoneNumber: z.string().optional().transform(val => val || ''),
   whatsappNumber: z.string().optional().transform(val => val || ''),
+  showPrices: z.boolean().optional().default(false),
   address: z.string().optional().transform(val => val || ''),
   currency: z.string()
 });

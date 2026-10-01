@@ -32,6 +32,9 @@ export async function POST(request: Request) {
   // Hata durumunda bile ziyaretçiye hep 204 dönülür; istatistik kaydı siteyi etkilememeli
   const noContent = new NextResponse(null, { status: 204 });
 
+  // Yerel geliştirme (npm run dev) sırasındaki gezintiler canlı istatistiklere yazılmasın
+  if (process.env.NODE_ENV === 'development') return noContent;
+
   const userAgent = request.headers.get('user-agent') || '';
   if (!userAgent || BOT_PATTERN.test(userAgent)) return noContent;
 

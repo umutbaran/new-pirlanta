@@ -44,6 +44,7 @@ model Settings {
   contactEmail    String?
   phoneNumber     String?
   whatsappNumber  String?
+  showPrices      Boolean @default(false)
   address         String?
   currency        String  @default("TRY")
 }

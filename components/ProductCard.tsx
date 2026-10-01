@@ -1,18 +1,20 @@
+'use client';
+
 import Link from 'next/link';
 import type { Product } from '@/lib/db';
+import { formatPrice } from '@/lib/utils';
+import { useSiteConfig } from '@/context/SiteConfigContext';
 import FavoriteButton from './FavoriteButton';
 import SmartImage from './SmartImage';
-
-export function formatPrice(value: number) {
-  return `${value.toLocaleString('tr-TR')} ₺`;
-}
 
 export default function ProductCard({ product, priority = false }: { product: Product; priority?: boolean }) {
   const details = (product.details || {}) as Record<string, unknown>;
   const tasBilgisi = details.tas_bilgisi as Record<string, unknown> | undefined;
   const detail = (tasBilgisi?.karat as string) || (details.materyal as string) || product.subCategory || '';
   const [mainImage, hoverImage] = product.images;
-  const hasDiscount = !!product.oldPrice && product.oldPrice > product.price && product.price > 0;
+  const { showPrices } = useSiteConfig();
+  // Fiyatlar gizliyken indirim etiketi de gösterilmez (fiyat bilgisi verir)
+  const hasDiscount = showPrices && !!product.oldPrice && product.oldPrice > product.price && product.price > 0;
 
   return (
     <article className="group relative">
@@ -48,6 +50,7 @@ export default function ProductCard({ product, priority = false }: { product: Pr
             {product.name}
           </h3>
           {detail && <p className="mt-1 text-xs text-muted line-clamp-1">{detail}</p>}
+          {showPrices && (
           <div className="mt-2.5 text-[13px] tracking-wide">
             {product.price > 0 ? (
               <span className="flex items-baseline justify-center gap-2">
@@ -58,6 +61,7 @@ export default function ProductCard({ product, priority = false }: { product: Pr
               <span className="text-gold-deep">Fiyat için iletişime geçin</span>
             )}
           </div>
+          )}
         </div>
       </Link>
 

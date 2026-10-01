@@ -9,6 +9,7 @@ interface Settings {
   contactEmail: string;
   phoneNumber: string;
   whatsappNumber: string;
+  showPrices: boolean;
   address: string;
   currency: string;
 }
@@ -21,6 +22,7 @@ export default function SettingsPage() {
     contactEmail: '',
     phoneNumber: '',
     whatsappNumber: '',
+    showPrices: false,
     address: '',
     currency: 'TRY'
   });
@@ -84,6 +86,25 @@ export default function SettingsPage() {
 
       <form onSubmit={handleSubmit} className="space-y-6">
         
+        <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
+           <h3 className="font-bold text-gray-900 mb-4 border-b border-gray-100 pb-2">Fiyat Görünürlüğü</h3>
+           <label className="flex items-start gap-3 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={!!settings.showPrices}
+                onChange={(e) => setSettings(prev => ({ ...prev, showPrices: e.target.checked }))}
+                className="mt-0.5 h-5 w-5 accent-black"
+              />
+              <span>
+                <span className="block text-sm font-medium text-gray-900">Ürün fiyatlarını sitede göster</span>
+                <span className="block text-xs text-gray-500 mt-1">
+                  Kapalıyken ürün kartlarında, ürün sayfalarında, fiyat filtresinde ve Google ürün bilgisinde fiyat gösterilmez;
+                  ziyaretçiler fiyat için WhatsApp veya telefonla iletişime yönlendirilir. Admin panelinde fiyatlar her zaman görünür.
+                </span>
+              </span>
+           </label>
+        </div>
+
         <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
            <h3 className="font-bold text-gray-900 mb-4 border-b border-gray-100 pb-2">Genel Bilgiler</h3>
            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

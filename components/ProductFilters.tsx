@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { SlidersHorizontal, X, ChevronDown } from 'lucide-react';
+import { useSiteConfig } from '@/context/SiteConfigContext';
 
 export const SORT_OPTIONS = [
   { value: '', label: 'Önerilen' },
@@ -82,6 +83,7 @@ function OptionList({ options, selected, onSelect }: { options: { label: string;
 
 function FilterPanel({ availableSubCategories = [], onApplied }: FilterProps & { onApplied?: () => void }) {
   const { searchParams, update } = useQueryUpdater();
+  const { showPrices } = useSiteConfig();
   const [price, setPrice] = useState({ min: searchParams.get('min') || '', max: searchParams.get('max') || '' });
 
   // URL dışarıdan değişirse (ör. filtre temizleme) fiyat kutularını eşitle
@@ -109,6 +111,7 @@ function FilterPanel({ availableSubCategories = [], onApplied }: FilterProps & {
       <FilterSection title="Renk">
         <OptionList options={COLOR_OPTIONS} selected={searchParams.get('renk')} onSelect={select('renk')} />
       </FilterSection>
+      {showPrices && (
       <FilterSection title="Fiyat Aralığı (₺)">
         <form
           onSubmit={(e) => { e.preventDefault(); update({ min: price.min || null, max: price.max || null }); onApplied?.(); }}
@@ -122,6 +125,7 @@ function FilterPanel({ availableSubCategories = [], onApplied }: FilterProps & {
           <button type="submit" className="btn-outline w-full !min-h-10">Uygula</button>
         </form>
       </FilterSection>
+      )}
     </div>
   );
 }
@@ -173,6 +177,9 @@ export function MobileFilters({ activeCount, resultCount, ...props }: FilterProp
 /** Sıralama seçimi */
 export function SortSelect() {
   const { searchParams, update } = useQueryUpdater();
+  const { showPrices } = useSiteConfig();
+  // Fiyatlar gizliyken fiyata göre sıralama sunulmaz
+  const options = showPrices ? SORT_OPTIONS : SORT_OPTIONS.filter(o => !o.value.startsWith('fiyat'));
   return (
     <label className="flex items-center gap-2 text-sm">
       <span className="sr-only lg:not-sr-only text-muted">Sırala:</span>
@@ -181,7 +188,7 @@ export function SortSelect() {
         onChange={(e) => update({ sirala: e.target.value || null })}
         className="bg-transparent text-ink pr-1 py-2 focus:outline-none cursor-pointer"
       >
-        {SORT_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+        {options.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
       </select>
     </label>
   );

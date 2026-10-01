@@ -5,11 +5,11 @@ import { notFound } from 'next/navigation';
 import { Phone, MapPin, MessageCircle, ChevronDown, Gem, Store } from 'lucide-react';
 import { getProductById, getSettings, getCategories, getCatalogProducts } from '@/lib/db';
 import ProductGallery from '@/components/ProductGallery';
-import ProductCard, { formatPrice } from '@/components/ProductCard';
+import ProductCard from '@/components/ProductCard';
 import FavoriteButton from '@/components/FavoriteButton';
 import ShareButton from '@/components/ShareButton';
 import { TrackProductView } from '@/components/AnalyticsTracker';
-import { whatsappLink, telHref } from '@/lib/utils';
+import { whatsappLink, telHref, formatPrice, withVisiblePrices } from '@/lib/utils';
 
 // Aynı istek içinde metadata ve sayfa için ürünü bir kez çek
 const getProduct = cache(getProductById);
@@ -45,11 +45,17 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
   const [product, settings, categories] = await Promise.all([getProduct(id), getSettings(), getCategories()]);
   if (!product) notFound();
 
-  const related = (await getCatalogProducts({ category: product.category, limit: 5 })).filter(p => p.id !== product.id).slice(0, 4);
+  const related = withVisiblePrices(
+    (await getCatalogProducts({ category: product.category, limit: 5 })).filter(p => p.id !== product.id).slice(0, 4),
+    settings.showPrices,
+  );
+  // İstemci bileşenlerine (favori butonu) gönderilen ürün verisi
+  const [clientProduct] = withVisiblePrices([product], settings.showPrices);
 
   const categoryName = categories.find(c => c.slug === product.category)?.name || product.category.replace(/-/g, ' ');
   const whatsappUrl = whatsappLink(settings.whatsappNumber, `Merhaba, "${product.name}"${product.sku ? ` (${product.sku})` : ''} hakkında bilgi almak istiyorum.`);
-  const hasPrice = product.price > 0;
+  // Fiyatlar admin ayarından gizlendiyse fiyat, indirim ve Google ürün verisindeki teklif gösterilmez
+  const hasPrice = settings.showPrices && product.price > 0;
   const hasDiscount = hasPrice && !!product.oldPrice && product.oldPrice > product.price;
 
   const details = (product.details || {}) as Record<string, unknown>;
@@ -139,7 +145,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
                 <a href={telHref(settings.phoneNumber)} className="btn-outline flex-1">
                   <Phone className="h-4 w-4" strokeWidth={1.4} /> Hemen Ara
                 </a>
-                <FavoriteButton product={product} />
+                <FavoriteButton product={clientProduct} />
               </div>
             </div>
 

@@ -2,10 +2,10 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { X } from 'lucide-react';
-import { getCategories, getCatalogProducts, type CategoryData, type Product } from '@/lib/db';
+import { getCategories, getCatalogProducts, getSettings, type CategoryData, type Product } from '@/lib/db';
 import ProductCard from '@/components/ProductCard';
 import ProductFilters, { MobileFilters, SortSelect } from '@/components/ProductFilters';
-import { slugify } from '@/lib/utils';
+import { slugify, withVisiblePrices } from '@/lib/utils';
 
 const ALL_PRODUCTS_SLUG = 'tum-urunler';
 
@@ -71,7 +71,13 @@ function sortProducts(products: Product[], sort?: string): Product[] {
 
 export default async function CategoryPage({ params, searchParams }: { params: Promise<{ slug: string }>; searchParams: Promise<SearchParams> }) {
   const { slug } = await params;
-  const { search, renk, min, max, sirala, ...rest } = await searchParams;
+  const { showPrices } = await getSettings();
+  const query = await searchParams;
+  const { search, renk, ...rest } = query;
+  // Fiyatlar gizliyken fiyat filtresi ve fiyat sıralaması yok sayılır (fiyat aralığı dolaylı yoldan öğrenilemesin)
+  const min = showPrices ? query.min : undefined;
+  const max = showPrices ? query.max : undefined;
+  const sirala = showPrices || !query.sirala?.startsWith('fiyat') ? query.sirala : undefined;
   // Eski linklerle uyumluluk için '?sub=' de kabul edilir
   const subCategory = rest.subCategory || rest.sub;
 
@@ -100,7 +106,7 @@ export default async function CategoryPage({ params, searchParams }: { params: P
     const colorQ = slugify(renk);
     filtered = filtered.filter(p => slugify(String((p.details as Record<string, unknown>)?.renk || "")).includes(colorQ));
   }
-  filtered = sortProducts(filtered, sirala);
+  filtered = withVisiblePrices(sortProducts(filtered, sirala), showPrices);
 
   // Aktif filtre etiketleri: her biri kendi parametresi kaldırılmış bir link
   const currentParams = { search, renk, min, max, sirala, subCategory };

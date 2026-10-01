@@ -73,6 +73,13 @@ export function telHref(phone: string): string {
 }
 
 /**
+ * Ürün fiyatı biçimi: 12.750 ₺
+ */
+export function formatPrice(value: number): string {
+  return `${value.toLocaleString('tr-TR')} ₺`;
+}
+
+/**
  * Başarısız bir API yanıtından kullanıcıya gösterilecek hata mesajını çıkarır
  */
 export async function getApiError(res: Response, fallback: string): Promise<string> {
@@ -83,4 +90,12 @@ export async function getApiError(res: Response, fallback: string): Promise<stri
   } catch {
     return fallback;
   }
+}
+
+/**
+ * Fiyatlar sitede gizliyse ürünlerin fiyat alanlarını sıfırlar.
+ * İstemci bileşenlerine gönderilen veri sayfa kaynağında görünür; gizli fiyatlar oraya hiç girmemeli.
+ */
+export function withVisiblePrices<T extends { price: number; oldPrice?: number | null }>(items: T[], showPrices: boolean): T[] {
+  return showPrices ? items : items.map(p => ({ ...p, price: 0, oldPrice: null }));
 }

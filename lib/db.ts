@@ -39,6 +39,7 @@ export interface SiteSettings {
   contactEmail: string;
   phoneNumber: string;
   whatsappNumber: string;
+  showPrices: boolean; // false ise ürün fiyatları sitede gösterilmez
   address: string;
   currency: string;
 }
@@ -122,6 +123,7 @@ const FALLBACK_SETTINGS: SiteSettings = {
   contactEmail: "info@newpirlanta.com",
   phoneNumber: "+90 552 280 6513",
   whatsappNumber: "905527873513",
+  showPrices: false,
   address: "Tatvan, Bitlis",
   currency: "TRY"
 };
@@ -134,6 +136,7 @@ export const getSettings = cachedQuery('getSettings', async (): Promise<SiteSett
     contactEmail: settings.contactEmail || FALLBACK_SETTINGS.contactEmail,
     phoneNumber: settings.phoneNumber || FALLBACK_SETTINGS.phoneNumber,
     whatsappNumber: settings.whatsappNumber || FALLBACK_SETTINGS.whatsappNumber,
+    showPrices: settings.showPrices,
     address: settings.address || FALLBACK_SETTINGS.address,
     currency: settings.currency
   };
