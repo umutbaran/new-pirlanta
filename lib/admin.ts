@@ -1,4 +1,5 @@
-import { revalidatePath } from 'next/cache';
+import { revalidatePath, revalidateTag } from 'next/cache';
+import { SITE_CACHE_TAG } from './db';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from './auth';
 
@@ -15,5 +16,6 @@ export async function isAdmin(): Promise<boolean> {
  * Sayfalar statik (hızlı) kalır, ancak bir sonraki ziyarette güncel veriyle yeniden üretilir.
  */
 export function revalidateSite() {
-  revalidatePath('/', 'layout');
+  revalidateTag(SITE_CACHE_TAG); // Veritabanı sorgu önbelleği
+  revalidatePath('/', 'layout'); // Sayfa önbelleği
 }

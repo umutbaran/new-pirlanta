@@ -7,7 +7,7 @@ import Footer from "@/components/Footer";
 import FloatingWhatsapp from "@/components/FloatingWhatsapp";
 import MainLayout from "@/components/MainLayout";
 import { Providers } from "@/components/Providers";
-import { getSettings, getCategories } from "@/lib/db";
+import { getSettings, getCategories, getUiConfig } from "@/lib/db";
 import AnalyticsTracker from "@/components/AnalyticsTracker";
 
 // Başlıklar: ince ve zarif bir serif; metinler: sade, geometrik bir sans
@@ -59,14 +59,17 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const [settings, categories] = await Promise.all([getSettings(), getCategories()]);
+  const [settings, categories, uiConfig] = await Promise.all([getSettings(), getCategories(), getUiConfig()]);
+  // Koleksiyonlar mega menüsündeki öne çıkan görsel: admin panelindeki ilk koleksiyon kartı
+  const featuredItem = uiConfig.collectionMosaic?.items?.[0];
+  const featured = featuredItem ? { image: featuredItem.image, title: featuredItem.title, link: featuredItem.link || "/koleksiyon/tum-urunler" } : null;
 
   return (
     <html lang="tr" className={`${display.variable} ${sans.variable}`}>
       <body className="font-sans antialiased min-h-screen flex flex-col overflow-x-hidden">
         <Providers>
           <MainLayout
-            navbar={<Navbar phoneNumber={settings.phoneNumber} whatsappNumber={settings.whatsappNumber} categories={categories.filter(c => c.isActive)} />}
+            navbar={<Navbar phoneNumber={settings.phoneNumber} whatsappNumber={settings.whatsappNumber} categories={categories.filter(c => c.isActive)} featured={featured} />}
             footer={<Footer />}
             whatsapp={<FloatingWhatsapp whatsappNumber={settings.whatsappNumber} />}
           >

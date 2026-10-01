@@ -23,7 +23,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${siteUrl}/iletisim`, lastModified: now, changeFrequency: "monthly", priority: 0.7 },
     { url: `${siteUrl}/subelerimiz`, lastModified: now, changeFrequency: "monthly", priority: 0.7 },
     { url: `${siteUrl}/hakkimizda`, lastModified: now, changeFrequency: "yearly", priority: 0.5 },
-    { url: `${siteUrl}/bulten`, lastModified: now, changeFrequency: "daily", priority: 0.5 },
+    { url: `${siteUrl}/piyasa`, lastModified: now, changeFrequency: "daily", priority: 0.5 },
     { url: `${siteUrl}/gizlilik-ve-kvkk`, lastModified: now, changeFrequency: "yearly", priority: 0.2 },
     { url: `${siteUrl}/koleksiyon/pirlanta`, lastModified: now, changeFrequency: "weekly", priority: 0.9 },
     { url: `${siteUrl}/koleksiyon/altin-22`, lastModified: now, changeFrequency: "weekly", priority: 0.9 },

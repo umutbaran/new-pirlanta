@@ -6,6 +6,10 @@ const nextConfig: NextConfig = {
     remotePatterns: ALLOWED_IMAGE_HOSTS.map(hostname => ({ protocol: 'https' as const, hostname })),
   },
   serverExternalPackages: ['@prisma/client'],
+  // Eski "Piyasa Analiz" adresi yeni piyasa sayfasına kalıcı olarak yönlenir
+  async redirects() {
+    return [{ source: '/bulten', destination: '/piyasa', permanent: true }];
+  },
   async headers() {
     return [
       {

@@ -2,6 +2,26 @@ import { Prisma } from '@prisma/client';
 import prisma from './prisma';
 import { parseSafeNumber } from './utils';
 import { deleteStorageFiles } from './supabase';
+import { unstable_cache } from 'next/cache';
+
+/** Tüm site verisi bu etiketle önbelleklenir; admin kayıtlarında revalidateTag ile temizlenir */
+export const SITE_CACHE_TAG = 'site';
+
+/**
+ * Okuma sorgularını sunucu tarafında önbellekler (veritabanı gecikmesi ~400ms olduğu için).
+ * Sorgu hata verirse yedek değer döner ama önbelleğe yazılmaz; bir sonraki istekte tekrar denenir.
+ */
+function cachedQuery<A extends unknown[], R>(name: string, query: (...args: A) => Promise<R>, fallback: R) {
+  const cached = unstable_cache(query, ['db', name], { tags: [SITE_CACHE_TAG], revalidate: 3600 });
+  return async (...args: A): Promise<R> => {
+    try {
+      return await cached(...args);
+    } catch (err) {
+      console.error(`Database error [${name}]:`, err);
+      return fallback;
+    }
+  };
+}
 import type { 
   HeroSlide, MosaicItem, InfoCard, StoreItem, 
   FooterLink, UiConfig, BulletinItem 
@@ -59,40 +79,25 @@ function mapPrismaToProduct(p: Record<string, unknown>): Product {
 }
 
 // --- Products ---
-export async function getProducts(limit?: number): Promise<Product[]> {
-  try {
-    const products = await prisma.product.findMany({
-      orderBy: { createdAt: 'desc' },
-      ...(limit ? { take: limit } : {})
-    });
-    return products.map((p) => mapPrismaToProduct(p as Record<string, unknown>));
-  } catch (err) {
-    console.error('Database error [getProducts]:', err);
-    return [];
-  }
-}
+export const getProducts = cachedQuery('getProducts', async (limit?: number): Promise<Product[]> => {
+  const products = await prisma.product.findMany({
+    orderBy: { createdAt: 'desc' },
+    ...(limit ? { take: limit } : {})
+  });
+  return products.map((p) => mapPrismaToProduct(p as Record<string, unknown>));
+}, []);
 
-export async function getProductById(id: string) {
-  try {
-    const product = await prisma.product.findUnique({ where: { id } });
-    return product ? mapPrismaToProduct(product as Record<string, unknown>) : null;
-  } catch (err) {
-    console.error('Database error [getProductById]:', err);
-    return null;
-  }
-}
+export const getProductById = cachedQuery('getProductById', async (id: string) => {
+  const product = await prisma.product.findUnique({ where: { id } });
+  return product ? mapPrismaToProduct(product as Record<string, unknown>) : null;
+}, null);
 
-export async function getProductsByIds(ids: string[]): Promise<Product[]> {
-  try {
-    const products = await prisma.product.findMany({
-      where: { id: { in: ids } }
-    });
-    return products.map((p) => mapPrismaToProduct(p as Record<string, unknown>));
-  } catch (err) {
-    console.error('Database error [getProductsByIds]:', err);
-    return [];
-  }
-}
+export const getProductsByIds = cachedQuery('getProductsByIds', async (ids: string[]): Promise<Product[]> => {
+  const products = await prisma.product.findMany({
+    where: { id: { in: ids } }
+  });
+  return products.map((p) => mapPrismaToProduct(p as Record<string, unknown>));
+}, []);
 
 export async function addProduct(p: Record<string, unknown>) {
   return prisma.product.create({
@@ -121,30 +126,25 @@ const FALLBACK_SETTINGS: SiteSettings = {
   currency: "TRY"
 };
 
-export async function getSettings(): Promise<SiteSettings> {
-  try {
-    const settings = await prisma.settings.findFirst();
-    if (!settings) return FALLBACK_SETTINGS;
-    return {
-      siteTitle: settings.siteTitle,
-      contactEmail: settings.contactEmail || FALLBACK_SETTINGS.contactEmail,
-      phoneNumber: settings.phoneNumber || FALLBACK_SETTINGS.phoneNumber,
-      whatsappNumber: settings.whatsappNumber || FALLBACK_SETTINGS.whatsappNumber,
-      address: settings.address || FALLBACK_SETTINGS.address,
-      currency: settings.currency
-    };
-  } catch (err) {
-    console.error('Database error [getSettings]:', err);
-    return FALLBACK_SETTINGS;
-  }
-}
+export const getSettings = cachedQuery('getSettings', async (): Promise<SiteSettings> => {
+  const settings = await prisma.settings.findFirst();
+  if (!settings) return FALLBACK_SETTINGS;
+  return {
+    siteTitle: settings.siteTitle,
+    contactEmail: settings.contactEmail || FALLBACK_SETTINGS.contactEmail,
+    phoneNumber: settings.phoneNumber || FALLBACK_SETTINGS.phoneNumber,
+    whatsappNumber: settings.whatsappNumber || FALLBACK_SETTINGS.whatsappNumber,
+    address: settings.address || FALLBACK_SETTINGS.address,
+    currency: settings.currency
+  };
+}, FALLBACK_SETTINGS);
 
 // --- UI Config ---
 const FALLBACK_UI_CONFIG: UiConfig = {
   heroSlides: [
     {
       id: "slide_1",
-      image: "https://images.unsplash.com/photo-1599643478514-4a4e98f6d654?q=80&w=2000&auto=format&fit=crop",
+      image: "https://hvhbvhowpxbihtfzxcoh.supabase.co/storage/v1/object/public/products/site/hero-pirlanta.webp",
       title: "Eşsiz Pırlanta Koleksiyonu",
       subtitle: "Işıltınızı yansıtacak en özel parçalar",
       buttonText: "Koleksiyonu Keşfet",
@@ -152,7 +152,7 @@ const FALLBACK_UI_CONFIG: UiConfig = {
     },
     {
       id: "slide_2",
-      image: "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?q=80&w=2000&auto=format&fit=crop",
+      image: "https://hvhbvhowpxbihtfzxcoh.supabase.co/storage/v1/object/public/products/site/hero-altin.webp",
       title: "Yeni Sezon Altınlar",
       subtitle: "Modern tasarımlarla geleneği keşfedin",
       buttonText: "Alışverişe Başla",
@@ -164,14 +164,14 @@ const FALLBACK_UI_CONFIG: UiConfig = {
     description: "Her parçasında ayrı bir hikaye barındıran eşsiz tasarımlar.",
     items: [
       {
-        image: "https://images.unsplash.com/photo-1573408301145-b98c414a0d92?q=80&w=1000&auto=format&fit=crop",
+        image: "https://hvhbvhowpxbihtfzxcoh.supabase.co/storage/v1/object/public/products/site/koleksiyon-pirlanta.webp",
         title: "Pırlanta Tasarımlar",
         subtitle: "PREMIUM SELECT",
         link: "/koleksiyon/pirlanta",
         buttonText: "Koleksiyonu Keşfet"
       },
       {
-        image: "https://images.unsplash.com/photo-1601121141461-9d6647bca1ed?q=80&w=1000&auto=format&fit=crop",
+        image: "https://hvhbvhowpxbihtfzxcoh.supabase.co/storage/v1/object/public/products/site/koleksiyon-altin.webp",
         title: "Altın Koleksiyonu",
         subtitle: "14 ve 22 Ayar Modeller",
         link: "/koleksiyon/altin-14",
@@ -184,21 +184,21 @@ const FALLBACK_UI_CONFIG: UiConfig = {
     subtitle: "BİLGİ MERKEZİ",
     cards: [
       {
-        image: "https://images.unsplash.com/photo-1584302179602-e4c3d3fd629d?q=80&w=800&auto=format&fit=crop",
+        image: "https://hvhbvhowpxbihtfzxcoh.supabase.co/storage/v1/object/public/products/site/rehber-pirlanta.webp",
         title: "Pırlanta Rehberi",
         description: "4C kuralı (Kesim, Karat, Renk, Berraklık) hakkında bilmeniz gereken her şey.",
         buttonText: "İncele",
         link: "#"
       },
       {
-        image: "https://images.unsplash.com/photo-1605100804763-247f67b3557e?q=80&w=800&auto=format&fit=crop",
+        image: "https://hvhbvhowpxbihtfzxcoh.supabase.co/storage/v1/object/public/products/site/rehber-yuzuk.webp",
         title: "Yüzük Ölçüsü",
         description: "Evde kolayca yüzük ölçünüzü nasıl alabileceğinizi öğrenin.",
         buttonText: "Hesapla",
         link: "#"
       },
       {
-        image: "https://images.unsplash.com/photo-1549439602-43ebca2327af?q=80&w=800&auto=format&fit=crop",
+        image: "https://hvhbvhowpxbihtfzxcoh.supabase.co/storage/v1/object/public/products/site/rehber-hediye.webp",
         title: "Hediye Rehberi",
         description: "Sevdikleriniz için en anlamlı ve unutulmaz hediyeyi seçmenize yardımcı olalım.",
         buttonText: "Keşfet",
@@ -216,22 +216,17 @@ const FALLBACK_UI_CONFIG: UiConfig = {
       { label: "Hakkımızda", url: "/hakkimizda" },
       { label: "Mağazalarımız", url: "/subelerimiz" },
       { label: "İletişim", url: "/iletisim" },
-      { label: "Piyasa Analiz", url: "/bulten" }
+      { label: "Piyasa Analiz", url: "/piyasa" }
     ],
     customerServiceLinks: []
   }
 };
 
-export async function getUiConfig(): Promise<UiConfig> {
-  try {
-    const data = await prisma.uiConfig.findFirst({ where: { id: 1 } });
-    if (!data) return FALLBACK_UI_CONFIG;
-    return data.config as unknown as UiConfig;
-  } catch (err) {
-    console.error('Database error [getUiConfig]:', err);
-    return FALLBACK_UI_CONFIG;
-  }
-}
+export const getUiConfig = cachedQuery('getUiConfig', async (): Promise<UiConfig> => {
+  const data = await prisma.uiConfig.findFirst({ where: { id: 1 } });
+  if (!data) return FALLBACK_UI_CONFIG;
+  return data.config as unknown as UiConfig;
+}, FALLBACK_UI_CONFIG);
 
 export async function saveUiConfig(u: UiConfig) {
   return prisma.uiConfig.upsert({
@@ -242,22 +237,17 @@ export async function saveUiConfig(u: UiConfig) {
 }
 
 // --- Categories ---
-export async function getCategories(): Promise<CategoryData[]> {
-  try {
-    const cats = await prisma.category.findMany({ orderBy: { name: 'asc' } });
-    return cats.map(c => ({
-      id: c.id,
-      name: c.name,
-      slug: c.slug,
-      isActive: c.isActive,
-      isSpecial: c.isSpecial,
-      subCategories: (c.subCategories as {name: string, slug: string}[]) || []
-    }));
-  } catch (err) {
-    console.error('Database error [getCategories]:', err);
-    return [];
-  }
-}
+export const getCategories = cachedQuery('getCategories', async (): Promise<CategoryData[]> => {
+  const cats = await prisma.category.findMany({ orderBy: { name: 'asc' } });
+  return cats.map(c => ({
+    id: c.id,
+    name: c.name,
+    slug: c.slug,
+    isActive: c.isActive,
+    isSpecial: c.isSpecial,
+    subCategories: (c.subCategories as {name: string, slug: string}[]) || []
+  }));
+}, []);
 
 /** Kullanıcıya gösterilebilecek (iş kuralı kaynaklı) kategori hatası */
 export class CategoryRuleError extends Error {}
@@ -350,7 +340,7 @@ export interface CatalogFilters {
   limit?: number;
 }
 
-export async function getCatalogProducts(filters: CatalogFilters): Promise<Product[]> {
+export const getCatalogProducts = cachedQuery('getCatalogProducts', async (filters: CatalogFilters): Promise<Product[]> => {
   const { category, search, minPrice, maxPrice, limit } = filters;
   const where: Prisma.ProductWhereInput = {};
 
@@ -373,18 +363,13 @@ export async function getCatalogProducts(filters: CatalogFilters): Promise<Produ
     };
   }
 
-  try {
-    const products = await prisma.product.findMany({
-      where,
-      orderBy: { createdAt: 'desc' },
-      ...(limit ? { take: limit } : {})
-    });
-    return products.map((p) => mapPrismaToProduct(p as Record<string, unknown>));
-  } catch (err) {
-    console.error('Database error [getCatalogProducts]:', err);
-    return [];
-  }
-}
+  const products = await prisma.product.findMany({
+    where,
+    orderBy: { createdAt: 'desc' },
+    ...(limit ? { take: limit } : {})
+  });
+  return products.map((p) => mapPrismaToProduct(p as Record<string, unknown>));
+}, []);
 
 // --- Save Settings ---
 export async function saveSettings(s: SiteSettings) {

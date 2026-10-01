@@ -10,7 +10,7 @@ import type { HeroSlide } from '@/lib/db';
 const FALLBACK_SLIDES: HeroSlide[] = [
   {
     id: "1",
-    image: "https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&q=80",
+    image: "https://hvhbvhowpxbihtfzxcoh.supabase.co/storage/v1/object/public/products/site/rehber-yuzuk.webp",
     title: "Sonsuza Dek Birlikte",
     subtitle: "Alyans Koleksiyonu",
     buttonText: "Koleksiyonu Keşfet",

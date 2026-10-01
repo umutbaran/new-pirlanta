@@ -146,7 +146,8 @@
 
   /* Cormorant varsayılan olarak "eski usul" rakam kullanır; ürün adlarında (0.70 Karat, 14 Ayar) düz rakam daha okunaklı */
   h1, h2, h3, h4, h5, h6, .font-display {
-    font-variant-numeric: lining-nums;
+    /* font-feature-settings: tabular-nums gibi utility'ler font-variant-numeric'i ezse de korunur */
+    font-feature-settings: "lnum" 1;
   }
 
   ::selection {
@@ -158,6 +159,17 @@
     outline: 1px solid var(--color-ink);
     outline-offset: 3px;
   }
+}
+
+/* TradingView widget'ları: iframe kapsayıcının yüksekliğini tamamen doldursun (varsayılan 150px kalıyor) */
+.tradingview-widget-container,
+.tradingview-widget-container > div {
+  height: 100%;
+}
+.tradingview-widget-container iframe {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
 }
 
 @media (prefers-reduced-motion: reduce) {

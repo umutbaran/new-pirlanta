@@ -1,10 +1,17 @@
 import Link from "next/link";
-import { ArrowRight, Phone, MapPin, MessageCircle } from "lucide-react";
+import { ArrowRight, Phone, MapPin, MessageCircle, Calculator } from "lucide-react";
 import { getProducts, getUiConfig, getProductsByIds, getSettings, getCategories, type Product } from "@/lib/db";
 import ProductCard from "@/components/ProductCard";
 import HeroSlider from "@/components/HeroSlider";
 import SmartImage from "@/components/SmartImage";
 import { telHref, whatsappLink } from "@/lib/utils";
+import { getRates, type RatesResult } from "@/lib/gold-rates";
+import { MarketDataProvider } from "@/components/market/MarketDataProvider";
+import KeyStats from "@/components/market/KeyStats";
+import { MiniChart } from "@/components/market/TradingViewWidgets";
+
+// Ana sayfadaki piyasa özeti için fiyatlar en geç 5 dakikada bir yenilenir
+export const revalidate = 300;
 
 function SectionHeading({ eyebrow, title, description, align = 'center' }: { eyebrow?: string; title: string; description?: string; align?: 'center' | 'left' }) {
   return (
@@ -19,7 +26,10 @@ function SectionHeading({ eyebrow, title, description, align = 'center' }: { eye
 const isRealLink = (link?: string) => !!link && link.trim() !== '#';
 
 export default async function Home() {
-  const [uiConfig, settings, categories] = await Promise.all([getUiConfig(), getSettings(), getCategories()]);
+  const [uiConfig, settings, categories, rates] = await Promise.all([
+    getUiConfig(), getSettings(), getCategories(),
+    getRates().catch((): RatesResult | null => null),
+  ]);
 
   // Vitrin: admin panelinde seçilen ürünler; seçim yoksa en yeni 8 ürün
   let showcaseProducts: Product[] = [];
@@ -37,6 +47,38 @@ export default async function Home() {
   return (
     <>
       <HeroSlider slides={uiConfig.heroSlides} />
+
+      {/* CANLI PİYASA ÖZETİ */}
+      <MarketDataProvider initial={rates}>
+        <section className="py-16 md:py-24 bg-ivory border-b border-line">
+          <div className="container-lux grid lg:grid-cols-12 gap-10 lg:gap-16 items-center">
+            <div className="lg:col-span-4">
+              <p className="eyebrow text-gold-deep mb-4 flex items-center gap-2">
+                <span className="relative flex h-2 w-2" aria-hidden><span className="absolute inline-flex h-full w-full rounded-full bg-[#2F7A4B] opacity-50 animate-ping" /><span className="relative inline-flex h-2 w-2 rounded-full bg-[#2F7A4B]" /></span>
+                Canlı Piyasa
+              </p>
+              <h2 className="font-display text-4xl md:text-5xl leading-tight text-ink">Altını ve kurları anlık takip edin</h2>
+              <p className="mt-5 text-ink-soft leading-relaxed">
+                Gram, çeyrek, cumhuriyet altını ve döviz fiyatları; grafikler, ekonomik takvim ve altın hesaplama aracı tek bir yerde.
+              </p>
+              <div className="mt-8 flex flex-wrap gap-3">
+                <Link href="/piyasa" className="btn-primary">Piyasayı İncele <ArrowRight className="h-4 w-4" strokeWidth={1.4} /></Link>
+                <Link href="/piyasa#hesaplayici" className="btn-outline"><Calculator className="h-4 w-4" strokeWidth={1.4} /> Altın Hesapla</Link>
+              </div>
+            </div>
+            <div className="lg:col-span-8 space-y-px">
+              <KeyStats tone="light" keys={['GRAM', 'CEYREK', 'USD', 'EUR']} />
+              <div className="bg-white border border-line p-4 md:p-6">
+                <div className="flex items-center justify-between mb-2">
+                  <p className="eyebrow !text-[10px] text-muted">Gram Altın · Son 1 Ay</p>
+                  <Link href="/piyasa#grafik" className="text-xs text-ink-soft hover:text-ink">Detaylı grafik →</Link>
+                </div>
+                <MiniChart />
+              </div>
+            </div>
+          </div>
+        </section>
+      </MarketDataProvider>
 
       {/* KOLEKSİYONLAR */}
       <section className="py-20 md:py-28">

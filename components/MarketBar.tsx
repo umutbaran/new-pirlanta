@@ -53,7 +53,7 @@ export default function MarketBar() {
           ))}
           {rates === null && <li className="text-white/40">Piyasa verileri yükleniyor…</li>}
         </ul>
-        <Link href="/bulten" className="hidden md:inline shrink-0 text-white/60 hover:text-white transition-colors eyebrow !text-[10px]">
+        <Link href="/piyasa" className="hidden md:inline shrink-0 text-white/60 hover:text-white transition-colors eyebrow !text-[10px]">
           Tüm Piyasa →
         </Link>
       </div>

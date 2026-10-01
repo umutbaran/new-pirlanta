@@ -4,68 +4,63 @@ import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
-import { Menu, Search, Heart, X, ChevronDown, Phone, MessageCircle } from 'lucide-react';
+import { Menu, Search, Heart, X, ChevronDown, Phone, MessageCircle, LineChart, CandlestickChart, Calculator, CalendarDays, Newspaper, ArrowRight } from 'lucide-react';
 import type { CategoryData as Category } from '@/lib/db';
 import { useFavorites } from '@/context/FavoritesContext';
 import { telHref, whatsappLink } from '@/lib/utils';
 import { track } from '@/lib/track';
 import MarketBar from './MarketBar';
+import SmartImage from './SmartImage';
 
 interface NavbarProps {
   phoneNumber: string;
   whatsappNumber: string;
   categories: Category[]; // Sunucuda çekilir; sadece aktif kategoriler gönderilir
+  featured?: { image: string; title: string; link: string } | null;
 }
 
-const SECONDARY_LINKS = [
-  { href: '/subelerimiz', label: 'Mağazalar' },
-  { href: '/bulten', label: 'Piyasa' },
-  { href: '/iletisim', label: 'İletişim' },
+const MARKET_LINKS = [
+  { href: '/piyasa#fiyatlar', label: 'Canlı Fiyatlar', desc: 'Altın, döviz ve değerli madenler', icon: LineChart },
+  { href: '/piyasa#grafik', label: 'Grafikler', desc: 'Gram altın, ons ve kur hareketleri', icon: CandlestickChart },
+  { href: '/piyasa#hesaplayici', label: 'Altın Hesaplama', desc: 'Birikiminizin güncel değeri', icon: Calculator },
+  { href: '/piyasa#takvim', label: 'Ekonomik Takvim', desc: 'Piyasayı etkileyecek veriler', icon: CalendarDays },
+  { href: '/piyasa#notlar', label: 'Piyasa Notları', desc: 'Uzman değerlendirmeleri', icon: Newspaper },
 ];
 
-const MOBILE_LINKS = [
-  { href: '/koleksiyon/tum-urunler', label: 'Tüm Ürünler' },
-  { href: '/bulten', label: 'Piyasa Analiz' },
-  { href: '/subelerimiz', label: 'Mağazalarımız' },
-  { href: '/hakkimizda', label: 'Hakkımızda' },
-  { href: '/iletisim', label: 'İletişim' },
-];
+type MenuId = 'koleksiyonlar' | 'piyasa' | null;
 
-function FavoritesLink({ count }: { count: number }) {
-  return (
-    <Link href="/favoriler" className="relative p-2 -m-2 text-ink hover:text-gold-deep transition-colors" aria-label={`Favorilerim (${count})`}>
-      <Heart className="h-[19px] w-[19px]" strokeWidth={1.4} />
-      {count > 0 && (
-        <span className="absolute top-0 right-0 min-w-4 h-4 px-1 rounded-full bg-ink text-white text-[9px] leading-4 text-center tabular-nums">
-          {count}
-        </span>
-      )}
-    </Link>
-  );
+const tabClass = (active: boolean) =>
+  `relative h-full flex items-center gap-1 eyebrow !text-[11px] transition-colors ${active ? 'text-ink' : 'text-ink-soft hover:text-ink'}`;
+
+function ActiveLine({ active }: { active: boolean }) {
+  return <span className={`absolute left-0 right-0 -bottom-px h-px bg-gold transition-transform duration-500 origin-left ${active ? 'scale-x-100' : 'scale-x-0'}`} />;
 }
 
-export default function Navbar({ phoneNumber, whatsappNumber, categories }: NavbarProps) {
+export default function Navbar({ phoneNumber, whatsappNumber, categories, featured }: NavbarProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [openMega, setOpenMega] = useState<MenuId>(null);
+  const [openMobile, setOpenMobile] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [openSub, setOpenSub] = useState<string | null>(null);
   const { favorites } = useFavorites();
   const router = useRouter();
   const pathname = usePathname();
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Sayfa değişince açık panelleri kapat
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsMenuOpen(false);
     setIsSearchOpen(false);
+    setOpenMega(null);
   }, [pathname]);
 
   // Mobil menü açıkken sayfa kaydırılmasın; Escape ile paneller kapansın
   useEffect(() => {
     document.body.style.overflow = isMenuOpen ? 'hidden' : '';
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') { setIsMenuOpen(false); setIsSearchOpen(false); }
+      if (e.key === 'Escape') { setIsMenuOpen(false); setIsSearchOpen(false); setOpenMega(null); }
     };
     window.addEventListener('keydown', onKey);
     return () => { document.body.style.overflow = ''; window.removeEventListener('keydown', onKey); };
@@ -74,6 +69,10 @@ export default function Navbar({ phoneNumber, whatsappNumber, categories }: Navb
   useEffect(() => {
     if (isSearchOpen) searchInputRef.current?.focus();
   }, [isSearchOpen]);
+
+  // Mega menü: fare sekmeden panele geçerken kapanmasın diye kısa gecikmeyle kapanır
+  const openMenu = (id: MenuId) => { if (closeTimer.current) clearTimeout(closeTimer.current); setOpenMega(id); if (id) setIsSearchOpen(false); };
+  const scheduleClose = () => { closeTimer.current = setTimeout(() => setOpenMega(null), 150); };
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -85,82 +84,131 @@ export default function Navbar({ phoneNumber, whatsappNumber, categories }: Navb
     setIsSearchOpen(false);
   };
 
-  const isActive = (slug: string) => pathname === `/koleksiyon/${slug}`;
+  const inCollections = (pathname.startsWith('/koleksiyon') && pathname !== '/koleksiyon/yeni') || pathname.startsWith('/urun');
+  const regularCategories = categories.filter(c => !c.isSpecial);
 
   return (
     <>
       <MarketBar />
 
-      <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-line">
-        {/* 1. SATIR: menü butonu / yardımcı linkler · logo · ikonlar */}
+      <header className="sticky top-0 z-50 bg-white border-b border-line" onMouseLeave={scheduleClose}>
+        {/* 1. SATIR: iletişim · logo · ikonlar */}
         <div className="container-lux h-16 lg:h-[72px] grid grid-cols-[1fr_auto_1fr] items-center">
-          <div className="flex items-center">
+          <div className="flex items-center gap-6">
             <button onClick={() => setIsMenuOpen(true)} className="lg:hidden p-2 -ml-2 text-ink" aria-label="Menüyü aç">
               <Menu className="h-[22px] w-[22px]" strokeWidth={1.4} />
             </button>
-            <nav className="hidden lg:flex items-center gap-7" aria-label="Site">
-              {SECONDARY_LINKS.map(l => (
-                <Link key={l.href} href={l.href} className={`eyebrow !text-[10px] transition-colors ${pathname === l.href ? 'text-gold-deep' : 'text-ink-soft hover:text-ink'}`}>
-                  {l.label}
-                </Link>
-              ))}
-            </nav>
+            <a href={telHref(phoneNumber)} className="hidden lg:flex items-center gap-2 text-xs text-ink-soft hover:text-ink transition-colors tabular-nums">
+              <Phone className="h-3.5 w-3.5" strokeWidth={1.4} /> {phoneNumber}
+            </a>
+            <a href={whatsappLink(whatsappNumber, 'Merhaba, bilgi almak istiyorum.')} target="_blank" rel="noopener noreferrer" className="hidden xl:flex items-center gap-2 text-xs text-ink-soft hover:text-ink transition-colors">
+              <MessageCircle className="h-3.5 w-3.5" strokeWidth={1.4} /> WhatsApp
+            </a>
           </div>
 
           <Link href="/" className="justify-self-center" aria-label="New Pırlanta ana sayfa">
-            <Image
-              src="/assets/logo-wordmark.png"
-              alt="New Pırlanta"
-              width={1200}
-              height={311}
-              priority
-              className="h-8 lg:h-10 w-auto"
-            />
+            <Image src="/assets/logo-wordmark.png" alt="New Pırlanta" width={1200} height={311} priority className="h-8 lg:h-10 w-auto" />
           </Link>
 
           <div className="flex items-center justify-end gap-5 lg:gap-7">
-            <button onClick={() => setIsSearchOpen(v => !v)} className="p-2 -m-2 text-ink hover:text-gold-deep transition-colors" aria-label="Ürün ara" aria-expanded={isSearchOpen}>
+            <button onClick={() => { setIsSearchOpen(v => !v); setOpenMega(null); }} className="p-2 -m-2 text-ink hover:text-gold-deep transition-colors" aria-label="Ürün ara" aria-expanded={isSearchOpen}>
               <Search className="h-[19px] w-[19px]" strokeWidth={1.4} />
             </button>
-            <FavoritesLink count={favorites.length} />
+            <Link href="/favoriler" className="relative p-2 -m-2 text-ink hover:text-gold-deep transition-colors" aria-label={`Favorilerim (${favorites.length})`}>
+              <Heart className="h-[19px] w-[19px]" strokeWidth={1.4} />
+              {favorites.length > 0 && (
+                <span className="absolute top-0 right-0 min-w-4 h-4 px-1 rounded-full bg-ink text-white text-[9px] leading-4 text-center tabular-nums">{favorites.length}</span>
+              )}
+            </Link>
           </div>
         </div>
 
-        {/* 2. SATIR (masaüstü): ortalanmış koleksiyon menüsü */}
-        <nav className="hidden lg:flex justify-center items-center gap-10 h-11 border-t border-line/70 whitespace-nowrap" aria-label="Koleksiyonlar">
-          {categories.map(cat => (
-            <div key={cat.id} className="relative group h-full flex items-center">
-              <Link
-                href={`/koleksiyon/${cat.slug}`}
-                className={`eyebrow !text-[11px] flex items-center gap-1 transition-colors ${isActive(cat.slug) ? 'text-gold-deep' : 'text-ink hover:text-gold-deep'}`}
-              >
-                {cat.name}
-                {cat.subCategories.length > 0 && <ChevronDown className="h-3 w-3 opacity-50 transition-transform group-hover:rotate-180" />}
-              </Link>
-              {/* Altın çizgi: aktif sayfa veya üzerine gelince */}
-              <span className={`absolute -bottom-px left-0 h-px bg-gold transition-all duration-500 ${isActive(cat.slug) ? 'w-full' : 'w-0 group-hover:w-full'}`} />
-
-              {cat.subCategories.length > 0 && (
-                <div className="absolute top-full left-1/2 -translate-x-1/2 pt-px opacity-0 invisible group-hover:opacity-100 group-hover:visible group-focus-within:opacity-100 group-focus-within:visible transition-all duration-300">
-                  <div className="bg-white border border-line shadow-[0_20px_40px_-20px_rgba(0,0,0,0.15)] min-w-[220px] py-4">
-                    <Link href={`/koleksiyon/${cat.slug}`} className="block px-6 py-2 text-[13px] text-ink font-medium hover:bg-ivory">
-                      Tümünü Gör
-                    </Link>
-                    <div className="h-px bg-line mx-6 my-2" />
-                    {cat.subCategories.map(sub => (
-                      <Link key={sub.slug} href={`/koleksiyon/${cat.slug}?subCategory=${sub.slug}`} className="block px-6 py-2 text-[13px] text-ink-soft hover:text-ink hover:bg-ivory transition-colors">
-                        {sub.name}
-                      </Link>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          ))}
-          <Link href="/koleksiyon/tum-urunler" className={`eyebrow !text-[11px] transition-colors ${pathname === '/koleksiyon/tum-urunler' ? 'text-gold-deep' : 'text-ink hover:text-gold-deep'}`}>
-            Tüm Ürünler
+        {/* 2. SATIR (masaüstü): ana sekmeler */}
+        <nav className="hidden lg:flex justify-center items-center gap-10 h-11 border-t border-line/70 whitespace-nowrap" aria-label="Ana menü">
+          <Link href="/" className={tabClass(pathname === '/')} onMouseEnter={() => openMenu(null)}>
+            Anasayfa<ActiveLine active={pathname === '/'} />
+          </Link>
+          <button type="button" className={tabClass(inCollections || openMega === 'koleksiyonlar')} aria-expanded={openMega === 'koleksiyonlar'}
+            onMouseEnter={() => openMenu('koleksiyonlar')} onClick={() => setOpenMega(openMega === 'koleksiyonlar' ? null : 'koleksiyonlar')}>
+            Koleksiyonlar <ChevronDown className={`h-3 w-3 opacity-60 transition-transform ${openMega === 'koleksiyonlar' ? 'rotate-180' : ''}`} />
+            <ActiveLine active={inCollections || openMega === 'koleksiyonlar'} />
+          </button>
+          <Link href="/koleksiyon/yeni" className={tabClass(pathname === '/koleksiyon/yeni')} onMouseEnter={() => openMenu(null)}>
+            Yeni Gelenler<ActiveLine active={pathname === '/koleksiyon/yeni'} />
+          </Link>
+          <button type="button" className={tabClass(pathname.startsWith('/piyasa') || openMega === 'piyasa')} aria-expanded={openMega === 'piyasa'}
+            onMouseEnter={() => openMenu('piyasa')} onClick={() => setOpenMega(openMega === 'piyasa' ? null : 'piyasa')}>
+            <span className="relative flex h-1.5 w-1.5 mr-1" aria-hidden><span className="absolute inline-flex h-full w-full rounded-full bg-[#2F7A4B] opacity-50 animate-ping" /><span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-[#2F7A4B]" /></span>
+            Piyasa <ChevronDown className={`h-3 w-3 opacity-60 transition-transform ${openMega === 'piyasa' ? 'rotate-180' : ''}`} />
+            <ActiveLine active={pathname.startsWith('/piyasa') || openMega === 'piyasa'} />
+          </button>
+          <Link href="/subelerimiz" className={tabClass(pathname === '/subelerimiz')} onMouseEnter={() => openMenu(null)}>
+            Mağazalar<ActiveLine active={pathname === '/subelerimiz'} />
+          </Link>
+          <Link href="/iletisim" className={tabClass(pathname === '/iletisim')} onMouseEnter={() => openMenu(null)}>
+            İletişim<ActiveLine active={pathname === '/iletisim'} />
           </Link>
         </nav>
+
+        {/* MEGA MENÜ: Koleksiyonlar */}
+        <div
+          className={`hidden lg:block absolute inset-x-0 top-full bg-white border-b border-line shadow-[0_30px_60px_-30px_rgba(0,0,0,0.18)] transition-all duration-300 ${openMega === 'koleksiyonlar' ? 'opacity-100 visible translate-y-0' : 'opacity-0 invisible -translate-y-1'}`}
+          onMouseEnter={() => openMenu('koleksiyonlar')}
+        >
+          <div className="container-lux py-10 grid grid-cols-12 gap-10">
+            <div className="col-span-8 grid grid-cols-4 gap-8">
+              {regularCategories.map(cat => (
+                <div key={cat.id}>
+                  <Link href={`/koleksiyon/${cat.slug}`} className="font-display text-2xl text-ink hover:text-gold-deep transition-colors">{cat.name}</Link>
+                  <ul className="mt-4 space-y-2.5">
+                    {cat.subCategories.map(sub => (
+                      <li key={sub.slug}>
+                        <Link href={`/koleksiyon/${cat.slug}?subCategory=${sub.slug}`} className="text-sm text-ink-soft hover:text-ink transition-colors">{sub.name}</Link>
+                      </li>
+                    ))}
+                    <li><Link href={`/koleksiyon/${cat.slug}`} className="text-sm text-gold-deep hover:text-ink transition-colors">Tümünü gör →</Link></li>
+                  </ul>
+                </div>
+              ))}
+              <div>
+                <p className="font-display text-2xl text-ink">Keşfet</p>
+                <ul className="mt-4 space-y-2.5">
+                  {categories.filter(c => c.isSpecial).map(c => (
+                    <li key={c.id}><Link href={`/koleksiyon/${c.slug}`} className="text-sm text-ink-soft hover:text-ink">{c.name}</Link></li>
+                  ))}
+                  <li><Link href="/koleksiyon/tum-urunler" className="text-sm text-ink-soft hover:text-ink">Tüm Ürünler</Link></li>
+                  <li><Link href="/favoriler" className="text-sm text-ink-soft hover:text-ink">Favorilerim</Link></li>
+                </ul>
+              </div>
+            </div>
+            {featured && (
+              <Link href={featured.link} className="col-span-4 group relative block aspect-[4/3] overflow-hidden bg-ivory">
+                <SmartImage src={featured.image} alt={featured.title} fill sizes="420px" loading="eager" className="object-cover transition-transform duration-[1200ms] group-hover:scale-105" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                <div className="absolute bottom-0 inset-x-0 p-6 text-white">
+                  <p className="font-display text-2xl">{featured.title}</p>
+                  <span className="link-underline mt-2 text-white">Keşfet <ArrowRight className="h-3.5 w-3.5" /></span>
+                </div>
+              </Link>
+            )}
+          </div>
+        </div>
+
+        {/* MEGA MENÜ: Piyasa */}
+        <div
+          className={`hidden lg:block absolute inset-x-0 top-full bg-white border-b border-line shadow-[0_30px_60px_-30px_rgba(0,0,0,0.18)] transition-all duration-300 ${openMega === 'piyasa' ? 'opacity-100 visible translate-y-0' : 'opacity-0 invisible -translate-y-1'}`}
+          onMouseEnter={() => openMenu('piyasa')}
+        >
+          <div className="container-lux py-8 grid grid-cols-5 gap-4">
+            {MARKET_LINKS.map(({ href, label, desc, icon: Icon }) => (
+              <Link key={href} href={href} className="group p-5 border border-line hover:border-ink transition-colors">
+                <Icon className="h-5 w-5 text-gold" strokeWidth={1.2} />
+                <p className="mt-4 font-display text-xl text-ink">{label}</p>
+                <p className="mt-1 text-xs text-muted leading-relaxed">{desc}</p>
+              </Link>
+            ))}
+          </div>
+        </div>
 
         {/* ARAMA PANELİ */}
         <div className={`absolute inset-x-0 top-full bg-white border-b border-line transition-all duration-300 ${isSearchOpen ? 'opacity-100 visible' : 'opacity-0 invisible -translate-y-2'}`}>
@@ -173,7 +221,7 @@ export default function Navbar({ phoneNumber, whatsappNumber, categories }: Navb
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Ürün, koleksiyon veya stok kodu arayın"
               aria-label="Arama"
-              className="flex-1 bg-transparent font-display text-2xl lg:text-3xl text-ink placeholder:text-muted/60 outline-none"
+              className="flex-1 min-w-0 bg-transparent font-display text-2xl lg:text-3xl text-ink placeholder:text-muted/60 outline-none"
             />
             <button type="submit" className="hidden sm:inline-flex btn-primary !min-h-10">Ara</button>
             <button type="button" onClick={() => setIsSearchOpen(false)} className="p-2 text-muted hover:text-ink" aria-label="Aramayı kapat">
@@ -197,50 +245,51 @@ export default function Navbar({ phoneNumber, whatsappNumber, categories }: Navb
             </button>
           </div>
 
-          <nav className="flex-1 overflow-y-auto px-5 py-4">
-            <p className="eyebrow text-muted pt-2 pb-3">Koleksiyonlar</p>
-            <ul className="border-t border-line">
-              {categories.map(cat => (
-                <li key={cat.id} className="border-b border-line">
-                  <div className="flex items-center">
-                    <Link href={`/koleksiyon/${cat.slug}`} className="flex-1 py-4 font-display text-[22px] text-ink">
-                      {cat.name}
-                    </Link>
-                    {cat.subCategories.length > 0 && (
-                      <button
-                        onClick={() => setOpenSub(openSub === cat.id ? null : cat.id)}
-                        className="p-3 -mr-3 text-muted"
-                        aria-label={`${cat.name} alt kategorileri`}
-                        aria-expanded={openSub === cat.id}
-                      >
-                        <ChevronDown className={`h-4 w-4 transition-transform duration-300 ${openSub === cat.id ? 'rotate-180' : ''}`} />
-                      </button>
-                    )}
-                  </div>
-                  <div className={`grid transition-all duration-300 ${openSub === cat.id ? 'grid-rows-[1fr] pb-4' : 'grid-rows-[0fr]'}`}>
-                    <div className="overflow-hidden">
-                      <div className="grid grid-cols-2 gap-x-4 gap-y-3 pl-1">
-                        {cat.subCategories.map(sub => (
-                          <Link key={sub.slug} href={`/koleksiyon/${cat.slug}?subCategory=${sub.slug}`} className="text-sm text-ink-soft">
-                            {sub.name}
-                          </Link>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </li>
-              ))}
+          <nav className="flex-1 overflow-y-auto px-5 py-2">
+            <ul>
+              <li className="border-b border-line">
+                <Link href="/" className="block py-4 font-display text-[22px] text-ink">Anasayfa</Link>
+              </li>
+
+              <li className="border-b border-line">
+                <button onClick={() => setOpenMobile(openMobile === 'koleksiyonlar' ? null : 'koleksiyonlar')} className="w-full flex items-center justify-between py-4 font-display text-[22px] text-ink" aria-expanded={openMobile === 'koleksiyonlar'}>
+                  Koleksiyonlar <ChevronDown className={`h-4 w-4 text-muted transition-transform duration-300 ${openMobile === 'koleksiyonlar' ? 'rotate-180' : ''}`} />
+                </button>
+                <div className={`grid transition-all duration-300 ${openMobile === 'koleksiyonlar' ? 'grid-rows-[1fr] pb-4' : 'grid-rows-[0fr]'}`}>
+                  <ul className="overflow-hidden space-y-3 pl-1">
+                    {categories.map(cat => (
+                      <li key={cat.id}><Link href={`/koleksiyon/${cat.slug}`} className="text-[15px] text-ink-soft">{cat.name}</Link></li>
+                    ))}
+                    <li><Link href="/koleksiyon/tum-urunler" className="text-[15px] text-ink-soft">Tüm Ürünler</Link></li>
+                  </ul>
+                </div>
+              </li>
+
+              <li className="border-b border-line">
+                <Link href="/koleksiyon/yeni" className="block py-4 font-display text-[22px] text-ink">Yeni Gelenler</Link>
+              </li>
+
+              <li className="border-b border-line">
+                <button onClick={() => setOpenMobile(openMobile === 'piyasa' ? null : 'piyasa')} className="w-full flex items-center justify-between py-4 font-display text-[22px] text-ink" aria-expanded={openMobile === 'piyasa'}>
+                  <span className="flex items-center gap-2">Piyasa <span className="h-1.5 w-1.5 rounded-full bg-[#2F7A4B]" aria-hidden /></span>
+                  <ChevronDown className={`h-4 w-4 text-muted transition-transform duration-300 ${openMobile === 'piyasa' ? 'rotate-180' : ''}`} />
+                </button>
+                <div className={`grid transition-all duration-300 ${openMobile === 'piyasa' ? 'grid-rows-[1fr] pb-4' : 'grid-rows-[0fr]'}`}>
+                  <ul className="overflow-hidden space-y-3 pl-1">
+                    {MARKET_LINKS.map(l => (
+                      <li key={l.href}><Link href={l.href} onClick={() => setIsMenuOpen(false)} className="text-[15px] text-ink-soft">{l.label}</Link></li>
+                    ))}
+                  </ul>
+                </div>
+              </li>
+
+              <li className="border-b border-line"><Link href="/subelerimiz" className="block py-4 font-display text-[22px] text-ink">Mağazalar</Link></li>
+              <li className="border-b border-line"><Link href="/iletisim" className="block py-4 font-display text-[22px] text-ink">İletişim</Link></li>
             </ul>
 
-            <ul className="mt-8 space-y-4">
-              {MOBILE_LINKS.map(l => (
-                <li key={l.href}>
-                  <Link href={l.href} className="text-[15px] text-ink-soft">{l.label}</Link>
-                </li>
-              ))}
-              <li>
-                <Link href="/favoriler" className="text-[15px] text-ink-soft">Favorilerim ({favorites.length})</Link>
-              </li>
+            <ul className="mt-6 space-y-3 text-[15px] text-ink-soft">
+              <li><Link href="/hakkimizda">Hakkımızda</Link></li>
+              <li><Link href="/favoriler">Favorilerim ({favorites.length})</Link></li>
             </ul>
           </nav>
 
