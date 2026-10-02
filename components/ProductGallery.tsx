@@ -58,10 +58,10 @@ export default function ProductGallery({ images, productName }: ProductGalleryPr
               key={idx}
               type="button"
               onClick={() => { if (hasImages) { setSelected(idx); setLightbox(true); } }}
-              className="relative shrink-0 w-full aspect-[4/5] snap-center bg-ivory"
+              className="relative shrink-0 w-full aspect-square snap-center bg-ivory"
               aria-label={`${productName} görselini büyüt (${idx + 1}/${count})`}
             >
-              <SmartImage src={img} alt={`${productName} - ${idx + 1}`} fill priority={idx === 0} sizes="100vw" className="object-cover" />
+              <SmartImage src={img} alt={`${productName} - ${idx + 1}`} fill priority={idx === 0} sizes="100vw" className="object-contain" />
             </button>
           ))}
         </div>
@@ -85,16 +85,16 @@ export default function ProductGallery({ images, productName }: ProductGalleryPr
                 onClick={() => setSelected(idx)}
                 aria-label={`${idx + 1}. görsel`}
                 aria-current={selected === idx}
-                className={`relative aspect-[4/5] bg-ivory overflow-hidden transition-opacity ${selected === idx ? 'opacity-100 outline outline-1 outline-ink outline-offset-2' : 'opacity-50 hover:opacity-100'}`}
+                className={`relative aspect-square bg-ivory overflow-hidden transition-opacity ${selected === idx ? 'opacity-100 outline outline-1 outline-ink outline-offset-2' : 'opacity-50 hover:opacity-100'}`}
               >
-                <SmartImage src={img} alt="" fill sizes="72px" className="object-cover" />
+                <SmartImage src={img} alt="" fill sizes="72px" className="object-contain" />
               </button>
             ))}
           </div>
         )}
 
         <div
-          className={`relative aspect-[4/5] bg-ivory overflow-hidden group ${hasImages ? 'cursor-zoom-in' : ''}`}
+          className={`relative aspect-square bg-ivory overflow-hidden group ${hasImages ? 'cursor-zoom-in' : ''}`}
           onClick={() => hasImages && setLightbox(true)}
           onMouseMove={(e) => {
             if (!hasImages) return;
@@ -110,7 +110,7 @@ export default function ProductGallery({ images, productName }: ProductGalleryPr
             fill
             priority
             sizes="(max-width: 1280px) 55vw, 700px"
-            className="object-cover transition-transform duration-300 ease-out"
+            className="object-contain transition-transform duration-300 ease-out"
             style={zoom ? { transform: 'scale(1.8)', transformOrigin: `${zoom.x}% ${zoom.y}%` } : undefined}
           />
           {hasImages && (

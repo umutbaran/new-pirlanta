@@ -99,45 +99,48 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
       <TrackProductView productId={product.id} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }} />
 
-      <div className="container-lux pt-4 lg:pt-8">
-        <nav className="eyebrow !text-[10px] text-muted mb-4 lg:mb-8" aria-label="Sayfa yolu">
+      <div className="container-lux pt-4 lg:pt-6">
+        <nav className="eyebrow !text-[10px] text-muted mb-4 lg:mb-6" aria-label="Sayfa yolu">
           <Link href="/" className="hover:text-ink">Anasayfa</Link>
           <span className="mx-3">/</span>
           <Link href={`/koleksiyon/${product.category}`} className="hover:text-ink">{categoryName}</Link>
         </nav>
 
-        <div className="grid lg:grid-cols-12 gap-8 lg:gap-16 items-start">
+        <div
+          className="grid product-grid gap-8 lg:gap-14 items-start"
+          style={{ '--gallery-extra': product.images.length > 1 ? '88px' : '0px' } as React.CSSProperties}
+        >
           {/* Galeri */}
-          <div className="lg:col-span-7">
+          <div>
             <ProductGallery images={product.images} productName={product.name} />
           </div>
 
           {/* Ürün bilgileri */}
-          <div className="lg:col-span-5 lg:sticky lg:top-[150px]">
+          <div className="lg:sticky lg:top-[150px] lg:max-w-[600px]">
             <div className="flex items-start justify-between gap-4">
               <p className="eyebrow text-gold-deep">{categoryName}</p>
               <ShareButton title={product.name} />
             </div>
-            <h1 className="mt-3 font-display text-[38px] md:text-5xl leading-[1.1] text-ink">{product.name}</h1>
-            {product.sku && <p className="mt-3 text-xs text-muted tracking-wide">Stok Kodu: {product.sku}</p>}
+            <h1 className="mt-2 font-display text-[30px] md:text-4xl leading-[1.1] text-ink">{product.name}</h1>
+            {product.sku && <p className="mt-2 text-xs text-muted tracking-wide">Stok Kodu: {product.sku}</p>}
 
-            <div className="mt-8 pb-8 border-b border-line">
+            <div className="mt-5 pb-5 border-b border-line">
               {hasPrice ? (
                 <div className="flex items-baseline gap-3">
-                  <span className="text-2xl text-ink tabular-nums">{formatPrice(product.price)}</span>
-                  {hasDiscount && <span className="text-muted line-through tabular-nums">{formatPrice(product.oldPrice!)}</span>}
+                  <span className="text-xl text-ink tabular-nums">{formatPrice(product.price)}</span>
+                  {hasDiscount && <span className="text-sm text-muted line-through tabular-nums">{formatPrice(product.oldPrice!)}</span>}
                 </div>
               ) : (
-                <p className="text-lg text-ink">Fiyat bilgisi için bizimle iletişime geçin</p>
+                <p className="text-base text-ink">Fiyat bilgisi için bizimle iletişime geçin</p>
               )}
-              <p className="mt-2 text-xs text-muted">Güncel fiyat ve stok durumu için danışmanlarımıza ulaşabilirsiniz.</p>
+              <p className="mt-1.5 text-xs text-muted">Güncel fiyat ve stok durumu için danışmanlarımıza ulaşabilirsiniz.</p>
             </div>
 
             {product.description && (
-              <p className="mt-8 text-ink-soft leading-relaxed whitespace-pre-line">{product.description}</p>
+              <p className="mt-5 text-sm text-ink-soft leading-relaxed whitespace-pre-line">{product.description}</p>
             )}
 
-            <div className="mt-8 space-y-3">
+            <div className="mt-6 space-y-3">
               <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="btn-primary w-full !min-h-[52px]">
                 <MessageCircle className="h-4 w-4" strokeWidth={1.4} /> WhatsApp ile Bilgi Al
               </a>

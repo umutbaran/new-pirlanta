@@ -20,14 +20,14 @@ export default function ProductCard({ product, priority = false }: { product: Pr
     <article className="group relative">
       <Link href={`/urun/${product.id}`} className="block">
         {/* Görsel: ikinci fotoğraf varsa üzerine gelince yumuşak geçişle gösterilir */}
-        <div className="relative aspect-[4/5] overflow-hidden bg-ivory">
+        <div className="relative aspect-square overflow-hidden bg-ivory">
           <SmartImage
             src={mainImage}
             alt={product.name}
             fill
             priority={priority}
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-            className={`object-cover transition-all duration-[900ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.04] ${hoverImage ? 'group-hover:opacity-0' : ''}`}
+            className={`object-contain transition-all duration-[900ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.04] ${hoverImage ? 'group-hover:opacity-0' : ''}`}
           />
           {hoverImage && (
             <SmartImage
@@ -35,7 +35,7 @@ export default function ProductCard({ product, priority = false }: { product: Pr
               alt=""
               fill
               sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-              className="object-cover opacity-0 transition-opacity duration-[900ms] group-hover:opacity-100"
+              className="object-contain opacity-0 transition-opacity duration-[900ms] group-hover:opacity-100"
             />
           )}
           {(product.isNew || hasDiscount) && (

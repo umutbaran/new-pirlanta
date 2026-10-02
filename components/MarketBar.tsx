@@ -42,8 +42,8 @@ export default function MarketBar() {
   return (
     <div className="bg-ink text-white/85 text-[11px] h-9 border-b border-white/5" aria-label="Canlı piyasa fiyatları">
       <div className="container-lux h-full flex items-center gap-6">
-        <span className="hidden lg:inline eyebrow text-gold shrink-0 !text-[10px]">Canlı Piyasa</span>
-        <ul className="flex-1 min-w-0 flex items-center gap-6 lg:gap-8 overflow-x-auto no-scrollbar whitespace-nowrap lg:justify-center">
+        <span className="hidden lg:inline eyebrow text-gold shrink-0 !text-[10px]">Baran Kuyumculuk</span>
+        <ul className="flex-1 min-w-0 flex items-center gap-6 lg:gap-8 overflow-x-auto no-scrollbar whitespace-nowrap lg:justify-center-safe">
           {items.map(r => (
             <li key={r.key} className="relative flex items-center gap-2 shrink-0">
               <span className="text-white/55">{r.name}</span>

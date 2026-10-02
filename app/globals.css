@@ -117,6 +117,16 @@
   &:hover { background-size: 40% 1px; }
 }
 
+/*
+ * Ürün sayfası (masaüstü): galeri sütunu, kare fotoğrafın tamamı kaydırmadan ilk ekrana sığacak genişlikte tutulur.
+ * 240px = piyasa şeridi + üst menü + sayfa yolu + alt boşluk; --gallery-extra küçük resim sütununun genişliğidir.
+ */
+@utility product-grid {
+  @media (min-width: 1024px) {
+    grid-template-columns: minmax(0, min(58%, max(400px, calc(100svh - 240px + var(--gallery-extra, 0px))))) minmax(0, 1fr);
+  }
+}
+
 /* Yatay kaydırılabilir alanlarda kaydırma çubuğunu gizle */
 @utility no-scrollbar {
   scrollbar-width: none;
