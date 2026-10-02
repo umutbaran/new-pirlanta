@@ -39,18 +39,34 @@ export default function MarketBar() {
 
   const items = (rates || []).filter(r => SHOWN.includes(r.key)).sort((a, b) => SHOWN.indexOf(a.key) - SHOWN.indexOf(b.key));
 
+  const rateItems = items.map(r => (
+    <li key={r.key} className="relative flex items-center gap-2 shrink-0">
+      <span className="text-white/55">{r.name}</span>
+      <span className="tabular-nums font-medium text-white">{fmt(r.sell)} ₺</span>
+      <Change value={r.changePercent} />
+    </li>
+  ));
+
   return (
     <div className="bg-ink text-white/85 text-[11px] h-9 border-b border-white/5" aria-label="Canlı piyasa fiyatları">
       <div className="container-lux h-full flex items-center gap-6">
         <span className="hidden lg:inline eyebrow text-gold shrink-0 !text-[10px]">Baran Kuyumculuk</span>
-        <ul className="flex-1 min-w-0 flex items-center gap-6 lg:gap-8 overflow-x-auto no-scrollbar whitespace-nowrap lg:justify-center-safe">
-          {items.map(r => (
-            <li key={r.key} className="relative flex items-center gap-2 shrink-0">
-              <span className="text-white/55">{r.name}</span>
-              <span className="tabular-nums font-medium text-white">{fmt(r.sell)} ₺</span>
-              <Change value={r.changePercent} />
-            </li>
-          ))}
+
+        {/* MOBİL: fiyatların tamamı ekrana sığmadığı için kayan şerit (liste iki kez basılır, yarısı kadar kaydırılıp başa sarılır) */}
+        <Link href="/piyasa" className="lg:hidden flex-1 min-w-0 overflow-x-auto no-scrollbar whitespace-nowrap" aria-label="Canlı piyasa fiyatları, tümünü gör">
+          {items.length > 0 ? (
+            <div className="flex w-max motion-safe:animate-marquee">
+              <ul className="flex items-center gap-6 pr-6 shrink-0">{rateItems}</ul>
+              <ul className="flex items-center gap-6 pr-6 shrink-0" aria-hidden>{rateItems}</ul>
+            </div>
+          ) : (
+            rates === null && <span className="text-white/40">Piyasa verileri yükleniyor…</span>
+          )}
+        </Link>
+
+        {/* MASAÜSTÜ: sabit, ortalanmış liste */}
+        <ul className="hidden lg:flex flex-1 min-w-0 items-center gap-8 overflow-x-auto no-scrollbar whitespace-nowrap justify-center-safe">
+          {rateItems}
           {rates === null && <li className="text-white/40">Piyasa verileri yükleniyor…</li>}
         </ul>
         <Link href="/piyasa" className="hidden md:inline shrink-0 text-white/60 hover:text-white transition-colors eyebrow !text-[10px]">

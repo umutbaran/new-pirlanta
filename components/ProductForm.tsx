@@ -152,7 +152,7 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
       <form onSubmit={handleSubmit}>
         
         {/* HEADER */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8 bg-slate-900 -mx-6 md:-mx-10 -mt-10 p-6 md:p-10 shadow-xl relative overflow-hidden">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8 bg-slate-900 -mx-5 md:-mx-10 -mt-5 md:-mt-10 p-5 md:p-10 shadow-xl relative overflow-hidden">
             <div className="absolute top-0 right-0 w-64 h-64 bg-gold/10 rounded-full blur-3xl -mr-32 -mt-32 pointer-events-none"></div>
             <div className="flex items-center gap-4 relative z-10">
                 <Link href="/admin/products" className="p-2.5 bg-white/10 border border-white/10 rounded-xl hover:bg-white/20 transition-all text-white">
@@ -274,7 +274,9 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
                                         <button 
                                             type="button"
                                             onClick={() => removeImage(idx)}
-                                            className="absolute top-2 right-2 p-1.5 bg-white rounded-full shadow-sm opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-50 text-red-600"
+                                            aria-label="Görseli kaldır"
+                                            // Dokunmatik ekranda "üzerine gelme" olmadığı için mobilde hep görünür
+                                            className="absolute top-2 right-2 p-1.5 bg-white rounded-full shadow-sm lg:opacity-0 lg:group-hover:opacity-100 transition-opacity hover:bg-red-50 text-red-600"
                                         >
                                             <X className="h-4 w-4" />
                                         </button>
